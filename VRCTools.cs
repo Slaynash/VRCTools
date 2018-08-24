@@ -18,7 +18,6 @@ namespace VRCTools
     [VRCModInfo("VRCTools", "0.2-180821-0219", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
     public class VRCTools : VRCMod
     {
-        //public VRCTools Instance { private set; get; }
 
         private bool initialised = false;
         private bool initialised2 = false;
@@ -28,7 +27,6 @@ namespace VRCTools
         private static Text networkstatusText;
 
         public void OnApplicationStart() {
-            //Instance = this;
             String lp = "";
             foreach(var lp2 in Environment.GetCommandLineArgs())
             {
@@ -89,7 +87,6 @@ namespace VRCTools
 
                                 networkstatusText = vrcmodNetworkTransform.GetComponent<Text>();
                                 RectTransform networkstatusRT = vrcmodNetworkTransform.GetComponent<RectTransform>();
-                                //networkstatusText.text = "VRCModNetworkStatus: <color=lime>Authenticated</color>";
 
                                 networkstatusRT.localScale = baseTextTransform.localScale;
 
@@ -148,19 +145,20 @@ namespace VRCTools
                                 text.GetComponent<Text>().alignment = TextAnchor.MiddleCenter;
                                 text.GetComponent<Text>().text = "This page will be available soon";
                                 text.GetComponent<Text>().color = Color.yellow;
-                                
+
                                 //SCREEN SIZE: 1540x1040
                                 //OPTIMAL SCREEN CONTENT SIZE: 1300x1000
 
-                                
+
+                                /*
                                 GameObject panel = new GameObject("TestPanel", typeof(RectTransform), typeof(Image));
                                 panel.transform.SetParent(go.transform);
                                 panel.GetComponent<RectTransform>().localScale = Vector3.one;
                                 panel.GetComponent<RectTransform>().localPosition = Vector3.zero;
                                 panel.GetComponent<RectTransform>().localRotation = Quaternion.identity;
                                 panel.GetComponent<RectTransform>().sizeDelta = new Vector2(1300, 1000);
-
-
+                                */
+                                
                                 /*
                                 Transform tt = go.transform; // screens.transform
                                 
@@ -170,7 +168,7 @@ namespace VRCTools
                                 CreateDebugCube(tt, 200);
                                 CreateDebugCube(tt, 400);
                                 */
-                                PrintHierarchy(quickMenuInstance.transform, 0);
+                                //PrintHierarchy(quickMenuInstance.transform, 0); // DEBUG
                             }
                             else
                             {
