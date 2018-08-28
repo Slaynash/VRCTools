@@ -1,17 +1,22 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Serialization;
 using VRCModLoader;
 
 namespace VRCTools
 {
+    [Serializable]
     internal class ModDesc
     {
         public string name;
         public string version;
         public string author;
         public string downloadLink;
+
+        [JsonProperty("type")]
         public string baseClass;
 
         public ModDesc(string name, string version, string author, string downloadLink, string baseClass)

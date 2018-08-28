@@ -20,6 +20,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.2</LangVersion>
+    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,10 +30,16 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.2</LangVersion>
+    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -49,6 +57,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AvatarFavUpdater.cs" />
+    <Compile Include="ImageDatas.cs" />
+    <Compile Include="ModdedUser.cs" />
+    <Compile Include="ModdedUsersManager.cs" />
     <Compile Include="networking\commands\ModListChangedCommand.cs" />
     <Compile Include="networking\commands\InstanceChangedCommand.cs" />
     <Compile Include="networking\commands\LogoutCommand.cs" />
@@ -60,9 +72,12 @@
     <Compile Include="networking\ConnectionListener.cs" />
     <Compile Include="utils\CurrentUserUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="utils\UnityUiUtils.cs" />
     <Compile Include="utils\VRCFlowManagerUtils.cs" />
     <Compile Include="networking\VRCModNetworkManager.cs" />
     <Compile Include="networking\commands\RPCCommand.cs" />
+    <Compile Include="utils\WebRequestsUtils.cs" />
+    <Compile Include="VRCModLoaderUpdater.cs" />
     <Compile Include="VRCTools.cs" />
     <Compile Include="utils\VRCUiManagerUtils.cs" />
     <Compile Include="VRCUiPopupManagerUtils.cs" />

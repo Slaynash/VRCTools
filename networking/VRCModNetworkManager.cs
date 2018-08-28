@@ -218,7 +218,8 @@ namespace VRCTools.networking
                         {
                             userUuid = uuid;
                             VRCModLogger.Log("Getting current instanceId");
-                            userInstanceId = RoomManager.currentRoom == null ? "" : RoomManager.currentRoom.currentInstanceIdOnly ?? "";
+                            if (RoomManager.currentRoom != null && RoomManager.currentRoom.id != null && RoomManager.currentRoom.currentInstanceIdOnly != null)
+                                userInstanceId = RoomManager.currentRoom.id + ":" + RoomManager.currentRoom.currentInstanceIdOnly;
                             VRCModLogger.Log("Getting current modList");
                             modlist = ModDesc.GetAllMods();
                             VRCModLogger.Log("Getting current environment");
@@ -230,14 +231,18 @@ namespace VRCTools.networking
                             VRCModLogger.Log("Env: " + env);
                             VRCModLogger.Log("Authenticating");
                             AuthCommand authCommand = CommandManager.CreateInstance("AUTH", client) as AuthCommand;
-                            authCommand.Auth(authToken, stringEnv, APIUser.CurrentUser.instanceId, modlist);
+                            authCommand.Auth(authToken, stringEnv, userInstanceId, modlist);
                             VRCModLogger.Log("Done");
                         }
                     }
 
                     if (IsAuthenticated)
                     {
-                        string roomId = RoomManager.currentRoom == null ? "" : RoomManager.currentRoom.currentInstanceIdOnly ?? "";
+                        string roomId = "";
+                        if(RoomManager.currentRoom != null && RoomManager.currentRoom.id != null && RoomManager.currentRoom.currentInstanceIdOnly != null)
+                        {
+                            roomId = RoomManager.currentRoom.id + ":" + RoomManager.currentRoom.currentInstanceIdOnly;
+                        }
                         if (!userInstanceId.Equals(roomId))
                         {
                             VRCModLogger.Log("Updating instance id");

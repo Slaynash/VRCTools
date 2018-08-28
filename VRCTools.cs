@@ -15,15 +15,14 @@ using VRCTools.networking;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.2-180821-0219", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
+    [VRCModInfo("VRCTools", "0.3-180828-0241", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
     public class VRCTools : VRCMod
     {
 
         private bool initialised = false;
         private bool initialised2 = false;
         private QuickMenu quickMenuInstance;
-
-        private Image downloadProgressFillImage;
+        
         private static Text networkstatusText;
 
         public void OnApplicationStart() {
@@ -42,7 +41,7 @@ namespace VRCTools
             {
                 VRCModLogger.Log("[VRCTools] Initialising VRCTools");
                 initialised = true;
-                if (CheckVRCModLoaderHash())
+                if (VRCModLoaderUpdater.CheckVRCModLoaderHash())
                 {
                     CheckForPermissions();
                 }
@@ -134,21 +133,28 @@ namespace VRCTools
                                 go.GetComponent<VRCUiPage>().AudioLoop = avatarscreen.GetComponent<VRCUiPage>().AudioLoop;
                                 go.GetComponent<VRCUiPage>().AudioHide = avatarscreen.GetComponent<VRCUiPage>().AudioHide;
 
+                                Transform scrollContent = UnityUiUtils.CreateScrollView(go.GetComponent<RectTransform>(), 1500, 1000, 0, 1000, false, true);
+
                                 GameObject text = new GameObject("WIP", typeof(RectTransform), typeof(Text));
-                                text.transform.SetParent(go.transform);
+                                text.transform.SetParent(scrollContent);
                                 text.GetComponent<RectTransform>().localScale = Vector3.one;
                                 text.GetComponent<RectTransform>().localPosition = Vector3.zero;
                                 text.GetComponent<RectTransform>().localRotation = Quaternion.identity;
                                 text.GetComponent<RectTransform>().sizeDelta = new Vector2(800, 500);
+                                text.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
+                                text.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
+                                text.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);
+                                text.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
                                 text.GetComponent<Text>().font = quickMenuInstance.transform.Find("ShortcutMenu/BuildNumText").GetComponent<Text>().font;
                                 text.GetComponent<Text>().fontSize = 70;
                                 text.GetComponent<Text>().alignment = TextAnchor.MiddleCenter;
                                 text.GetComponent<Text>().text = "This page will be available soon";
                                 text.GetComponent<Text>().color = Color.yellow;
 
-                                //SCREEN SIZE: 1540x1040
-                                //OPTIMAL SCREEN CONTENT SIZE: 1300x1000
+                                //SCREEN CONTENT SIZE: 1500x1000
 
+
+                                // DEBUG
 
                                 /*
                                 GameObject panel = new GameObject("TestPanel", typeof(RectTransform), typeof(Image));
@@ -168,7 +174,7 @@ namespace VRCTools
                                 CreateDebugCube(tt, 200);
                                 CreateDebugCube(tt, 400);
                                 */
-                                //PrintHierarchy(quickMenuInstance.transform, 0); // DEBUG
+                                //PrintHierarchy(screens.transform, 0); // DEBUG
                             }
                             else
                             {
@@ -180,7 +186,7 @@ namespace VRCTools
                             Transform baseButtonTransform = quickMenuInstance.transform.Find("ShortcutMenu/CloseButton");
                             if (baseTextTransform != null)
                             {
-                                Transform modconf = DuplicateButton(baseButtonTransform, "Mod\nConfigs", new Vector2(-420, 0));
+                                Transform modconf = UnityUiUtils.DuplicateButton(baseButtonTransform, "Mod\nConfigs", new Vector2(-420, 0));
                                 modconf.name = "ModConfigsButton";
                                 modconf.GetComponentInChildren<Text>().color = new Color(1, 0.5f, 0.1f);
                                 //modconf.GetComponent<Button>().interactable = false;
@@ -197,6 +203,8 @@ namespace VRCTools
                                 VRCModLogger.Log("[VRCTools] QuickMenu/ShortcutMenu/CloseButton is null");
                             }
 
+                            ModdedUsersManager.Init();
+
                         }
                     }
                 }
@@ -205,17 +213,6 @@ namespace VRCTools
                     VRCModLogger.Log("[VRCTools] Unable to find QuickMenu instance: No public static property found");
                 }
             }
-        }
-
-        private void CreateDebugCube(Transform transform, int s)
-        {
-
-            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.name = "DebugCube";
-            cube.transform.SetParent(transform);
-            cube.transform.position = transform.position;
-            cube.transform.rotation = transform.rotation;
-            cube.transform.localScale = new Vector3(s, s, s);
         }
 
         //Copied from QuickMenu
@@ -228,52 +225,6 @@ namespace VRCTools
             VRCUiManagerUtils.GetVRCUiManager().PlaceUi();
             GameObject.Find("UserInterface/MenuContent/Backdrop/Header").gameObject.SetActive(false);
             yield break;
-        }
-
-        private bool CheckVRCModLoaderHash()
-        {
-            string vrcmodloaderPath = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) + "\\VRChat_Data\\Managed\\VRCModLoader.dll";
-            if (!File.Exists(vrcmodloaderPath)) return true;
-            string fileHash = "";
-            using (var md5 = MD5.Create())
-            {
-                using (var stream = File.OpenRead(vrcmodloaderPath))
-                {
-                    var hash = md5.ComputeHash(stream);
-                    fileHash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                }
-            }
-            VRCModLogger.Log("[VRCToolsUpdater] Local VRCModLoader file hash: " + fileHash);
-
-            WWW hashCheckWWW = new WWW("https://download2.survival-machines.fr/vrcmodloader/VRCModLoaderHashCheck.php?localhash=" + fileHash);
-            while (!hashCheckWWW.isDone) ;
-            int responseCode = getResponseCode(hashCheckWWW);
-            VRCModLogger.Log("[VRCToolsUpdater] hash check webpage returned [" + responseCode + "] \"" + hashCheckWWW.text + "\"");
-            if (responseCode != 200)
-            {
-                return true;
-            }
-            else if (hashCheckWWW.text.Equals("OUTOFDATE"))
-            {
-                VRCModLogger.Log("[VRCTools] Key remoteauthcheck not found");
-                VRCFlowManagerUtils.DisableVRCFlowManager();
-                ModManager.StartCoroutine(ShowVRCModLoaderUpdatePopup());
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        private IEnumerator ShowVRCModLoaderUpdatePopup()
-        {
-            yield return VRCUiManagerUtils.WaitForUiManagerInit();
-            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "A VRCModLoader update is available. You can install it using the installer (more info on the VRCTools website)", "OK", () =>
-            {
-                VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
-                CheckForPermissions();
-            });
         }
 
         internal static void UpdateNetworkStatus()
@@ -291,26 +242,16 @@ namespace VRCTools
             }
         }
 
-        private void PrintHierarchy(Transform transform, int depth)
-        {
-            String s = "";
-            for (int i = 0; i < depth; i++) s += "\t";
-            VRCModLogger.Log(s + transform.name);
-            foreach(Transform t in transform)
-            {
-                if(t != null) PrintHierarchy(t, depth + 1);
-            }
-        }
-
         public void OnUpdate()
         {
             if (!initialised) return;
             VRCModNetworkManager.Update();
+            ModdedUsersManager.Update();
         }
 
 
 
-        private void CheckForPermissions()
+        internal static void CheckForPermissions()
         {
             if (!ModPrefs.HasKey("vrctools", "remoteauthcheck"))
             {
@@ -322,7 +263,7 @@ namespace VRCTools
             {
                 VRCModNetworkManager.ConnectAsync();
                 VRCModLogger.Log("[VRCTools] Key remoteauthcheck found (true)");
-                ModManager.StartCoroutine(CheckForAvatarFavUpdate());
+                ModManager.StartCoroutine(AvatarFavUpdater.CheckForAvatarFavUpdate());
             }
             else
             {
@@ -330,7 +271,7 @@ namespace VRCTools
             }
         }
 
-        private IEnumerator ShowAuthAgreePopup(IEnumerator onDone = null)
+        private static IEnumerator ShowAuthAgreePopup(IEnumerator onDone = null)
         {
             yield return VRCUiManagerUtils.WaitForUiManagerInit();
             VRCUiPopupManagerUtils.ShowPopup("VRCTools", "To use the VRCTools networking features, you will need to send your auth token to the server (Required for the AvatarFav mod)", "Accept", () => {
@@ -343,261 +284,54 @@ namespace VRCTools
             });
         }
 
-        private void ShowAuthChangePopup()
+        private static void ShowAuthChangePopup()
         {
             VRCUiPopupManagerUtils.ShowPopup("VRCTools", "You can change this in the setting panel of VRCTools at any time (Upcoming feature)", "OK", () => {
                 VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
                 if(ModPrefs.GetBool("vrctools", "remoteauthcheck"))
-                    ModManager.StartCoroutine(CheckForAvatarFavUpdate());
+                    ModManager.StartCoroutine(AvatarFavUpdater.CheckForAvatarFavUpdate());
                 else VRCFlowManagerUtils.EnableVRCFlowManager();
             });
         }
 
-        private IEnumerator CheckForAvatarFavUpdate()
+
+
+
+        // DEBUG
+
+        private void PrintHierarchy(Transform transform, int depth)
         {
-            VRCFlowManagerUtils.DisableVRCFlowManager();
-            yield return VRCUiManagerUtils.WaitForUiManagerInit();
-            string avatarfavPath = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) + "\\Mods\\AvatarFav.dll";
-            VRCModLogger.Log("AvatarFav.dll path: " + avatarfavPath);
-            string fileHash = "";
-            if (ModPrefs.HasKey("vrctools", "avatarfavdownload"))
+            String s = "";
+            for (int i = 0; i < depth; i++) s += "\t";
+            s += transform.name + " [";
+
+            MonoBehaviour[] mbs = transform.GetComponents<MonoBehaviour>();
+            for (int i = 0; i < mbs.Length; i++)
             {
-                VRCModLogger.Log("vrctools.avatarfavdownload: " + ModPrefs.GetBool("vrctools", "avatarfavdownload"));
-                if (ModPrefs.GetBool("vrctools", "avatarfavdownload"))
-                {
-                    if (File.Exists(avatarfavPath))
-                    {
-                        using (var md5 = MD5.Create())
-                        {
-                            using (var stream = File.OpenRead(avatarfavPath))
-                            {
-                                var hash = md5.ComputeHash(stream);
-                                fileHash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                            }
-                        }
-                        VRCModLogger.Log("[VRCToolsUpdater] Local AvatarFav file hash: " + fileHash);
-
-                        WWW hashCheckWWW = new WWW("https://vrchat.survival-machines.fr/vrcmod/AvatarFavHashCheck.php?localhash=" + fileHash);
-                        while (!hashCheckWWW.isDone) ;
-                        int responseCode = getResponseCode(hashCheckWWW);
-                        VRCModLogger.Log("[VRCToolsUpdater] hash check webpage returned [" + responseCode + "] \"" + hashCheckWWW.text + "\"");
-                        if (responseCode != 200)
-                        {
-                            VRCUiPopupManagerUtils.ShowPopup("AvatarFav Updater", "Unable to check AvatarFav file hash", "OK", () => VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup());
-                        }
-                        else if (hashCheckWWW.text.Equals("OUTOFDATE"))
-                        {
-                            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "An AvatarFav update is available", "Update", () =>
-                            {
-                                ModManager.StartCoroutine(DownloadAvatarFav(avatarfavPath));
-                            }, "Ignore", () =>
-                            {
-                                VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
-                                VRCFlowManagerUtils.EnableVRCFlowManager();
-                            });
-                        }
-                        else
-                        {
-                            VRCFlowManagerUtils.EnableVRCFlowManager();
-                        }
-                    }
-                    else
-                    {
-                        VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Do you want to install the AvatarFav mod ?", "Accept", () => {
-                            ModPrefs.SetBool("vrctools", "avatarfavdownload", true);
-                            ModManager.StartCoroutine(DownloadAvatarFav(avatarfavPath));
-                        }, "Deny", () => {
-                            ModPrefs.SetBool("vrctools", "avatarfavdownload", false);
-                            VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
-                            VRCFlowManagerUtils.EnableVRCFlowManager();
-                        });
-                    }
-                }
-            }
-            else
-            {
-                VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Do you want to install the AvatarFav mod ?", "Accept", () => {
-                    ModPrefs.SetBool("vrctools", "avatarfavdownload", true);
-                    ModManager.StartCoroutine(DownloadAvatarFav(avatarfavPath));
-                }, "Deny", () => {
-                    ModPrefs.SetBool("vrctools", "avatarfavdownload", false);
-                    VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
-                    VRCFlowManagerUtils.EnableVRCFlowManager();
-                });
-            }
-        }
-
-
-
-
-
-
-        private IEnumerator DownloadAvatarFav(string avatarfavPath)
-        {
-            VRCUiPopupManagerUtils.ShowPopup("AvatarFav Updater", "Updating AvatarFav", "Quit", () => Application.Quit(), (popup) => {
-                if (popup.popupProgressFillImage != null)
-                {
-                    popup.popupProgressFillImage.enabled = true;
-                    popup.popupProgressFillImage.fillAmount = 0f;
-                    downloadProgressFillImage = popup.popupProgressFillImage;
-                }
-            });
-
-
-            WWW vrctoolsDownload = new WWW("https://vrchat.survival-machines.fr/vrcmod/AvatarFav.dll");
-            yield return vrctoolsDownload;
-            while (!vrctoolsDownload.isDone)
-            {
-                VRCModLogger.Log("[AvatarFavUpdater] Download progress: " + vrctoolsDownload.progress);
-                downloadProgressFillImage.fillAmount = vrctoolsDownload.progress;
-                yield return null;
-            }
-
-            int responseCode = getResponseCode(vrctoolsDownload);
-            VRCModLogger.Log("[AvatarFavUpdater] Download done ! response code: " + responseCode);
-            VRCModLogger.Log("[AvatarFavUpdater] File size: " + vrctoolsDownload.bytes.Length);
-
-            if (responseCode == 200)
-            {
-                VRCUiPopupManagerUtils.ShowPopup("AvatarFav Updater", "Saving AvatarFav");
-                VRCModLogger.Log("[AvatarFavUpdater] Saving file");
-                File.WriteAllBytes(avatarfavPath, vrctoolsDownload.bytes);
-
-                VRCModLogger.Log("[AvatarFavUpdater] Showing restart dialog");
-                bool choiceDone = false;
-                VRCUiPopupManagerUtils.ShowPopup("AvatarFav Updater", "Update downloaded", "Restart", () => {
-                    choiceDone = true;
-                });
-                yield return new WaitUntil(() => choiceDone);
-
-                VRCUiPopupManagerUtils.ShowPopup("AvatarFav Updater", "Restarting game");
-                string args = "";
-                foreach (string arg in Environment.GetCommandLineArgs())
-                {
-                    args = args + arg + " ";
-                }
-                VRCModLogger.Log("[AvatarFavUpdater] Rebooting game with args " + args);
-
-                Thread t = new Thread(() =>
-                {
-                    Thread.Sleep(1000);
-                    System.Diagnostics.Process.Start(Path.GetDirectoryName(Path.GetDirectoryName(avatarfavPath)) + "\\VRChat.exe", args);
-                    Thread.Sleep(100);
-                });
-                t.Start();
-
-                Application.Quit();
-            }
-            else
-            {
-                VRCUiPopupManagerUtils.ShowPopup("AvatarFav Updater", "Unable to update VRCTools: Server returned code " + responseCode, "Quit", () => Application.Quit());
-            }
-        }
-
-
-
-        public static int getResponseCode(WWW request)
-        {
-            int ret = 0;
-            if (request.responseHeaders == null)
-            {
-                Debug.LogError("no response headers.");
-            }
-            else
-            {
-                if (!request.responseHeaders.ContainsKey("STATUS"))
-                {
-                    Debug.LogError("response headers has no STATUS.");
-                }
+                if (mbs[i] == null) continue;
+                if (i == 0)
+                    s += mbs[i].GetType();
                 else
-                {
-                    ret = parseResponseCode(request.responseHeaders["STATUS"]);
-                }
+                    s += ", " + mbs[i].GetType();
             }
 
-            return ret;
+            s += "]";
+            VRCModLogger.Log(s);
+            foreach (Transform t in transform)
+            {
+                if (t != null) PrintHierarchy(t, depth + 1);
+            }
         }
 
-        public static int parseResponseCode(string statusLine)
+        private void CreateDebugCube(Transform parent, int size)
         {
-            int ret = 0;
 
-            string[] components = statusLine.Split(' ');
-            if (components.Length < 3)
-            {
-                Debug.LogError("invalid response status: " + statusLine);
-            }
-            else
-            {
-                if (!int.TryParse(components[1], out ret))
-                {
-                    Debug.LogError("invalid response code: " + components[1]);
-                }
-            }
-
-            return ret;
-        }
-
-
-
-
-
-
-
-
-
-
-
-        public static Transform DuplicateButton(Transform baseButton, string buttonText, Vector2 posDelta)
-        {
-            GameObject buttonGO = new GameObject("DuplicatedButton", new Type[] {
-                typeof(Button),
-                typeof(Image)
-            });
-
-            RectTransform rtO = baseButton.GetComponent<RectTransform>();
-            RectTransform rtT = buttonGO.GetComponent<RectTransform>();
-
-            buttonGO.transform.SetParent(baseButton.parent);
-            buttonGO.GetComponent<Image>().sprite = baseButton.GetComponent<Image>().sprite;
-            buttonGO.GetComponent<Image>().type = baseButton.GetComponent<Image>().type;
-            buttonGO.GetComponent<Image>().fillCenter = baseButton.GetComponent<Image>().fillCenter;
-            buttonGO.GetComponent<Button>().colors = baseButton.GetComponent<Button>().colors;
-            buttonGO.GetComponent<Button>().targetGraphic = buttonGO.GetComponent<Image>();
-
-            rtT.localScale = rtO.localScale;
-
-            rtT.anchoredPosition = rtO.anchoredPosition;
-            rtT.sizeDelta = rtO.sizeDelta;
-
-            rtT.localPosition = rtO.localPosition + new Vector3(posDelta.x, posDelta.y, 0);
-            rtT.localRotation = rtO.localRotation;
-
-            GameObject textGO = new GameObject("Text", typeof(Text));
-            textGO.transform.SetParent(buttonGO.transform);
-
-            RectTransform rtO2 = baseButton.Find("Text").GetComponent<RectTransform>();
-            RectTransform rtT2 = textGO.GetComponent<RectTransform>();
-            rtT2.localScale = rtO2.localScale;
-
-            rtT2.anchorMin = rtO2.anchorMin;
-            rtT2.anchorMax = rtO2.anchorMax;
-            rtT2.anchoredPosition = rtO2.anchoredPosition;
-            rtT2.sizeDelta = rtO2.sizeDelta;
-
-            rtT2.localPosition = rtO2.localPosition;
-            rtT2.localRotation = rtO2.localRotation;
-
-            Text tO = baseButton.Find("Text").GetComponent<Text>();
-            Text tT = textGO.GetComponent<Text>();
-            tT.text = buttonText;
-            tT.font = tO.font;
-            tT.fontSize = tO.fontSize;
-            tT.fontStyle = tO.fontStyle;
-            tT.alignment = tO.alignment;
-            tT.color = tO.color;
-
-            return buttonGO.transform;
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.name = "DebugCube";
+            cube.transform.SetParent(parent);
+            cube.transform.localPosition = Vector3.zero;
+            cube.transform.localRotation = Quaternion.identity;
+            cube.transform.localScale = new Vector3(size, size, size);
         }
     }
 }
