@@ -190,6 +190,7 @@ namespace VRCTools.networking
                 {
                     // Check if user changed
                     string uuid = APIUser.CurrentUser == null ? "" : APIUser.CurrentUser.id ?? "";
+                    string displayName = APIUser.CurrentUser == null ? "" : APIUser.CurrentUser.displayName ?? "";
                     string authToken = ApiCredentials.GetAuthToken() ?? "";
 
                     Credentials c = ApiCredentials.GetWebCredentials() as Credentials;
@@ -197,6 +198,7 @@ namespace VRCTools.networking
                     if (!uuid.Equals(userUuid))
                     {
                         VRCModLogger.Log("new UUID: " + uuid);
+                        DiscordManager.UserChanged(displayName);
 
                         if (!uuid.Equals("") && "".Equals(authToken))
                         {
@@ -247,6 +249,7 @@ namespace VRCTools.networking
                         {
                             VRCModLogger.Log("Updating instance id");
                             userInstanceId = roomId;
+                            DiscordManager.RoomChanged(RoomManager.currentRoom.name, roomId, RoomManager.currentRoom.currentInstanceAccess, RoomManager.currentRoom.capacity);
                             ((InstanceChangedCommand)CommandManager.CreateInstance("INSTANCECHANGED", client)).Send(userInstanceId);
                             VRCModLogger.Log("Done");
                         }

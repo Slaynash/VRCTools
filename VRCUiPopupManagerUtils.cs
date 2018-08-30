@@ -32,10 +32,7 @@ namespace VRCTools
 
             return uiPopupManagerInstance;
         }
-
-
-
-
+        
         public static void ShowPopup(string title, string body, string leftButton, Action leftButtonAction, string rightButton, Action rightButtonAction, Action<VRCUiPopup> additionalSetup = null)
         {
             if (GetVRCUiPopupManager() == null)

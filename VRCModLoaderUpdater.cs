@@ -55,6 +55,7 @@ namespace VRCTools
             VRCUiPopupManagerUtils.ShowPopup("VRCTools", "A VRCModLoader update is available. You can install it using the installer (more info on the VRCTools website)", "OK", () =>
             {
                 VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
+                DiscordManager.Init();
                 VRCTools.CheckForPermissions();
             });
         }

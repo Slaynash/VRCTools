@@ -34,6 +34,11 @@ namespace VRCTools
             VRCModLogger.Log("Launch parameters:" + lp);
         }
 
+        void OnApplicationQuit()
+        {
+            DiscordManager.OnApplicationQuit();
+        }
+
         void OnLevelWasLoaded(int level)
         {
             VRCModLogger.Log("[VRCTools] OnLevelWasLoaded " + level);
@@ -41,8 +46,9 @@ namespace VRCTools
             {
                 VRCModLogger.Log("[VRCTools] Initialising VRCTools");
                 initialised = true;
-                if (VRCModLoaderUpdater.CheckVRCModLoaderHash())
+                if (DependenciesDownloader.CheckDownloadFiles() && VRCModLoaderUpdater.CheckVRCModLoaderHash())
                 {
+                    DiscordManager.Init();
                     CheckForPermissions();
                 }
                 //ModManager.StartCoroutine(PrintVRCUiManagerHierarchy());
@@ -247,6 +253,7 @@ namespace VRCTools
             if (!initialised) return;
             VRCModNetworkManager.Update();
             ModdedUsersManager.Update();
+            DiscordManager.Update();
         }
 
 

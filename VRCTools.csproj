@@ -58,6 +58,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AvatarFavUpdater.cs" />
+    <Compile Include="DependenciesDownloader.cs" />
+    <Compile Include="DiscordManager.cs" />
+    <Compile Include="Discord\DiscordRpc.cs" />
     <Compile Include="ImageDatas.cs" />
     <Compile Include="ModdedUser.cs" />
     <Compile Include="ModdedUsersManager.cs" />
