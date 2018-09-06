@@ -1,4 +1,5 @@
 ﻿using BestHTTP.Authentication;
+using CComVRCModNetworkEdition;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,10 @@ using System.Threading;
 using UnityEngine;
 using VRC.Core;
 using VRCModLoader;
-using VRCTools.networking.commands;
+using VRCModNetwork.commands;
+using VRCTools;
 
-namespace VRCTools.networking
+namespace VRCModNetwork
 {
     public class VRCModNetworkManager : IConnectionListener
     {
@@ -33,7 +35,7 @@ namespace VRCTools.networking
                 if (value != authenticated)
                 {
                     authenticated = value;
-                    VRCTools.UpdateNetworkStatus();
+                    VRCModNetworkStatus.UpdateNetworkStatus();
                     if (value) OnAuthenticated?.Invoke();
                     else OnLogout?.Invoke();
                 }
@@ -67,7 +69,7 @@ namespace VRCTools.networking
 
         internal static void ConnectAsync()
         {
-            if (!ModPrefs.GetBool("vrctools", "remoteauthcheck"))
+            if (!VRCTools.ModPrefs.GetBool("vrctools", "remoteauthcheck"))
                 VRCModLogger.Log("[VRCMOD NWManager] Trying to connect to server, but client doesn't allow auth");
             else if (State != ConnectionState.DISCONNECTED)
                 VRCModLogger.Log("[VRCMOD NWManager] Trying to connect to server, but client is not disconnected");
@@ -146,7 +148,7 @@ namespace VRCTools.networking
         public void ConnectionStarted()
         {
             State = ConnectionState.CONNECTING;
-            VRCTools.UpdateNetworkStatus();
+            VRCModNetworkStatus.UpdateNetworkStatus();
         }
 
         public void WaitingForConnection() => State = ConnectionState.CONNECTION_ETABLISHED;
@@ -154,14 +156,14 @@ namespace VRCTools.networking
 
         public void ConnectionFailed(string error) {
             State = ConnectionState.DISCONNECTED;
-            VRCTools.UpdateNetworkStatus();
+            VRCModNetworkStatus.UpdateNetworkStatus();
         }
         public void Connected()
         {
             client.autoReconnect = true;
             VRCModLogger.Log("Client autoReconnect set to true");
             State = ConnectionState.CONNECTED;
-            VRCTools.UpdateNetworkStatus();
+            VRCModNetworkStatus.UpdateNetworkStatus();
             OnConnected?.Invoke();
         }
         public void Disconnected(string error)
@@ -307,13 +309,13 @@ namespace VRCTools.networking
                 Thread.Sleep(1000);
             }
         }
-    }
 
-    public enum ConnectionState
-    {
-        DISCONNECTED,
-        CONNECTION_ETABLISHED,
-        CONNECTING,
-        CONNECTED
+        public enum ConnectionState
+        {
+            DISCONNECTED,
+            CONNECTION_ETABLISHED,
+            CONNECTING,
+            CONNECTED
+        }
     }
 }

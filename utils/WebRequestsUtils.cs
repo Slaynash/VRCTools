@@ -7,7 +7,7 @@ using VRCModLoader;
 
 namespace VRCTools
 {
-    public class WebRequestsUtils
+    public static class WebRequestsUtils
     {
         public static int GetResponseCode(WWW request)
         {

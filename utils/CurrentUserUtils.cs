@@ -8,7 +8,7 @@ using VRCModLoader;
 
 namespace VRCTools
 {
-    public class CurrentUserUtils
+    public static class CurrentUserUtils
     {
         private static Type userType;
         private static bool userTypeChecked = false;

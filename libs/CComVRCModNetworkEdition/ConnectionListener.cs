@@ -1,4 +1,4 @@
-﻿namespace VRCTools.networking
+﻿namespace CComVRCModNetworkEdition
 {
     internal interface IConnectionListener
     {

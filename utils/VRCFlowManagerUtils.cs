@@ -5,7 +5,7 @@ using VRCModLoader;
 
 namespace VRCTools
 {
-    public class VRCFlowManagerUtils
+    public static class VRCFlowManagerUtils
     {
         public static void DisableVRCFlowManager()
         {

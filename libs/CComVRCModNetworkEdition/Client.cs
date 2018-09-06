@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using VRCModLoader;
 
-namespace VRCTools.networking
+namespace CComVRCModNetworkEdition
 {
     internal class Client
     {

@@ -1,6 +1,7 @@
-﻿using System;
+﻿using CComVRCModNetworkEdition;
+using System;
 
-namespace VRCTools.networking.commands
+namespace VRCModNetwork.commands
 {
     internal class LogoutCommand : Command
     {

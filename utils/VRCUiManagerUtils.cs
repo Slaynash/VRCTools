@@ -8,7 +8,7 @@ using VRCModLoader;
 
 namespace VRCTools
 {
-    public class VRCUiManagerUtils
+    public static class VRCUiManagerUtils
     {
 
         private static VRCUiManager uiManagerInstance;

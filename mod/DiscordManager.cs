@@ -7,7 +7,7 @@ using VRCModLoader;
 
 namespace VRCTools
 {
-    internal class DiscordManager
+    internal static class DiscordManager
     {
         private static DiscordRpc.RichPresence presence;
         private static bool running = false;
@@ -80,12 +80,12 @@ namespace VRCTools
             if (!displayName.Equals(""))
             {
                 presence.details = "as " + displayName + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "Desktop") + ")";
-                RoomChanged("", "", 0, 0);
+                DiscordRpc.UpdatePresence(ref presence);
             }
             else
             {
                 presence.details = "Not logged in" + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "Desktop") + ")";
-                DiscordRpc.UpdatePresence(ref presence);
+                RoomChanged("", "", 0, 0);
             }
         }
 

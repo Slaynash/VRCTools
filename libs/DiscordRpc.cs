@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-public class DiscordRpc
+internal class DiscordRpc
 {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void ReadyCallback();

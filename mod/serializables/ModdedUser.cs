@@ -2,7 +2,7 @@
 
 namespace VRCTools
 {
-    public class ModdedUser
+    internal class ModdedUser
     {
         public string id;
         internal ModDesc[] mods;

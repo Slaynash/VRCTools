@@ -1,7 +1,8 @@
-﻿using System;
+﻿using CComVRCModNetworkEdition;
+using System;
 using VRCModLoader;
 
-namespace VRCTools.networking.commands
+namespace VRCModNetwork.commands
 {
     internal class RPCCommand : Command
     {

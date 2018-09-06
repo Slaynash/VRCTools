@@ -1,10 +1,11 @@
-﻿using System;
+﻿using CComVRCModNetworkEdition;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRCTools;
 
-namespace VRCTools.networking.commands
+namespace VRCModNetwork.commands
 {
     internal class AuthCommand : Command
     {

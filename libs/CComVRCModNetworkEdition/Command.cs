@@ -1,7 +1,7 @@
 ﻿using System;
 using VRCModLoader;
 
-namespace VRCTools.networking
+namespace CComVRCModNetworkEdition
 {
     internal abstract class Command
     {

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace VRCTools
 {
-    public class UnityUiUtils
+    public static class UnityUiUtils
     {
         public static Transform DuplicateButton(Transform baseButton, string buttonText, Vector2 posDelta)
         {

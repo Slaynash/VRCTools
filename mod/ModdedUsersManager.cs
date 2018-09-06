@@ -8,7 +8,7 @@ using UnityEngine.UI;
 using VRC;
 using VRC.Core;
 using VRCModLoader;
-using VRCTools.networking;
+using VRCModNetwork;
 
 namespace VRCTools
 {
@@ -30,7 +30,7 @@ namespace VRCTools
             userProperty = typeof(Player).GetProperties(BindingFlags.Public | BindingFlags.Instance).First((pi) => pi.PropertyType == typeof(APIUser));
 
             Texture2D tex = new Texture2D(2, 2);
-            tex.LoadImage(Convert.FromBase64String(ImageDatas.VRCTOOLS_LOGO));
+            tex.LoadImage(Convert.FromBase64String(NameplateImageDatas.VRCTOOLS_LOGO));
             vrctoolsSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
         }
         

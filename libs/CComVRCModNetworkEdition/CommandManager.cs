@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using VRCModLoader;
 
-namespace VRCTools.networking
+namespace CComVRCModNetworkEdition
 {
     internal class CommandManager
     {

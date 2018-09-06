@@ -10,18 +10,17 @@ using VRCModLoader;
 
 namespace VRCTools
 {
-    internal class AvatarFavUpdater
+    internal static class AvatarFavUpdater
     {
         private static Image downloadProgressFillImage;
+        private static bool popupClosed = false;
 
         public static IEnumerator CheckForAvatarFavUpdate()
         {
-            VRCFlowManagerUtils.DisableVRCFlowManager();
-            yield return VRCUiManagerUtils.WaitForUiManagerInit();
-            string avatarfavPath = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) + "\\Mods\\AvatarFav.dll";
+            string avatarfavPath = Values.ModsPath + "AvatarFav.dll";
             VRCModLogger.Log("AvatarFav.dll path: " + avatarfavPath);
             string fileHash = "";
-            if (ModPrefs.HasKey("vrctools", "avatarfavdownload"))
+            if (ModPrefs.GetBool("vrctools", "avatarfavdownloadasked"))
             {
                 VRCModLogger.Log("vrctools.avatarfavdownload: " + ModPrefs.GetBool("vrctools", "avatarfavdownload"));
                 if (ModPrefs.GetBool("vrctools", "avatarfavdownload"))
@@ -38,53 +37,72 @@ namespace VRCTools
                         }
                         VRCModLogger.Log("[VRCToolsUpdater] Local AvatarFav file hash: " + fileHash);
 
-                        WWW hashCheckWWW = new WWW("https://vrchat.survival-machines.fr/vrcmod/AvatarFavHashCheck.php?localhash=" + fileHash);
-                        while (!hashCheckWWW.isDone) ;
+                        WWW hashCheckWWW = new WWW(ModValues.avatarfavCheckLink + "?localhash=" + fileHash);
+                        yield return hashCheckWWW;
+                        while (!hashCheckWWW.isDone) yield return null;
                         int responseCode = WebRequestsUtils.GetResponseCode(hashCheckWWW);
                         VRCModLogger.Log("[VRCToolsUpdater] hash check webpage returned [" + responseCode + "] \"" + hashCheckWWW.text + "\"");
                         if (responseCode != 200)
                         {
-                            VRCUiPopupManagerUtils.ShowPopup("AvatarFav Updater", "Unable to check AvatarFav file hash", "OK", () => VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup());
+                            popupClosed = false;
+                            VRCUiPopupManagerUtils.ShowPopup("AvatarFav Updater", "Unable to check AvatarFav file hash", "OK", () =>
+                            {
+                                VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
+                                popupClosed = true;
+                            });
+                            while (!popupClosed) yield return null;
                         }
                         else if (hashCheckWWW.text.Equals("OUTOFDATE"))
                         {
+                            popupClosed = false;
+                            bool download = false;
                             VRCUiPopupManagerUtils.ShowPopup("VRCTools", "An AvatarFav update is available", "Update", () =>
                             {
-                                ModManager.StartCoroutine(DownloadAvatarFav(avatarfavPath));
+                                download = true;
+                                popupClosed = true;
                             }, "Ignore", () =>
                             {
                                 VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
-                                VRCFlowManagerUtils.EnableVRCFlowManager();
+                                popupClosed = true;
                             });
-                        }
-                        else
-                        {
-                            VRCFlowManagerUtils.EnableVRCFlowManager();
+                            while (!popupClosed) yield return null;
+
+                            if (download)
+                            {
+                                yield return DownloadAvatarFav(avatarfavPath);
+                            }
                         }
                     }
                     else
                     {
-                        VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Do you want to install the AvatarFav mod ?", "Accept", () => {
-                            ModPrefs.SetBool("vrctools", "avatarfavdownload", true);
-                            ModManager.StartCoroutine(DownloadAvatarFav(avatarfavPath));
-                        }, "Deny", () => {
-                            ModPrefs.SetBool("vrctools", "avatarfavdownload", false);
-                            VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
-                            VRCFlowManagerUtils.EnableVRCFlowManager();
-                        });
+                        yield return DownloadAvatarFav(avatarfavPath);
                     }
+                }
+                else
+                {
+                    VRCFlowManagerUtils.EnableVRCFlowManager();
                 }
             }
             else
             {
+                popupClosed = false;
+                bool download = false;
                 VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Do you want to install the AvatarFav mod ?", "Accept", () => {
                     ModPrefs.SetBool("vrctools", "avatarfavdownload", true);
-                    ModManager.StartCoroutine(DownloadAvatarFav(avatarfavPath));
+                    download = true;
+                    popupClosed = true;
                 }, "Deny", () => {
                     ModPrefs.SetBool("vrctools", "avatarfavdownload", false);
                     VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
-                    VRCFlowManagerUtils.EnableVRCFlowManager();
+                    popupClosed = true;
                 });
+                while (!popupClosed) yield return null;
+                ModPrefs.SetBool("vrctools", "avatarfavdownloadasked", true);
+
+                if (download)
+                {
+                    yield return DownloadAvatarFav(avatarfavPath);
+                }
             }
         }
 
@@ -100,7 +118,7 @@ namespace VRCTools
             });
 
 
-            WWW vrctoolsDownload = new WWW("https://vrchat.survival-machines.fr/vrcmod/AvatarFav.dll");
+            WWW vrctoolsDownload = new WWW(ModValues.avatarfavDownloadLink);
             yield return vrctoolsDownload;
             while (!vrctoolsDownload.isDone)
             {

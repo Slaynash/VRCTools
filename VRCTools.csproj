@@ -52,38 +52,50 @@
       <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+    <Reference Include="VRCCore-Editor">
+      <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRCTools\Dependencies\VRCCore-Editor.dll</HintPath>
+      <Aliases>VRCCoreEditor</Aliases>
+    </Reference>
     <Reference Include="VRCCore-Standalone">
       <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\VRCCore-Standalone.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AvatarFavUpdater.cs" />
-    <Compile Include="DependenciesDownloader.cs" />
-    <Compile Include="DiscordManager.cs" />
-    <Compile Include="Discord\DiscordRpc.cs" />
-    <Compile Include="ImageDatas.cs" />
-    <Compile Include="ModdedUser.cs" />
-    <Compile Include="ModdedUsersManager.cs" />
-    <Compile Include="networking\commands\ModListChangedCommand.cs" />
-    <Compile Include="networking\commands\InstanceChangedCommand.cs" />
-    <Compile Include="networking\commands\LogoutCommand.cs" />
-    <Compile Include="ModDesc.cs" />
-    <Compile Include="networking\commands\AuthCommand.cs" />
-    <Compile Include="networking\Client.cs" />
-    <Compile Include="networking\Command.cs" />
-    <Compile Include="networking\CommandManager.cs" />
-    <Compile Include="networking\ConnectionListener.cs" />
+    <Compile Include="mod\ModValues.cs" />
+    <Compile Include="mod\updatesAndDependencies\AvatarFavUpdater.cs" />
+    <Compile Include="mod\AvatarStealerChecker.cs" />
+    <Compile Include="mod\updatesAndDependencies\DependenciesDownloader.cs" />
+    <Compile Include="mod\DiscordManager.cs" />
+    <Compile Include="libs\DiscordRpc.cs" />
+    <Compile Include="mod\datas\NameplateImageDatas.cs" />
+    <Compile Include="mod\pages\ModConfigPage.cs" />
+    <Compile Include="mod\serializables\ModdedUser.cs" />
+    <Compile Include="mod\ModdedUsersManager.cs" />
+    <Compile Include="utils\ModPrefs.cs" />
+    <Compile Include="networkcommands\commands\ModListChangedCommand.cs" />
+    <Compile Include="networkcommands\commands\InstanceChangedCommand.cs" />
+    <Compile Include="networkcommands\commands\LogoutCommand.cs" />
+    <Compile Include="mod\serializables\ModDesc.cs" />
+    <Compile Include="networkcommands\commands\AuthCommand.cs" />
+    <Compile Include="libs\CComVRCModNetworkEdition\Client.cs" />
+    <Compile Include="libs\CComVRCModNetworkEdition\Command.cs" />
+    <Compile Include="libs\CComVRCModNetworkEdition\CommandManager.cs" />
+    <Compile Include="libs\CComVRCModNetworkEdition\ConnectionListener.cs" />
     <Compile Include="utils\CurrentUserUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="utils\DebugUtils.cs" />
+    <Compile Include="utils\QuickMenuUtils.cs" />
     <Compile Include="utils\UnityUiUtils.cs" />
     <Compile Include="utils\VRCFlowManagerUtils.cs" />
-    <Compile Include="networking\VRCModNetworkManager.cs" />
-    <Compile Include="networking\commands\RPCCommand.cs" />
+    <Compile Include="VRCModNetworkManager.cs" />
+    <Compile Include="networkcommands\commands\RPCCommand.cs" />
+    <Compile Include="utils\Values.cs" />
     <Compile Include="utils\WebRequestsUtils.cs" />
-    <Compile Include="VRCModLoaderUpdater.cs" />
+    <Compile Include="mod\VRCModNetworkStatus.cs" />
+    <Compile Include="mod\updatesAndDependencies\VRCModLoaderUpdater.cs" />
     <Compile Include="VRCTools.cs" />
     <Compile Include="utils\VRCUiManagerUtils.cs" />
-    <Compile Include="VRCUiPopupManagerUtils.cs" />
+    <Compile Include="utils\VRCUiPopupManagerUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VRCModLoader\VRCModLoader.csproj">

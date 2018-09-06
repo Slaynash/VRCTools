@@ -1,9 +1,10 @@
-﻿using System;
+﻿using CComVRCModNetworkEdition;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace VRCTools.networking.commands
+namespace VRCModNetwork.commands
 {
     internal class ModListChangedCommand : Command
     {

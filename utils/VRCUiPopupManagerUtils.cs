@@ -5,7 +5,7 @@ using VRCModLoader;
 
 namespace VRCTools
 {
-    public class VRCUiPopupManagerUtils
+    public static class VRCUiPopupManagerUtils
     {
         private static VRCUiPopupManager uiPopupManagerInstance;
 
