@@ -6,6 +6,8 @@ Current features:
  - VRCModNetwork connection (more infos will be added later)
  - Auto-update of [AvatarFav](https://github.com/Slaynash/AvatarFav)
  - Some utils for VRCUiManager, VRCUiPopupManager and "CurrentUser"
+ - RAM Exploit patch
+ - Avatar stealers detector (names are now blue)
 
 Planned features:
 ---
