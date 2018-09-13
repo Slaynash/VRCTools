@@ -15,7 +15,7 @@ using VRCModNetwork;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.3-180828-0241", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
+    [VRCModInfo("VRCTools", "0.4-180913-0103", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
     public class VRCTools : VRCMod
     {
 
@@ -36,7 +36,7 @@ namespace VRCTools
 
             ModPrefs.RegisterCategory("vrctools", "VRCTools");
             ModPrefs.RegisterPrefBool("vrctools", "remoteauthcheckasked", false, null, true);
-            ModPrefs.RegisterPrefBool("vrctools", "remoteauthcheck", false, "Allow VRCModNetwork Authentication");
+            ModPrefs.RegisterPrefBool("vrctools", "remoteauthcheck", false, "Allow VRCModNetwork Auth");
             ModPrefs.RegisterPrefBool("vrctools", "avatarfavdownloadasked", false, null, true);
             ModPrefs.RegisterPrefBool("vrctools", "avatarfavdownload", false, "Enable AvatarFav Updater");
         }
@@ -69,7 +69,7 @@ namespace VRCTools
             DiscordManager.Init();
             yield return CheckForPermissions();
 
-
+            RamExploitPatcher.Patch();
             VRCModNetworkStatus.Setup();
             ModConfigPage.Setup();
             ModdedUsersManager.Init();
@@ -105,7 +105,6 @@ namespace VRCTools
         private void OnGUI()
         {
             if (!Initialised) return;
-            AvatarStealerChecker.OnGUI();
         }
 
 

@@ -251,7 +251,9 @@ namespace VRCModNetwork
                         {
                             VRCModLogger.Log("Updating instance id");
                             userInstanceId = roomId;
-                            DiscordManager.RoomChanged(RoomManager.currentRoom.name, roomId, RoomManager.currentRoom.currentInstanceAccess, RoomManager.currentRoom.capacity);
+                            if(roomId != "")
+                                DiscordManager.RoomChanged(RoomManager.currentRoom.name, roomId, RoomManager.currentRoom.currentInstanceAccess, RoomManager.currentRoom.capacity);
+                            else DiscordManager.RoomChanged("", roomId, ApiWorldInstance.AccessType.InviteOnly, 0);
                             ((InstanceChangedCommand)CommandManager.CreateInstance("INSTANCECHANGED", client)).Send(userInstanceId);
                             VRCModLogger.Log("Done");
                         }

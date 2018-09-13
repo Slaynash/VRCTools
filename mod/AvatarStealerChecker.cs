@@ -50,19 +50,19 @@ namespace VRCTools
                     string id = currentAvatar?.id;
                     if (id != null)
                     {
-                        if (checkedAvatars.TryGetValue(id, out bool originalIsPrivate) && originalIsPrivate)
+                        if (checkedAvatars.TryGetValue(id, out bool originalIsPrivate))
                         {
-                            player.vrcPlayer.SetNamePlateColor(Color.cyan);
+                            if (originalIsPrivate)
+                                player.vrcPlayer.SetNamePlateColor(Color.blue);
                         }
                         else
                         {
                             string blueprintId = player.gameObject.GetComponentInChildren<VRCCoreEditor::VRC.Core.PipelineManager>()?.blueprintId ?? "";
                             string authorId = currentAvatar.authorId;
-                            string releaseStatus = currentAvatar.releaseStatus;
                             if(!blueprintId.Equals("") && !id.Equals(blueprintId) && !checkedAvatars.ContainsKey(id))
                             {
                                 checkedAvatars.Add(id, false);
-                                ModManager.StartCoroutine(CheckAvatarOriginalReleaseStatus(id, authorId));
+                                ModManager.StartCoroutine(CheckAvatarOriginalReleaseStatus(blueprintId, id, authorId));
                             }
                         }
                     }
@@ -70,9 +70,10 @@ namespace VRCTools
             }
         }
 
-        private static IEnumerator CheckAvatarOriginalReleaseStatus(string id, string authorId)
+        private static IEnumerator CheckAvatarOriginalReleaseStatus(string blueprintId, string id, string authorId)
         {
-            using (WWW avtrRequest = new WWW(API.GetApiUrl() + "avatars/" + id + "?apiKey=" + API.ApiKey))
+            VRCModLogger.Log("[AvatarStealerChecker] Checking avatar " + blueprintId);
+            using (WWW avtrRequest = new WWW(API.GetApiUrl() + "avatars/" + blueprintId + "?apiKey=" + API.ApiKey))
             {
                 yield return avtrRequest;
                 int rc = WebRequestsUtils.GetResponseCode(avtrRequest);
@@ -84,6 +85,7 @@ namespace VRCTools
                         SerializableApiAvatar aa = JsonConvert.DeserializeObject<SerializableApiAvatar>(avtrRequest.text);
                         if (!aa.releaseStatus.Equals("public") && !aa.authorId.Equals(authorId))
                         {
+                            VRCModLogger.Log("[AvatarStealerChecker] Avatar " + id + " is a private stealed avatar ! (" + blueprintId + ")");
                             checkedAvatars[id] = true;
                         }
                     }

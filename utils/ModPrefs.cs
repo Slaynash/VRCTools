@@ -12,7 +12,7 @@ namespace VRCTools
     {
         private static Dictionary<string, Dictionary<string, PrefDesc>> prefs = new Dictionary<string, Dictionary<string, PrefDesc>>();
 
-        internal static void RegisterCategory(string name, string displayText)
+        public static void RegisterCategory(string name, string displayText)
         {
             //TODO
         }
@@ -58,7 +58,7 @@ namespace VRCTools
                     if (VRCModLoader.ModPrefs.HasKey(section, name))
                         toStoreValue = VRCModLoader.ModPrefs.GetString(section, name, defaultValue);
                     else VRCModLoader.ModPrefs.SetString(section, name, defaultValue);
-                    prefsInSection.Add(name, new PrefDesc(toStoreValue, type, hideFromList, displayText));
+                    prefsInSection.Add(name, new PrefDesc(toStoreValue, type, hideFromList, (displayText ?? "") == "" ? name : displayText));
                 }
             }
             else
@@ -68,7 +68,7 @@ namespace VRCTools
                 if (VRCModLoader.ModPrefs.HasKey(section, name))
                     toStoreValue = VRCModLoader.ModPrefs.GetString(section, name, defaultValue);
                 else VRCModLoader.ModPrefs.SetString(section, name, defaultValue);
-                dic.Add(name, new PrefDesc(toStoreValue, type, hideFromList, displayText));
+                dic.Add(name, new PrefDesc(toStoreValue, type, hideFromList, (displayText ?? "") == "" ? name : displayText));
                 prefs.Add(section, dic);
             }
         }
@@ -186,7 +186,7 @@ namespace VRCTools
                 Value = value;
                 Type = type;
                 Hidden = hidden;
-                DisplayText = (displayText ?? "").Equals("") ? value : displayText;
+                DisplayText = displayText;
             }
         }
     }

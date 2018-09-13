@@ -34,6 +34,9 @@
     <CodeAnalysisRuleSet />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRCTools\Dependencies\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -41,8 +44,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Photon3Unity3D, Version=4.1.1.11, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\Photon3Unity3D.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -61,22 +69,24 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="datas\ImageDatas.cs" />
     <Compile Include="mod\ModValues.cs" />
+    <Compile Include="mod\RamExploitPatcher.cs" />
+    <Compile Include="mod\ui\uicomponents\UIToggleSwitch.cs" />
     <Compile Include="mod\updatesAndDependencies\AvatarFavUpdater.cs" />
     <Compile Include="mod\AvatarStealerChecker.cs" />
     <Compile Include="mod\updatesAndDependencies\DependenciesDownloader.cs" />
     <Compile Include="mod\DiscordManager.cs" />
     <Compile Include="libs\DiscordRpc.cs" />
-    <Compile Include="mod\datas\NameplateImageDatas.cs" />
-    <Compile Include="mod\pages\ModConfigPage.cs" />
+    <Compile Include="mod\ui\pages\ModConfigPage.cs" />
     <Compile Include="mod\serializables\ModdedUser.cs" />
     <Compile Include="mod\ModdedUsersManager.cs" />
     <Compile Include="utils\ModPrefs.cs" />
-    <Compile Include="networkcommands\commands\ModListChangedCommand.cs" />
-    <Compile Include="networkcommands\commands\InstanceChangedCommand.cs" />
-    <Compile Include="networkcommands\commands\LogoutCommand.cs" />
+    <Compile Include="networkcommands\ModListChangedCommand.cs" />
+    <Compile Include="networkcommands\InstanceChangedCommand.cs" />
+    <Compile Include="networkcommands\LogoutCommand.cs" />
     <Compile Include="mod\serializables\ModDesc.cs" />
-    <Compile Include="networkcommands\commands\AuthCommand.cs" />
+    <Compile Include="networkcommands\AuthCommand.cs" />
     <Compile Include="libs\CComVRCModNetworkEdition\Client.cs" />
     <Compile Include="libs\CComVRCModNetworkEdition\Command.cs" />
     <Compile Include="libs\CComVRCModNetworkEdition\CommandManager.cs" />
@@ -88,7 +98,7 @@
     <Compile Include="utils\UnityUiUtils.cs" />
     <Compile Include="utils\VRCFlowManagerUtils.cs" />
     <Compile Include="VRCModNetworkManager.cs" />
-    <Compile Include="networkcommands\commands\RPCCommand.cs" />
+    <Compile Include="networkcommands\RPCCommand.cs" />
     <Compile Include="utils\Values.cs" />
     <Compile Include="utils\WebRequestsUtils.cs" />
     <Compile Include="mod\VRCModNetworkStatus.cs" />

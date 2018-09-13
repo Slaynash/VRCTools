@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -9,6 +10,10 @@ namespace VRCTools
 {
     public static class UnityUiUtils
     {
+        private static Sprite toggle_background;
+        private static Sprite toggle_cursor;
+
+
         public static Transform DuplicateButton(Transform baseButton, string buttonText, Vector2 posDelta)
         {
             GameObject buttonGO = new GameObject("DuplicatedButton", new Type[] {
@@ -128,6 +133,67 @@ namespace VRCTools
             scrollView.GetComponent<ScrollRect>().viewport = viewport.GetComponent<RectTransform>();
 
             return content.transform;
+        }
+
+        public static UIToggleSwitch CreateUIToggleSwitch(RectTransform parent)
+        {
+            if(toggle_background == null)
+            {
+                Texture2D tex = new Texture2D(2, 2);
+                tex.LoadImage(Convert.FromBase64String(ImageDatas.UI_TOGGLE_BACKGROUND));
+                toggle_background = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+            }
+
+            if (toggle_cursor == null)
+            {
+                Texture2D tex = new Texture2D(2, 2);
+                tex.LoadImage(Convert.FromBase64String(ImageDatas.UI_TOGGLE_CURSOR));
+                toggle_cursor = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+            }
+
+            // Create objects
+            GameObject toggleGO = new GameObject("ToggleGO", typeof(RectTransform), typeof(Toggle), typeof(UIToggleSwitch));
+            toggleGO.transform.SetParent(parent, false);
+            GameObject backgroundGO = new GameObject("background", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            backgroundGO.transform.SetParent(toggleGO.transform, false);
+            GameObject fillImageGO = new GameObject("fillImage", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            fillImageGO.transform.SetParent(backgroundGO.transform, false);
+            GameObject cursorGO = new GameObject("cursor", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            cursorGO.transform.SetParent(toggleGO.transform, false);
+
+            // Set ToggleGO values
+            toggleGO.layer = parent.gameObject.layer;
+            toggleGO.GetComponent<Toggle>().interactable = true;
+            toggleGO.GetComponent<Toggle>().transition = Selectable.Transition.None;
+            toggleGO.GetComponent<Toggle>().isOn = false;
+            toggleGO.GetComponent<UIToggleSwitch>().backgroundFilling = fillImageGO.GetComponent<Image>();
+            toggleGO.GetComponent<UIToggleSwitch>().cursor = cursorGO.GetComponent<Image>();
+            toggleGO.GetComponent<UIToggleSwitch>().switchDuration = 0.12f;
+            toggleGO.GetComponent<RectTransform>().sizeDelta = new Vector2(134, 60);
+
+            // Set background values
+            backgroundGO.layer = toggleGO.layer;
+            backgroundGO.GetComponent<Image>().sprite = toggle_background;
+            backgroundGO.GetComponent<Image>().color = new Color(0, 0.957f, 1);
+            backgroundGO.GetComponent<Image>().raycastTarget = false;
+            backgroundGO.GetComponent<RectTransform>().sizeDelta = new Vector2(120, 45);
+
+            // Set fillImage values
+            fillImageGO.layer = backgroundGO.layer;
+            fillImageGO.GetComponent<Image>().sprite = toggle_background;
+            fillImageGO.GetComponent<Image>().color = new Color(0, 0.67f, 1);
+            fillImageGO.GetComponent<Image>().type = Image.Type.Filled;
+            fillImageGO.GetComponent<Image>().fillMethod = Image.FillMethod.Horizontal;
+            fillImageGO.GetComponent<RectTransform>().sizeDelta = new Vector2(120, 45);
+
+            // Set cursor values
+            cursorGO.layer = toggleGO.layer;
+            cursorGO.GetComponent<Image>().sprite = toggle_cursor;
+            cursorGO.GetComponent<Image>().color = new Color(0, 0.67f, 1);
+            cursorGO.GetComponent<RectTransform>().sizeDelta = new Vector2(60, 60);
+            cursorGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(-37, 0);
+
+            return toggleGO.GetComponent<UIToggleSwitch>();
         }
     }
 }
