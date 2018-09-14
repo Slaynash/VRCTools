@@ -11,30 +11,17 @@ namespace VRCTools
 {
     internal static class DependenciesDownloader
     {
-        private static string discordrpcdllPath;
-        private static string vrccedllPath;
-        private static string oharmonydllPath;
-
         private static Image downloadProgressFillImage;
 
         internal static IEnumerator CheckDownloadFiles()
         {
-            discordrpcdllPath = Values.VRCToolsDependenciesPath + "discord-rpc.dll";
-            vrccedllPath = Values.VRCToolsDependenciesPath + "VRCCore-Editor.dll";
-            oharmonydllPath = Values.VRCToolsDependenciesPath + "0Harmony.dll";
-
-            if (!File.Exists(discordrpcdllPath))
-            {
-                yield return DownloadDRPCdll();
-            }
-            if (!File.Exists(vrccedllPath))
-            {
-                yield return DownloadVRCCEdll();
-            }
-            if (!File.Exists(oharmonydllPath))
-            {
-                yield return Download0Harmonydll();
-            }
+            string vrccedllPath = Values.VRCToolsDependenciesPath + "VRCCore-Editor.dll";
+            string oharmonydllPath = Values.VRCToolsDependenciesPath + "0Harmony.dll";
+            
+            yield return DownloadDependency(ModValues.discordrpcdependencyDownloadLink, "discord-rpc.dll");
+            yield return DownloadDependency(ModValues.vrccoreeditordependencyDownloadLink, "VRCCore-Editor.dll");
+            yield return DownloadDependency(ModValues.oharmonydependencyDownloadLink, "0Harmony.dll");
+            //yield return DownloadDependency(ModValues.vrcmnwclientdependencyDownloadLink, "VRCModNetworkClient.dll");
 
             VRCModLogger.Log("[DependenciesDownloader] Initializing Discord RichPresence");
             DiscordManager.Init();
@@ -42,126 +29,50 @@ namespace VRCTools
             Assembly.LoadFile(oharmonydllPath);
         }
 
-        private static IEnumerator DownloadDRPCdll()
+        private static IEnumerator DownloadDependency(string downloadUrl, string dllName)
         {
-            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Downloading VRCTools dependency:\ndiscord-rpc.dll", "Quit", () => Application.Quit(), (popup) => {
-                if (popup.popupProgressFillImage != null)
+            String dependenciesDownloadFile = Values.VRCToolsDependenciesPath + dllName;
+
+            if (!File.Exists(dependenciesDownloadFile))
+            {
+                VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Downloading VRCTools dependency:\n" + dllName, "Quit", () => Application.Quit(), (popup) =>
                 {
-                    popup.popupProgressFillImage.enabled = true;
-                    popup.popupProgressFillImage.fillAmount = 0f;
-                    downloadProgressFillImage = popup.popupProgressFillImage;
-                }
-            });
+                    if (popup.popupProgressFillImage != null)
+                    {
+                        popup.popupProgressFillImage.enabled = true;
+                        popup.popupProgressFillImage.fillAmount = 0f;
+                        downloadProgressFillImage = popup.popupProgressFillImage;
+                    }
+                });
 
 
-            WWW vrctoolsDownload = new WWW(ModValues.discordrpcdependencyDownloadLink);
-            yield return vrctoolsDownload;
-            while (!vrctoolsDownload.isDone)
-            {
-                VRCModLogger.Log("[DependenciesDownloader] Download progress: " + vrctoolsDownload.progress);
-                downloadProgressFillImage.fillAmount = vrctoolsDownload.progress;
-                yield return null;
-            }
-
-            int responseCode = WebRequestsUtils.GetResponseCode(vrctoolsDownload);
-            VRCModLogger.Log("[DependenciesDownloader] Download done ! response code: " + responseCode);
-            VRCModLogger.Log("[DependenciesDownloader] File size: " + vrctoolsDownload.bytes.Length);
-
-            if (responseCode == 200)
-            {
-                VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Saving dependency discord-rpc.dll");
-                VRCModLogger.Log("[DependenciesDownloader] Saving file discord-rpc.dll");
-                VRCModLogger.Log(Path.GetDirectoryName(discordrpcdllPath));
-                Directory.CreateDirectory(Path.GetDirectoryName(discordrpcdllPath));
-                File.WriteAllBytes(discordrpcdllPath, vrctoolsDownload.bytes);
-                VRCModLogger.Log("[DependenciesDownloader] File saved");
-            }
-            else
-            {
-                VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Unable to download VRCTools dependencies discord-rpc.dll: Server returned code " + responseCode, "Quit", () => Application.Quit());
-                throw new Exception("Unable to download VRCTools dependencies VRCCore-Editor.dll: Server returned code " + responseCode);
-            }
-        }
-
-        private static IEnumerator DownloadVRCCEdll()
-        {
-            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Downloading VRCTools dependency:\nVRCCore-Editor.dll", "Quit", () => Application.Quit(), (popup) => {
-                if (popup.popupProgressFillImage != null)
+                WWW dependencyDownload = new WWW(downloadUrl);
+                yield return dependencyDownload;
+                while (!dependencyDownload.isDone)
                 {
-                    popup.popupProgressFillImage.enabled = true;
-                    popup.popupProgressFillImage.fillAmount = 0f;
-                    downloadProgressFillImage = popup.popupProgressFillImage;
+                    VRCModLogger.Log("[DependenciesDownloader] Download progress: " + dependencyDownload.progress);
+                    downloadProgressFillImage.fillAmount = dependencyDownload.progress;
+                    yield return null;
                 }
-            });
 
+                int responseCode = WebRequestsUtils.GetResponseCode(dependencyDownload);
+                VRCModLogger.Log("[DependenciesDownloader] Download done ! response code: " + responseCode);
+                VRCModLogger.Log("[DependenciesDownloader] File size: " + dependencyDownload.bytes.Length);
 
-            WWW vrctoolsDownload = new WWW(ModValues.vrccoreeditordependencyDownloadLink);
-            yield return vrctoolsDownload;
-            while (!vrctoolsDownload.isDone)
-            {
-                VRCModLogger.Log("[AvatarFavUpdater] Download progress: " + vrctoolsDownload.progress);
-                downloadProgressFillImage.fillAmount = vrctoolsDownload.progress;
-                yield return null;
-            }
-
-            int responseCode = WebRequestsUtils.GetResponseCode(vrctoolsDownload);
-            VRCModLogger.Log("[DependenciesDownloader] Download done ! response code: " + responseCode);
-            VRCModLogger.Log("[DependenciesDownloader] File size: " + vrctoolsDownload.bytes.Length);
-
-            if (responseCode == 200)
-            {
-                VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Saving dependency VRCCore-Editor.dll");
-                VRCModLogger.Log("[DependenciesDownloader] Saving file VRCCore-Editor.dll");
-                VRCModLogger.Log(Path.GetDirectoryName(vrccedllPath));
-                Directory.CreateDirectory(Path.GetDirectoryName(vrccedllPath));
-                File.WriteAllBytes(vrccedllPath, vrctoolsDownload.bytes);
-                VRCModLogger.Log("[DependenciesDownloader] File saved");
-            }
-            else
-            {
-                VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Unable to download VRCTools dependencies VRCCore-Editor.dll: Server returned code " + responseCode, "Quit", () => Application.Quit());
-                throw new Exception("Unable to download VRCTools dependencies VRCCore-Editor.dll: Server returned code " + responseCode);
-            }
-        }
-
-        private static IEnumerator Download0Harmonydll()
-        {
-            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Downloading VRCTools dependency:\n0Harmony.dll", "Quit", () => Application.Quit(), (popup) => {
-                if (popup.popupProgressFillImage != null)
+                if (responseCode == 200)
                 {
-                    popup.popupProgressFillImage.enabled = true;
-                    popup.popupProgressFillImage.fillAmount = 0f;
-                    downloadProgressFillImage = popup.popupProgressFillImage;
+                    VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Saving dependency " + dllName);
+                    VRCModLogger.Log("[DependenciesDownloader] Saving file " + dllName);
+                    VRCModLogger.Log(Path.GetDirectoryName(dependenciesDownloadFile));
+                    Directory.CreateDirectory(Path.GetDirectoryName(dependenciesDownloadFile));
+                    File.WriteAllBytes(dependenciesDownloadFile, dependencyDownload.bytes);
+                    VRCModLogger.Log("[DependenciesDownloader] File saved");
                 }
-            });
-
-
-            WWW oharmonyDownload = new WWW(ModValues.oharmonydependencyDownloadLink);
-            yield return oharmonyDownload;
-            while (!oharmonyDownload.isDone)
-            {
-                VRCModLogger.Log("[AvatarFavUpdater] Download progress: " + oharmonyDownload.progress);
-                downloadProgressFillImage.fillAmount = oharmonyDownload.progress;
-                yield return null;
-            }
-
-            int responseCode = WebRequestsUtils.GetResponseCode(oharmonyDownload);
-            VRCModLogger.Log("[DependenciesDownloader] Download done ! response code: " + responseCode);
-            VRCModLogger.Log("[DependenciesDownloader] File size: " + oharmonyDownload.bytes.Length);
-
-            if (responseCode == 200)
-            {
-                VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Saving dependency 0Harmony.dll");
-                VRCModLogger.Log("[DependenciesDownloader] Saving file 0Harmony.dll");
-                VRCModLogger.Log(Path.GetDirectoryName(oharmonydllPath));
-                Directory.CreateDirectory(Path.GetDirectoryName(oharmonydllPath));
-                File.WriteAllBytes(oharmonydllPath, oharmonyDownload.bytes);
-                VRCModLogger.Log("[DependenciesDownloader] File saved");
-            }
-            else
-            {
-                VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Unable to download VRCTools dependencies 0Harmony.dll: Server returned code " + responseCode, "Quit", () => Application.Quit());
-                throw new Exception("Unable to download VRCTools dependencies 0Harmony.dll: Server returned code " + responseCode);
+                else
+                {
+                    VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Unable to download VRCTools dependencies " + dllName + ": Server returned code " + responseCode, "Quit", () => Application.Quit());
+                    throw new Exception("Unable to download VRCTools dependencies 0Harmony.dll: Server returned code " + responseCode);
+                }
             }
         }
     }

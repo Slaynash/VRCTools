@@ -69,6 +69,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="libs\CComVRCModNetworkEdition\Client.cs" />
+    <Compile Include="libs\CComVRCModNetworkEdition\Command.cs" />
+    <Compile Include="libs\CComVRCModNetworkEdition\CommandManager.cs" />
+    <Compile Include="libs\CComVRCModNetworkEdition\ConnectionListener.cs" />
     <Compile Include="datas\ImageDatas.cs" />
     <Compile Include="mod\ModValues.cs" />
     <Compile Include="mod\RamExploitPatcher.cs" />
@@ -81,16 +85,13 @@
     <Compile Include="mod\ui\pages\ModConfigPage.cs" />
     <Compile Include="mod\serializables\ModdedUser.cs" />
     <Compile Include="mod\ModdedUsersManager.cs" />
-    <Compile Include="utils\ModPrefs.cs" />
-    <Compile Include="networkcommands\ModListChangedCommand.cs" />
+    <Compile Include="networkcommands\AuthCommand.cs" />
     <Compile Include="networkcommands\InstanceChangedCommand.cs" />
     <Compile Include="networkcommands\LogoutCommand.cs" />
+    <Compile Include="networkcommands\ModListChangedCommand.cs" />
+    <Compile Include="networkcommands\RPCCommand.cs" />
+    <Compile Include="utils\ModPrefs.cs" />
     <Compile Include="mod\serializables\ModDesc.cs" />
-    <Compile Include="networkcommands\AuthCommand.cs" />
-    <Compile Include="libs\CComVRCModNetworkEdition\Client.cs" />
-    <Compile Include="libs\CComVRCModNetworkEdition\Command.cs" />
-    <Compile Include="libs\CComVRCModNetworkEdition\CommandManager.cs" />
-    <Compile Include="libs\CComVRCModNetworkEdition\ConnectionListener.cs" />
     <Compile Include="utils\CurrentUserUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="utils\DebugUtils.cs" />
@@ -98,10 +99,9 @@
     <Compile Include="utils\UnityUiUtils.cs" />
     <Compile Include="utils\VRCFlowManagerUtils.cs" />
     <Compile Include="VRCModNetworkManager.cs" />
-    <Compile Include="networkcommands\RPCCommand.cs" />
     <Compile Include="utils\Values.cs" />
     <Compile Include="utils\WebRequestsUtils.cs" />
-    <Compile Include="mod\VRCModNetworkStatus.cs" />
+    <Compile Include="mod\ui\VRCModNetworkStatus.cs" />
     <Compile Include="mod\updatesAndDependencies\VRCModLoaderUpdater.cs" />
     <Compile Include="VRCTools.cs" />
     <Compile Include="utils\VRCUiManagerUtils.cs" />

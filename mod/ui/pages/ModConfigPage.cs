@@ -79,7 +79,7 @@ namespace VRCTools
 
             //foreach elements registered in ModPrefs, add a config element
             float totalHeight = 0;
-            /*
+            
             Dictionary<string, Dictionary<string, ModPrefs.PrefDesc>> modPrefs = ModPrefs.GetPrefs();
             for (int i = 0; i < modPrefs.Count; i++) {
                 bool categoryCreated = false;
@@ -93,7 +93,7 @@ namespace VRCTools
                         if (!categoryCreated)
                         {
                             categoryCreated = !categoryCreated;
-                            CreateCategoryTitle(modPrefCategory.Key, ref totalHeight);
+                            CreateCategoryTitle(ModPrefs.GetCategoryDisplayName(modPrefCategory.Key), ref totalHeight);
                         }
 
                         //add all prefs under this category
@@ -101,7 +101,7 @@ namespace VRCTools
                     }
                 }
             }
-            */
+            
             scrollContent.GetComponent<RectTransform>().sizeDelta = new Vector2(scrollContent.GetComponent<RectTransform>().sizeDelta.x, totalHeight > 1000 ? totalHeight : 1000);
         }
 

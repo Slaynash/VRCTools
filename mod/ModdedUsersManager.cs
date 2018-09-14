@@ -21,9 +21,12 @@ namespace VRCTools
         private static PropertyInfo userProperty;
         private static Sprite vrctoolsSprite;
         private static bool roomCleared = true;
+        private static bool enableNameplateIcons = false;
 
         internal static void Init()
         {
+            if (Environment.CommandLine.Contains("--vrctools.enablenameplateicons")) enableNameplateIcons = true;
+
             VRCModNetworkManager.SetRPCListener("slaynash.vrctools.moddedplayerlistonjoin", OnModdedplayerlistonjoinReceived);
             VRCModNetworkManager.SetRPCListener("slaynash.vrctools.moddedplayerjoined", OnModdedplayerjoinReceived);
             VRCModNetworkManager.SetRPCListener("slaynash.vrctools.moddedplayerleft", OnModdedplayerleftReceived);
@@ -63,44 +66,47 @@ namespace VRCTools
 
         internal static void Update()
         {
-            lock (moddedUserList)
+            if (enableNameplateIcons)
             {
-                List<string> npl = new List<string>();
-                if (RoomManager.currentRoom == null)
+                lock (moddedUserList)
                 {
-                    if (!roomCleared)
+                    List<string> npl = new List<string>();
+                    if (RoomManager.currentRoom == null)
                     {
-                        roomCleared = true;
-                        moddedUserList.Clear();
-                        VRCModLogger.Log("[ModdedUsersManager] Cleared userlist");
-                    }
-                }
-                else
-                {
-                    if (roomCleared)
-                    {
-                        roomCleared = false;
-                        VRCModLogger.Log("[ModdedUsersManager] Now in instance");
-                    }
-                    foreach (Player p in PlayerManager.GetAllPlayers())
-                    {
-                        APIUser pau = userProperty.GetValue(p, null) as APIUser;
-                        string pid = pau?.id;
-                        if (pid != null && moddedUserList.ContainsKey(pid))
+                        if (!roomCleared)
                         {
-                            if (!moddedUserListFound.Contains(pid) && p.vrcPlayer != null)
-                            {
-                                Transform vrctplayerSprite = UnityUiUtils.DuplicateImage(p.vrcPlayer.friendSprite.transform, new Vector2(140*2, 0));
-                                vrctplayerSprite.GetComponent<Image>().sprite = vrctoolsSprite;
-
-                                VRCModLogger.Log("[ModdedUsersManager] Added VRCTools sprite to " + pid + "'s nameplate");
-                            }
-                            npl.Add(pid);
+                            roomCleared = true;
+                            moddedUserList.Clear();
+                            VRCModLogger.Log("[ModdedUsersManager] Cleared userlist");
                         }
                     }
+                    else
+                    {
+                        if (roomCleared)
+                        {
+                            roomCleared = false;
+                            VRCModLogger.Log("[ModdedUsersManager] Now in instance");
+                        }
+                        foreach (Player p in PlayerManager.GetAllPlayers())
+                        {
+                            APIUser pau = userProperty.GetValue(p, null) as APIUser;
+                            string pid = pau?.id;
+                            if (pid != null && moddedUserList.ContainsKey(pid))
+                            {
+                                if (!moddedUserListFound.Contains(pid) && p.vrcPlayer != null)
+                                {
+                                    Transform vrctplayerSprite = UnityUiUtils.DuplicateImage(p.vrcPlayer.friendSprite.transform, new Vector2(140 * 2, 0));
+                                    vrctplayerSprite.GetComponent<Image>().sprite = vrctoolsSprite;
+
+                                    VRCModLogger.Log("[ModdedUsersManager] Added VRCTools sprite to " + pid + "'s nameplate");
+                                }
+                                npl.Add(pid);
+                            }
+                        }
+                    }
+                    moddedUserListFound.Clear();
+                    moddedUserListFound.AddRange(npl);
                 }
-                moddedUserListFound.Clear();
-                moddedUserListFound.AddRange(npl);
             }
         }
     }

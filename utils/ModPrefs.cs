@@ -11,10 +11,11 @@ namespace VRCTools
     public static class ModPrefs
     {
         private static Dictionary<string, Dictionary<string, PrefDesc>> prefs = new Dictionary<string, Dictionary<string, PrefDesc>>();
+        private static Dictionary<string, string> categoryDisplayNames = new Dictionary<string, string>();
 
         public static void RegisterCategory(string name, string displayText)
         {
-            //TODO
+            categoryDisplayNames[name] = displayText;
         }
 
 
@@ -78,9 +79,16 @@ namespace VRCTools
             return prefs.TryGetValue(section, out Dictionary<string, PrefDesc> prefsInSection) && prefsInSection.ContainsKey(name);
         }
 
+
         internal static Dictionary<string, Dictionary<string, PrefDesc>> GetPrefs()
         {
             return prefs;
+        }
+
+        internal static string GetCategoryDisplayName(string key)
+        {
+            if (categoryDisplayNames.TryGetValue(key, out string name)) return name;
+            return key;
         }
 
 
