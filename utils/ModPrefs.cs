@@ -91,6 +91,19 @@ namespace VRCTools
             return key;
         }
 
+        internal static void SaveConfigs()
+        {
+            foreach (KeyValuePair<string, Dictionary<string, PrefDesc>> prefsInSection in prefs)
+            {
+                foreach (KeyValuePair<string, PrefDesc> pref in prefsInSection.Value)
+                {
+                    pref.Value.Value = pref.Value.ValueEdited;
+                    VRCModLoader.ModPrefs.SetString(prefsInSection.Key, pref.Key, pref.Value.Value);
+                }
+            }
+            VRCModLogger.Log("[ModPrefs] Configs saved !");
+        }
+
 
         // GETTERS
 
@@ -182,9 +195,10 @@ namespace VRCTools
             COLOR
         }
 
-        internal class PrefDesc
+        public class PrefDesc
         {
             public string Value { get; internal set; }
+            public string ValueEdited { get; internal set; }
             public PrefType Type { get; private set; }
             public bool Hidden { get; private set; }
             public String DisplayText { get; private set; }
@@ -192,6 +206,7 @@ namespace VRCTools
             public PrefDesc(string value, PrefType type, bool hidden, string displayText)
             {
                 Value = value;
+                ValueEdited = value;
                 Type = type;
                 Hidden = hidden;
                 DisplayText = displayText;

@@ -12,6 +12,7 @@ namespace VRCTools
     internal class ModConfigPage : MonoBehaviour
     {
         private Transform scrollContent;
+        private List<IConfigElement> configElements = new List<IConfigElement>();
 
         public static void Setup()
         {
@@ -24,7 +25,7 @@ namespace VRCTools
                 GameObject go = new GameObject("ModConfig", typeof(RectTransform), typeof(VRCUiPage));
                 go.transform.SetParent(screens.transform, false);
                 go.GetComponent<VRCUiPage>().screenType = avatarscreen.GetComponent<VRCUiPage>().screenType;
-                go.GetComponent<VRCUiPage>().displayName = "Mod Conf\n- WIP -";
+                go.GetComponent<VRCUiPage>().displayName = "Mod Conf";
                 go.GetComponent<VRCUiPage>().AudioShow = avatarscreen.GetComponent<VRCUiPage>().AudioShow;
                 go.GetComponent<VRCUiPage>().AudioLoop = avatarscreen.GetComponent<VRCUiPage>().AudioLoop;
                 go.GetComponent<VRCUiPage>().AudioHide = avatarscreen.GetComponent<VRCUiPage>().AudioHide;
@@ -66,8 +67,55 @@ namespace VRCTools
 
         void Awake()
         {
-            scrollContent = UnityUiUtils.CreateScrollView(GetComponent<RectTransform>(), 1500, 1000, 0, 1000, false, true);
+            scrollContent = UnityUiUtils.CreateScrollView(GetComponent<RectTransform>(), 1500, 850, 0, 875, false, true); // 1000 -> 800
+            scrollContent.parent.parent.localPosition = new Vector2(0, 62);
+
+            CreateButton("Apply", -300, () =>
+            {
+                ModPrefs.SaveConfigs();
+                VRCUiManagerUtils.GetVRCUiManager().CloseUi(true);
+                VRCUiCursorManager.SetUiActive(false);
+            });
+            CreateButton("Close",  300, () =>
+            {
+                ResetConfigs();
+                VRCUiManagerUtils.GetVRCUiManager().CloseUi(true);
+                VRCUiCursorManager.SetUiActive(false);
+            });
+
             SetupConfigs();
+        }
+
+        private void ResetConfigs()
+        {
+            foreach(IConfigElement element in configElements)
+            {
+                element.ResetValue();
+            }
+        }
+
+        private void CreateButton(string text, int xoffset, Action onClick)
+        {
+            Transform baseButtonTransform = QuickMenuUtils.GetQuickMenuInstance().transform.Find("ShortcutMenu/CloseButton");
+            if (baseButtonTransform != null)
+            {
+                Transform modconf = UnityUiUtils.DuplicateButton(baseButtonTransform, text, new Vector2(0, 0));
+                modconf.name = "ModConfigsButton (" + text + ")";
+                modconf.GetComponentInChildren<RectTransform>().sizeDelta = new Vector2(300, 100);
+                modconf.GetComponentInChildren<Text>().color = Color.white;
+                //modconf.GetComponent<Button>().interactable = false;
+                modconf.GetComponent<Button>().onClick.RemoveAllListeners();
+                modconf.GetComponent<Button>().onClick.AddListener(() => onClick());
+                modconf.GetComponent<RectTransform>().SetParent(transform, true);
+                modconf.GetComponent<RectTransform>().anchoredPosition = new Vector2(xoffset, -440);
+                modconf.GetComponent<RectTransform>().localRotation = Quaternion.identity;
+                modconf.GetComponent<RectTransform>().localScale = Vector3.one;
+                modconf.GetComponentInChildren<Text>().fontSize = 30;
+            }
+            else
+            {
+                VRCModLogger.Log("[ModConfigPage] QuickMenu/ShortcutMenu/CloseButton is null");
+            }
         }
 
         internal void SetupConfigs()
@@ -102,7 +150,7 @@ namespace VRCTools
                 }
             }
             
-            scrollContent.GetComponent<RectTransform>().sizeDelta = new Vector2(scrollContent.GetComponent<RectTransform>().sizeDelta.x, totalHeight > 1000 ? totalHeight : 1000);
+            scrollContent.GetComponent<RectTransform>().sizeDelta = new Vector2(scrollContent.GetComponent<RectTransform>().sizeDelta.x, totalHeight > 800 ? totalHeight : 800); // 1000 -> 800
         }
 
         private void CreateCategoryTitle(string title, ref float totalHeight)
@@ -149,6 +197,7 @@ namespace VRCTools
                 toggle.GetComponent<RectTransform>().pivot = new Vector2(0.0f, 1.0f);
                 toggle.GetComponent<RectTransform>().anchoredPosition = new Vector2(75f, -totalHeight);
                 toggle.GetComponent<Toggle>().isOn = pref.Value == "1";
+                toggle.OnChange = (isOn) => pref.ValueEdited = isOn ? "1" : "0";
             }
             else
             {
@@ -180,7 +229,7 @@ namespace VRCTools
 
         void OnGUI()
         {
-            inspectorBox = GUI.Window(1, inspectorBox, OnGUIInspector, "Inspector");
+            //inspectorBox = GUI.Window(1, inspectorBox, OnGUIInspector, "Inspector"); // DEBUG
         }
 
         private void OnGUIInspector(int id)

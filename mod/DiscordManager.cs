@@ -28,14 +28,12 @@ namespace VRCTools
                 if (VRCApplicationSetup._instance.ServerEnvironment == ApiServerEnvironment.Release) steamId = "438100";
                 if (VRCApplicationSetup._instance.ServerEnvironment == ApiServerEnvironment.Beta) steamId = "744530";
                 if (VRCApplicationSetup._instance.ServerEnvironment == ApiServerEnvironment.Dev) steamId = "326100";
-
-                /* PLANNED FOR LATER !
+                
                 DiscordRpc.Initialize("404400696171954177", ref eh, true, steamId);
                 DiscordRpc.UpdatePresence(ref presence);
 
                 running = true;
                 VRCModLogger.Log("[DiscordManager] RichPresence Initialised");
-                */
             }
             catch(Exception e)
             {

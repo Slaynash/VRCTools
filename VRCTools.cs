@@ -15,7 +15,7 @@ using VRCModNetwork;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.4.1", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
+    [VRCModInfo("VRCTools", "0.4.2", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
     public class VRCTools : VRCMod
     {
 
@@ -39,6 +39,11 @@ namespace VRCTools
             ModPrefs.RegisterPrefBool("vrctools", "remoteauthcheck", false, "Allow VRCModNetwork Auth");
             ModPrefs.RegisterPrefBool("vrctools", "avatarfavdownloadasked", false, null, true);
             ModPrefs.RegisterPrefBool("vrctools", "avatarfavdownload", false, "Enable AvatarFav Updater");
+
+            ModPrefs.RegisterPrefBool("vrctools", "enablediscordrichpresence", true, "Enable Discord RichPresence");
+            ModPrefs.RegisterPrefBool("vrctools", "enablestealerdetector", true, "Enable Stealer Detector");
+            ModPrefs.RegisterPrefBool("vrctools", "enableramexploitpatch", true, "Enable RAMExploit Patch");
+            ModPrefs.RegisterPrefBool("vrctools", "enabledebugconsole", false, "Enable Debug Console");
         }
 
         private void OnApplicationQuit()
@@ -66,14 +71,14 @@ namespace VRCTools
 
             yield return DependenciesDownloader.CheckDownloadFiles();
             yield return VRCModLoaderUpdater.CheckVRCModLoaderHash();
-            DiscordManager.Init();
+            if (ModPrefs.GetBool("vrctools", "enablediscordrichpresence")) DiscordManager.Init();
             yield return CheckForPermissions();
 
-            RamExploitPatcher.Patch();
+            if(ModPrefs.GetBool("vrctools", "enableramexploitpatch")) RamExploitPatcher.Patch();
             VRCModNetworkStatus.Setup();
             ModConfigPage.Setup();
             ModdedUsersManager.Init();
-            AvatarStealerChecker.Setup();
+            if (ModPrefs.GetBool("vrctools", "enablestealerdetector")) AvatarStealerChecker.Setup();
 
 
             VRCFlowManagerUtils.EnableVRCFlowManager();

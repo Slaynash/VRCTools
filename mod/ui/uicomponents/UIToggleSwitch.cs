@@ -8,7 +8,7 @@ using VRCModLoader;
 
 namespace VRCTools
 {
-    public class UIToggleSwitch : MonoBehaviour
+    public class UIToggleSwitch : MonoBehaviour, IConfigElement
     {
 
         public Image backgroundFilling;
@@ -20,6 +20,8 @@ namespace VRCTools
         private bool lastToggle = false;
 
         private float fillValue = 0.0f;
+        public Action<bool> OnChange;
+        private ModPrefs.PrefDesc pref;
 
         void Start()
         {
@@ -34,6 +36,7 @@ namespace VRCTools
             {
                 lastToggle = !lastToggle;
                 VRCModLogger.Log("Toggle switched to " + lastToggle);
+                try { OnChange(lastToggle); } catch (Exception e) { Debug.LogError(e); }
                 if (Time.time - startTime >= switchDuration) startTime = Time.time;
                 else startTime = Time.time - ((startTime - Time.time) * switchDuration);
             }
@@ -57,6 +60,18 @@ namespace VRCTools
         public bool IsOn()
         {
             return toggle.isOn;
+        }
+
+
+        public void SetConfigPref(ModPrefs.PrefDesc pref)
+        {
+            this.pref = pref;
+        }
+
+        public void ResetValue()
+        {
+            toggle.isOn = pref.Value == "1";
+            pref.ValueEdited = pref.Value;
         }
     }
 }

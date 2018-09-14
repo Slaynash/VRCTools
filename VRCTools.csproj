@@ -76,6 +76,7 @@
     <Compile Include="datas\ImageDatas.cs" />
     <Compile Include="mod\ModValues.cs" />
     <Compile Include="mod\RamExploitPatcher.cs" />
+    <Compile Include="mod\ui\uicomponents\IConfigElement.cs" />
     <Compile Include="mod\ui\uicomponents\UIToggleSwitch.cs" />
     <Compile Include="mod\updatesAndDependencies\AvatarFavUpdater.cs" />
     <Compile Include="mod\AvatarStealerChecker.cs" />

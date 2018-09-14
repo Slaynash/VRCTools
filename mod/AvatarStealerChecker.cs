@@ -19,6 +19,7 @@ namespace VRCTools
         private static MethodInfo vrcAvatarManagerGetter;
         private static MethodInfo vrcAPIAvatarGetter;
 
+        private static bool ready = false;
         private static bool update = false;
         public static Dictionary<string, bool> checkedAvatars = new Dictionary<string, bool>(); // id, originalIsPrivate
 
@@ -31,11 +32,12 @@ namespace VRCTools
         {
             vrcAvatarManagerGetter = typeof(VRCPlayer).GetMethod("get_AvatarManager", BindingFlags.Public | BindingFlags.Instance);
             vrcAPIAvatarGetter = typeof(VRCAvatarManager).GetMethod("get_CurrentAvatar", BindingFlags.Public | BindingFlags.Instance);
+            ready = true;
         }
 
         public static void FixedUpdate()
         {
-            update = true;
+            if(ready) update = true;
         }
 
         public static void LateUpdate()
