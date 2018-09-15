@@ -60,6 +60,8 @@ namespace VRCTools
                         else
                         {
                             string blueprintId = player.gameObject.GetComponentInChildren<VRCCoreEditor::VRC.Core.PipelineManager>()?.blueprintId ?? "";
+                            if(blueprintId == "") blueprintId = player.gameObject.GetComponentInChildren<VRC.Core.PipelineManager>()?.blueprintId ?? ""; // Some avatars have this class rather than the other one
+
                             string authorId = currentAvatar.authorId;
                             if(!blueprintId.Equals("") && !id.Equals(blueprintId) && !checkedAvatars.ContainsKey(id))
                             {

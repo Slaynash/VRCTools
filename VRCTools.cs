@@ -15,7 +15,7 @@ using VRCModNetwork;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.4.2", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
+    [VRCModInfo("VRCTools", "0.4.3", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
     public class VRCTools : VRCMod
     {
 
