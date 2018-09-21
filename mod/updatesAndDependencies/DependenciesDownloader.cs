@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using UnityEngine;
@@ -16,21 +17,30 @@ namespace VRCTools
         internal static IEnumerator CheckDownloadFiles()
         {
             string vrccedllPath = Values.VRCToolsDependenciesPath + "VRCCore-Editor.dll";
-            string oharmonydllPath = Values.VRCToolsDependenciesPath + "0Harmony.dll";
-            
+
+            int buildNumber = -1;
+            VRCModLogger.Log("[ModConfigPage] Getting game version");
+            PropertyInfo vrcApplicationSetupInstanceProperty = typeof(VRCApplicationSetup).GetProperties(BindingFlags.Public | BindingFlags.Static).First((pi) => pi.PropertyType == typeof(VRCApplicationSetup));
+            if (vrcApplicationSetupInstanceProperty != null) buildNumber = ((VRCApplicationSetup)vrcApplicationSetupInstanceProperty.GetValue(null, null)).buildNumber;
+            VRCModLogger.Log("[ModConfigPage] Game build " + buildNumber);
+
+
             yield return DownloadDependency(ModValues.discordrpcdependencyDownloadLink, "discord-rpc.dll");
-            yield return DownloadDependency(ModValues.vrccoreeditordependencyDownloadLink, "VRCCore-Editor.dll");
-            yield return DownloadDependency(ModValues.oharmonydependencyDownloadLink, "0Harmony.dll");
-            //yield return DownloadDependency(ModValues.vrcmnwclientdependencyDownloadLink, "VRCModNetworkClient.dll");
+            if (buildNumber < 630) yield return DownloadDependency(ModValues.vrccoreeditordependencyDownloadLink, "VRCCore-Editor.dll");
 
             VRCModLogger.Log("[DependenciesDownloader] Initializing Discord RichPresence");
             DiscordManager.Init();
-            Assembly.LoadFile(vrccedllPath);
-            Assembly.LoadFile(oharmonydllPath);
+
+            if (buildNumber < 630) // VRCCore-Editor has been added to the game since build 360
+            {
+                VRCModLogger.Log("[DependenciesDownloader] Loading VRCCore-Editor.dll");
+                Assembly.LoadFile(vrccedllPath);
+            }
         }
 
         private static IEnumerator DownloadDependency(string downloadUrl, string dllName)
         {
+            VRCModLogger.Log("[DependenciesDownloader] Checking dependency " + dllName);
             String dependenciesDownloadFile = Values.VRCToolsDependenciesPath + dllName;
 
             if (!File.Exists(dependenciesDownloadFile))

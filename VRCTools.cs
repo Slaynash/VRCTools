@@ -15,7 +15,7 @@ using VRCModNetwork;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.4.3", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
+    [VRCModInfo("VRCTools", "0.4.4", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
     public class VRCTools : VRCMod
     {
 
@@ -42,7 +42,6 @@ namespace VRCTools
 
             ModPrefs.RegisterPrefBool("vrctools", "enablediscordrichpresence", true, "Enable Discord RichPresence");
             ModPrefs.RegisterPrefBool("vrctools", "enablestealerdetector", true, "Enable Stealer Detector");
-            ModPrefs.RegisterPrefBool("vrctools", "enableramexploitpatch", true, "Enable RAMExploit Patch");
             ModPrefs.RegisterPrefBool("vrctools", "enabledebugconsole", false, "Enable Debug Console");
         }
 
@@ -56,9 +55,11 @@ namespace VRCTools
             VRCModLogger.Log("[VRCTools] OnLevelWasLoaded " + level);
             if (level == 0 && !initialising && !Initialised)
             {
-                VRCModLogger.Log("[VRCTools] Initialising VRCTools");
+                VRCModLogger.Log("[VRCTools] Disabling VRCFlowManager");
                 VRCFlowManagerUtils.DisableVRCFlowManager();
+                VRCModLogger.Log("[VRCTools] Initialising VRCTools");
                 ModManager.StartCoroutine(VRCToolsSetup());
+                VRCModLogger.Log("[VRCTools] VRCToolsSetup Coroutine started");
                 initialising = true;
                 
                 //ModManager.StartCoroutine(PrintVRCUiManagerHierarchy());
@@ -67,19 +68,36 @@ namespace VRCTools
 
         private IEnumerator VRCToolsSetup()
         {
+            VRCModLogger.Log("[VRCTools] Waiting for UI Manager...");
             yield return VRCUiManagerUtils.WaitForUiManagerInit();
+            VRCModLogger.Log("[VRCTools] UIManager initialised ! Resuming setup");
+            // DEBUG // DebugUtils.PrintHierarchy(VRCUiManagerUtils.GetVRCUiManager().transform, 0);
 
+            VRCModLogger.Log("[VRCTools] CheckDownloadFiles");
             yield return DependenciesDownloader.CheckDownloadFiles();
+            VRCModLogger.Log("[VRCTools] CheckVRCModLoaderHash");
             yield return VRCModLoaderUpdater.CheckVRCModLoaderHash();
-            if (ModPrefs.GetBool("vrctools", "enablediscordrichpresence")) DiscordManager.Init();
+            if (ModPrefs.GetBool("vrctools", "enablediscordrichpresence"))
+            {
+                VRCModLogger.Log("[VRCTools] DiscordManager Init");
+                DiscordManager.Init();
+            }
+            VRCModLogger.Log("[VRCTools] CheckForPermissions");
             yield return CheckForPermissions();
 
-            if(ModPrefs.GetBool("vrctools", "enableramexploitpatch")) RamExploitPatcher.Patch();
+            VRCModLogger.Log("[VRCTools] VRCModNetworkStatus Setup");
             VRCModNetworkStatus.Setup();
+            VRCModLogger.Log("[VRCTools] ModConfigPage Setup");
             ModConfigPage.Setup();
+            VRCModLogger.Log("[VRCTools] ModdedUsersManager Init");
             ModdedUsersManager.Init();
-            if (ModPrefs.GetBool("vrctools", "enablestealerdetector")) AvatarStealerChecker.Setup();
+            if (ModPrefs.GetBool("vrctools", "enablestealerdetector"))
+            {
+                VRCModLogger.Log("[VRCTools] AvatarStealerChecker Setup");
+                AvatarStealerChecker.Setup();
+            }
 
+            VRCModLogger.Log("[VRCTools] Init done !");
 
             VRCFlowManagerUtils.EnableVRCFlowManager();
 
@@ -149,7 +167,7 @@ namespace VRCTools
 
         private static void ShowAuthChangePopup()
         {
-            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "You can change this in the setting panel of VRCTools at any time (Upcoming feature)", "OK", () => {
+            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "You can change this in the setting panel of VRCTools at any time", "OK", () => {
                 VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
                 popupClosed = true;
             });

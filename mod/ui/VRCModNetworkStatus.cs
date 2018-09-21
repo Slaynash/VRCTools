@@ -19,7 +19,7 @@ namespace VRCTools
             if (baseTextTransform != null)
             {
                 Transform vrcmodNetworkTransform = new GameObject("VRCModNetworkStatusText", typeof(RectTransform), typeof(Text)).transform;
-                vrcmodNetworkTransform.SetParent(baseTextTransform.parent);
+                vrcmodNetworkTransform.SetParent(baseTextTransform.parent, false);
                 vrcmodNetworkTransform.SetSiblingIndex(baseTextTransform.GetSiblingIndex() + 1);
 
                 networkstatusText = vrcmodNetworkTransform.GetComponent<Text>();

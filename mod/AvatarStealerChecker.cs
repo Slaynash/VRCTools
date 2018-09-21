@@ -1,6 +1,4 @@
-﻿extern alias VRCCoreEditor;
-
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -55,12 +53,12 @@ namespace VRCTools
                         if (checkedAvatars.TryGetValue(id, out bool originalIsPrivate))
                         {
                             if (originalIsPrivate)
-                                player.vrcPlayer.SetNamePlateColor(Color.blue);
+                                player.vrcPlayer.SetNamePlateColor(new Color(255, 122, 219));
                         }
                         else
                         {
-                            string blueprintId = player.gameObject.GetComponentInChildren<VRCCoreEditor::VRC.Core.PipelineManager>()?.blueprintId ?? "";
-                            if(blueprintId == "") blueprintId = player.gameObject.GetComponentInChildren<VRC.Core.PipelineManager>()?.blueprintId ?? ""; // Some avatars have this class rather than the other one
+                            string blueprintId = player.gameObject.GetComponentInChildren<PipelineManager>()?.blueprintId ?? "";
+                            // OBSOLETE SINCE BUILD 632 // if(blueprintId == "") blueprintId = player.gameObject.GetComponentInChildren<VRC.Core.PipelineManager>()?.blueprintId ?? ""; // Some avatars have this class rather than the other one
 
                             string authorId = currentAvatar.authorId;
                             if(!blueprintId.Equals("") && !id.Equals(blueprintId) && !checkedAvatars.ContainsKey(id))
