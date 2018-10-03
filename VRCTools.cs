@@ -15,7 +15,7 @@ using VRCModNetwork;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.4.4", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
+    [VRCModInfo("VRCTools", "0.4.5", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
     public class VRCTools : VRCMod
     {
 
@@ -111,6 +111,8 @@ namespace VRCTools
             VRCModNetworkManager.Update();
             ModdedUsersManager.Update();
             DiscordManager.Update();
+
+            if (Input.GetKeyDown(KeyCode.L)) VRCModNetworkManager.ValidityCheckListener("internal", "");
         }
 
         private void OnFixedUpdate()

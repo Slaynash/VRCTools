@@ -83,9 +83,9 @@ namespace CComVRCModNetworkEdition
             }
         }
 
-        public static Command CreateInstance(String className, Client client)
+        public static Command CreateInstance(String className, Client client, bool log = true)
         {
-            VRCModLogger.Log("Creating command instance " + className + ". Client: " + client);
+            if(log) VRCModLogger.Log("Creating command instance " + className + ". Client: " + client);
             if (commands.TryGetValue(className, out Type commandClass))
             {
                 try
@@ -96,6 +96,7 @@ namespace CComVRCModNetworkEdition
                     {
                         outId = (long)(counter.NextDouble() * long.MaxValue);
                     }
+                    command.SetLog(log);
                     command.SetClient(client);
                     command.SetOutId(className + " " + outId);
                     if (!runningCommands.TryGetValue(className, out Dictionary<string, Command> commandContainer))

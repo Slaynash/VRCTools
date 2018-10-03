@@ -179,6 +179,11 @@ namespace CComVRCModNetworkEdition
             sslStream.Write(Encoding.UTF8.GetBytes(lout + "\r\n"));
         }
 
+        public void WriteLineNoLog(string lout)
+        {
+            sslStream.Write(Encoding.UTF8.GetBytes(lout + "\r\n"));
+        }
+
         private void Listen()
         {
             string input = "";

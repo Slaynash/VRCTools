@@ -7,6 +7,7 @@ namespace CComVRCModNetworkEdition
     {
         private Client client = null;
         private string outId = "";
+        public bool Log { get; private set; }
 
         public abstract void Handle(string parts);
 
@@ -14,12 +15,16 @@ namespace CComVRCModNetworkEdition
         {
             try
             {
-                client.WriteLine(outId + " " + s);
+                if(Log) client.WriteLine(outId + " " + s);
+                else client.WriteLineNoLog(outId + " " + s);
             }
             catch (Exception e)
             {
-                VRCModLogger.LogError(e.ToString());
-                RemoteError(e.Message);
+                if (Log)
+                {
+                    VRCModLogger.LogError(e.ToString());
+                    RemoteError(e.Message);
+                }
             }
         }
 
@@ -27,13 +32,22 @@ namespace CComVRCModNetworkEdition
         {
             try
             {
-                client.WriteLineSecure(outId + " " + s);
+                if(Log) client.WriteLineSecure(outId + " " + s);
+                else client.WriteLineNoLog(outId + " " + s);
             }
             catch (Exception e)
             {
-                VRCModLogger.LogError(e.ToString());
-                RemoteError(e.Message);
+                if (Log)
+                {
+                    VRCModLogger.LogError(e.ToString());
+                    RemoteError(e.Message);
+                }
             }
+        }
+
+        internal void SetLog(bool log)
+        {
+            this.Log = log;
         }
 
         public void SetClient(Client client)

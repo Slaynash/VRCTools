@@ -53,7 +53,7 @@ namespace VRCTools
                         if (checkedAvatars.TryGetValue(id, out bool originalIsPrivate))
                         {
                             if (originalIsPrivate)
-                                player.vrcPlayer.SetNamePlateColor(new Color(255, 122, 219));
+                                player.vrcPlayer.SetNamePlateColor(new Color(1.0f, 0.48f, 0.86f));
                         }
                         else
                         {

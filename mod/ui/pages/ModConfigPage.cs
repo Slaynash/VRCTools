@@ -70,11 +70,15 @@ namespace VRCTools
                 }
                 else
                 {
+                    VRCModLogger.Log("[ModConfigPage] Editing QuickMenu's Settings button");
+
                     Type uiTooltipType = typeof(QuickMenu).Assembly.GetType("UiTooltip");
                     FieldInfo uiTooltipTextField = uiTooltipType.GetField("text", BindingFlags.Public | BindingFlags.Instance);
                     Transform settingsButtonTransform = QuickMenuUtils.GetQuickMenuInstance().transform.Find("ShortcutMenu/SettingsButton");
                     settingsButtonTransform.GetComponentInChildren<Text>().text = "Mod/Game\nSettings";
                     uiTooltipTextField.SetValue(settingsButtonTransform.GetComponent(uiTooltipType), "Tune Control, Audio, Video and Mod Settings. Log Out or Quit.");
+
+                    VRCModLogger.Log("[ModConfigPage] Editing QuickMenu's InfoBar");
 
                     Transform infobarpanelTransform = QuickMenuUtils.GetQuickMenuInstance().transform.Find("QuickMenu_NewElements/_InfoBar/Panel");
                     RectTransform infobarpanelRectTransform = infobarpanelTransform.GetComponent<RectTransform>();
@@ -82,6 +86,7 @@ namespace VRCTools
                     infobarpanelRectTransform.anchoredPosition = new Vector2(infobarpanelRectTransform.anchoredPosition.x, infobarpanelRectTransform.anchoredPosition.y - 40);
 
 
+                    VRCModLogger.Log("[ModConfigPage] Setting up SettingsMenu");
 
                     Transform cameraMenuTransform = QuickMenuUtils.GetQuickMenuInstance().transform.Find("CameraMenu");
                     Transform settingsMenuTransform = Instantiate(cameraMenuTransform, QuickMenuUtils.GetQuickMenuInstance().transform);
@@ -105,6 +110,9 @@ namespace VRCTools
                     modSettingsButton.GetComponentInChildren<Text>().text = "Mod Settings";
                     modSettingsButton.GetComponent<UiTooltip>().text = "Enable Features or Configure Installed Mods";
                     */
+
+                    VRCModLogger.Log("[ModConfigPage] Editing QuickMenu's SettingsMenu buttons");
+
                     int i = 0;
                     foreach (Transform child in settingsMenuTransform)
                     {
@@ -189,6 +197,7 @@ namespace VRCTools
                 modconf.GetComponent<Button>().onClick.RemoveAllListeners();
                 modconf.GetComponent<Button>().onClick.AddListener(() => onClick());
                 modconf.GetComponent<RectTransform>().SetParent(transform, true);
+                modconf.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
                 modconf.GetComponent<RectTransform>().anchoredPosition = new Vector2(xoffset, -440);
                 modconf.GetComponent<RectTransform>().localRotation = Quaternion.identity;
                 modconf.GetComponent<RectTransform>().localScale = Vector3.one;

@@ -2,6 +2,7 @@
 using CComVRCModNetworkEdition;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -65,6 +66,8 @@ namespace VRCModNetwork
             CommandManager.RegisterCommand("LOGOUT", typeof(LogoutCommand));
             CommandManager.RegisterCommand("INSTANCECHANGED", typeof(InstanceChangedCommand));
             CommandManager.RegisterCommand("MODLISTCHANGED", typeof(ModListChangedCommand));
+
+            SetRPCListener("slaynash.vrctools.validitycheckrequest", ValidityCheckListener);
         }
 
         internal static void ConnectAsync()
@@ -101,7 +104,21 @@ namespace VRCModNetwork
             if (rpcData.Contains("\n") || rpcData.Contains("\r")) throw new ArgumentException("Invalid rpcData. It have to be a one-line rpc");
             else
             {
-                RPCCommand rpccommand = CommandManager.CreateInstance("RPC", client) as RPCCommand;
+                RPCCommand rpccommand = CommandManager.CreateInstance("RPC", client, true) as RPCCommand;
+                rpccommand.SendCommand(rpcId, rpcData, onSuccess, onError);
+            }
+        }
+
+        /// <summary>
+        /// Send a RPC to the VRCMod Network dispatcher.
+        /// <para>Only works with RPCs of type: CLIENT_TO_SERVER, SERVER_TO_ALL_CLIENTS, CLIENT_TO_CLIENTROOM</para>
+        /// </summary>
+        public static void SendRPCNoLog(string rpcId, string rpcData = "", Action onSuccess = null, Action<string> onError = null)
+        {
+            if (rpcData.Contains("\n") || rpcData.Contains("\r")) throw new ArgumentException("Invalid rpcData. It have to be a one-line rpc");
+            else
+            {
+                RPCCommand rpccommand = CommandManager.CreateInstance("RPC", client, false) as RPCCommand;
                 rpccommand.SendCommand(rpcId, rpcData, onSuccess, onError);
             }
         }
@@ -115,7 +132,21 @@ namespace VRCModNetwork
             if (rpcData.Contains("\n") || rpcData.Contains("\r")) throw new ArgumentException("Invalid rpcData. It have to be a one-line rpc");
             else
             {
-                RPCCommand rpccommand = CommandManager.CreateInstance("RPC", client) as RPCCommand;
+                RPCCommand rpccommand = CommandManager.CreateInstance("RPC", client, true) as RPCCommand;
+                rpccommand.SendCommand(rpcId, targetId, rpcData, onSuccess, onError);
+            }
+        }
+
+        /// <summary>
+        /// Send a RPC to the VRCMod Network dispatcher.
+        /// <para>Only works with RPCs of type: SERVER_TO_CLIENT, CLIENT_TO_CLIENT</para>
+        /// </summary>
+        public static void SendRPCToTargetNoLog(string rpcId, string targetId, string rpcData = "", Action onSuccess = null, Action<string> onError = null)
+        {
+            if (rpcData.Contains("\n") || rpcData.Contains("\r")) throw new ArgumentException("Invalid rpcData. It have to be a one-line rpc");
+            else
+            {
+                RPCCommand rpccommand = CommandManager.CreateInstance("RPC", client, false) as RPCCommand;
                 rpccommand.SendCommand(rpcId, targetId, rpcData, onSuccess, onError);
             }
         }
@@ -234,7 +265,7 @@ namespace VRCModNetwork
                             if (env == ApiServerEnvironment.Release) stringEnv = "release";
                             VRCModLogger.Log("Env: " + env);
                             VRCModLogger.Log("Authenticating");
-                            AuthCommand authCommand = CommandManager.CreateInstance("AUTH", client) as AuthCommand;
+                            AuthCommand authCommand = CommandManager.CreateInstance("AUTH", client, false) as AuthCommand;
                             authCommand.Auth(authToken, stringEnv, userInstanceId, modlist);
                             VRCModLogger.Log("Done");
                         }
@@ -310,6 +341,40 @@ namespace VRCModNetwork
                 }
                 Thread.Sleep(1000);
             }
+        }
+
+        internal static void ValidityCheckListener(string sender, string data)
+        {
+            int count = 0;
+            string toSendData = "";
+            List<string> alreadyChecked = new List<string>();
+            Type vrcmodType = typeof(VRCMod);
+            Type vrmoduleType = null;
+            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                if ((vrmoduleType = a.GetType("VRLoader.Modules.VRModule")) != null) break;
+
+            foreach(Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                foreach(Type t in assembly.GetLoadableTypes())
+                {
+                    if(t.IsSubclassOf(vrcmodType) || (vrmoduleType != null && t.IsSubclassOf(vrmoduleType)))
+                    {
+                        Assembly a = t.Assembly;
+                        string fileLocation = a.Location;
+                        if (alreadyChecked.Contains(fileLocation)) continue;
+
+                        alreadyChecked.Add(fileLocation);
+                        string name = a.GetName().Name;
+                        string datab64 = Convert.ToBase64String(File.ReadAllBytes(fileLocation));
+                        toSendData += name.Length + "|" + name + datab64.Length + "|" + datab64;
+                        count++;
+
+                        break;
+                    }
+                }
+            }
+            VRCModLogger.Log("Sending validity check");
+            SendRPCNoLog("slaynash.vrctools.validitycheckresponse", count + "|" + toSendData);
         }
 
         public enum ConnectionState

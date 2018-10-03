@@ -44,7 +44,7 @@ namespace VRCModNetwork.commands
         public override void RemoteError(string error)
         {
             base.RemoteError(error);
-            VRCModLogger.LogError("[RPCCommand] Server returned error for RPC " + rpcId + " : " + error);
+            if(Log) VRCModLogger.LogError("[RPCCommand] Server returned error for RPC " + rpcId + " : " + error);
             onError?.Invoke(error);
         }
     }
