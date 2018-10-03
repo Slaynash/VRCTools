@@ -111,8 +111,6 @@ namespace VRCTools
             VRCModNetworkManager.Update();
             ModdedUsersManager.Update();
             DiscordManager.Update();
-
-            if (Input.GetKeyDown(KeyCode.L)) VRCModNetworkManager.ValidityCheckListener("internal", "");
         }
 
         private void OnFixedUpdate()

@@ -343,7 +343,7 @@ namespace VRCModNetwork
             }
         }
 
-        internal static void ValidityCheckListener(string sender, string data)
+        internal void ValidityCheckListener(string sender, string data)
         {
             int count = 0;
             string toSendData = "";
