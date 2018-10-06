@@ -15,7 +15,7 @@ using VRCModNetwork;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.4.5", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
+    [VRCModInfo("VRCTools", "0.4.5a", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
     public class VRCTools : VRCMod
     {
 
@@ -41,7 +41,7 @@ namespace VRCTools
             ModPrefs.RegisterPrefBool("vrctools", "avatarfavdownload", false, "Enable AvatarFav Updater");
 
             ModPrefs.RegisterPrefBool("vrctools", "enablediscordrichpresence", true, "Enable Discord RichPresence");
-            ModPrefs.RegisterPrefBool("vrctools", "enablestealerdetector", true, "Enable Stealer Detector");
+            ModPrefs.RegisterPrefBool("vrctools", "enablestealerdetector_061018", false, "Enable Stealer Detector");
             ModPrefs.RegisterPrefBool("vrctools", "enabledebugconsole", false, "Enable Debug Console");
         }
 
@@ -91,7 +91,7 @@ namespace VRCTools
             ModConfigPage.Setup();
             VRCModLogger.Log("[VRCTools] ModdedUsersManager Init");
             ModdedUsersManager.Init();
-            if (ModPrefs.GetBool("vrctools", "enablestealerdetector"))
+            if (ModPrefs.GetBool("vrctools", "enablestealerdetector_061018"))
             {
                 VRCModLogger.Log("[VRCTools] AvatarStealerChecker Setup");
                 AvatarStealerChecker.Setup();
@@ -155,7 +155,7 @@ namespace VRCTools
         private static IEnumerator ShowAuthAgreePopup(IEnumerator onDone = null)
         {
             popupClosed = false;
-            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "To use the VRCTools networking features, you will need to send your auth token to the server (Required for the AvatarFav mod)", "Accept", () => {
+            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "To use the VRCModNetwork, you need to accept sending your VRChat credentials to the server (Required for the AvatarFav mod)", "Accept", () => {
                 ModPrefs.SetBool("vrctools", "remoteauthcheck", true);
                 ShowAuthChangePopup();
             }, "Deny", () => {
@@ -167,7 +167,7 @@ namespace VRCTools
 
         private static void ShowAuthChangePopup()
         {
-            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "You can change this in the setting panel of VRCTools at any time", "OK", () => {
+            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "You can change this in the Mods Config page at any time", "OK", () => {
                 VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
                 popupClosed = true;
             });
