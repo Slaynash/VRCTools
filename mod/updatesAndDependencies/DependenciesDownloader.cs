@@ -26,13 +26,10 @@ namespace VRCTools
 
 
             yield return DownloadDependency(ModValues.discordrpcdependencyDownloadLink, "discord-rpc.dll");
-            if (buildNumber < 630) yield return DownloadDependency(ModValues.vrccoreeditordependencyDownloadLink, "VRCCore-Editor.dll");
 
-            VRCModLogger.Log("[DependenciesDownloader] Initializing Discord RichPresence");
-            DiscordManager.Init();
+            if (buildNumber < 630){
+                yield return DownloadDependency(ModValues.vrccoreeditordependencyDownloadLink, "VRCCore-Editor.dll");
 
-            if (buildNumber < 630) // VRCCore-Editor has been added to the game since build 360
-            {
                 VRCModLogger.Log("[DependenciesDownloader] Loading VRCCore-Editor.dll");
                 Assembly.LoadFile(vrccedllPath);
             }
