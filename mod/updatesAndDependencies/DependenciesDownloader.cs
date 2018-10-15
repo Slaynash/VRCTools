@@ -26,13 +26,6 @@ namespace VRCTools
 
 
             yield return DownloadDependency(ModValues.discordrpcdependencyDownloadLink, "discord-rpc.dll");
-
-            if (buildNumber < 630){
-                yield return DownloadDependency(ModValues.vrccoreeditordependencyDownloadLink, "VRCCore-Editor.dll");
-
-                VRCModLogger.Log("[DependenciesDownloader] Loading VRCCore-Editor.dll");
-                Assembly.LoadFile(vrccedllPath);
-            }
         }
 
         private static IEnumerator DownloadDependency(string downloadUrl, string dllName)

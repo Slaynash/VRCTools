@@ -18,8 +18,7 @@ namespace VRCTools
         {
             //Create mods config page
             VRCModLogger.Log("[ModConfigPage] Setup");
-
-            GameObject screens = GameObject.Find("UserInterface/MenuContent/Screens");
+            
             GameObject avatarscreen = GameObject.Find("UserInterface/MenuContent/Screens/Avatar");
             GameObject cameramenu = GameObject.Find("UserInterface/MenuContent/Screens/CameraMenu");
             VRCModLogger.Log("[ModConfigPage] avatarscreen: " + avatarscreen);
@@ -27,7 +26,7 @@ namespace VRCTools
             {
                 VRCModLogger.Log("[ModConfigPage] Setting up ModConfigPage");
                 GameObject go = new GameObject("ModConfig", typeof(RectTransform), typeof(VRCUiPage));
-                go.transform.SetParent(screens.transform, false);
+                go.transform.SetParent(avatarscreen.transform.parent, false);
                 go.GetComponent<VRCUiPage>().screenType = avatarscreen.GetComponent<VRCUiPage>().screenType;
                 go.GetComponent<VRCUiPage>().displayName = "Mod Conf";
                 go.GetComponent<VRCUiPage>().AudioShow = avatarscreen.GetComponent<VRCUiPage>().AudioShow;
@@ -44,106 +43,66 @@ namespace VRCTools
                 PropertyInfo vrcApplicationSetupInstanceProperty = typeof(VRCApplicationSetup).GetProperties(BindingFlags.Public | BindingFlags.Static).First((pi) => pi.PropertyType == typeof(VRCApplicationSetup));
                 if (vrcApplicationSetupInstanceProperty != null) buildNumber = ((VRCApplicationSetup)vrcApplicationSetupInstanceProperty.GetValue(null, null)).buildNumber;
                 VRCModLogger.Log("[ModConfigPage] Game build " + buildNumber);
+                
+                VRCModLogger.Log("[ModConfigPage] Editing QuickMenu's Settings button");
+                
+                Transform settingsButtonTransform = QuickMenuUtils.GetQuickMenuInstance().transform.Find("ShortcutMenu/SettingsButton");
+                settingsButtonTransform.GetComponentInChildren<Text>().text = "Mod/Game\nSettings";
+                settingsButtonTransform.GetComponent<UiTooltip>().text = "Tune Control, Audio, Video and Mod Settings. Log Out or Quit.";
 
-                if (buildNumber < 630)
+                VRCModLogger.Log("[ModConfigPage] Editing QuickMenu's InfoBar");
+
+                Transform infobarpanelTransform = QuickMenuUtils.GetQuickMenuInstance().transform.Find("QuickMenu_NewElements/_InfoBar/Panel");
+                RectTransform infobarpanelRectTransform = infobarpanelTransform.GetComponent<RectTransform>();
+                infobarpanelRectTransform.sizeDelta = new Vector2(infobarpanelRectTransform.sizeDelta.x, infobarpanelRectTransform.sizeDelta.y + 80);
+                infobarpanelRectTransform.anchoredPosition = new Vector2(infobarpanelRectTransform.anchoredPosition.x, infobarpanelRectTransform.anchoredPosition.y - 40);
+
+
+                VRCModLogger.Log("[ModConfigPage] Setting up SettingsMenu");
+
+                Transform cameraMenuTransform = QuickMenuUtils.GetQuickMenuInstance().transform.Find("CameraMenu");
+                Transform settingsMenuTransform = Instantiate(cameraMenuTransform, QuickMenuUtils.GetQuickMenuInstance().transform);
+                settingsMenuTransform.name = "SettingsMenu";
+
+                Button.ButtonClickedEvent showGameConfigMenu = settingsButtonTransform.GetComponent<Button>().onClick;
+                settingsButtonTransform.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
+                settingsButtonTransform.GetComponent<Button>().onClick.AddListener(() =>
                 {
-                    //Create mods config quickmenu button
-                    Transform baseButtonTransform = QuickMenuUtils.GetQuickMenuInstance().transform.Find("ShortcutMenu/CloseButton");
-                    if (baseButtonTransform != null)
-                    {
-                        Transform modconf = UnityUiUtils.DuplicateButton(baseButtonTransform, "Mod\nConfigs", new Vector2(-420, 0));
-                        modconf.name = "ModConfigsButton";
-                        modconf.GetComponentInChildren<Text>().color = new Color(1, 0.5f, 0.1f);
-                        //modconf.GetComponent<Button>().interactable = false;
-                        modconf.GetComponent<Button>().onClick.RemoveAllListeners();
-                        modconf.GetComponent<Button>().onClick.AddListener(() =>
-                        {
-                            VRCUiManagerUtils.GetVRCUiManager().ShowUi(false, true);
-                            ModManager.StartCoroutine(QuickMenuUtils.PlaceUiAfterPause());
-                            VRCUiManagerUtils.GetVRCUiManager().ShowScreen("UserInterface/MenuContent/Screens/ModConfig");
-                        });
-                    }
-                    else
-                    {
-                        VRCModLogger.Log("[ModConfigPage] QuickMenu/ShortcutMenu/CloseButton is null");
-                    }
-                }
-                else
+                    QuickMenuUtils.ShowQuickmenuPage("SettingsMenu");
+                });
+
+                VRCModLogger.Log("[ModConfigPage] Editing QuickMenu's SettingsMenu buttons");
+
+                int i = 0;
+                foreach (Transform child in settingsMenuTransform)
                 {
-                    VRCModLogger.Log("[ModConfigPage] Editing QuickMenu's Settings button");
-
-                    Type uiTooltipType = typeof(QuickMenu).Assembly.GetType("UiTooltip");
-                    FieldInfo uiTooltipTextField = uiTooltipType.GetField("text", BindingFlags.Public | BindingFlags.Instance);
-                    Transform settingsButtonTransform = QuickMenuUtils.GetQuickMenuInstance().transform.Find("ShortcutMenu/SettingsButton");
-                    settingsButtonTransform.GetComponentInChildren<Text>().text = "Mod/Game\nSettings";
-                    uiTooltipTextField.SetValue(settingsButtonTransform.GetComponent(uiTooltipType), "Tune Control, Audio, Video and Mod Settings. Log Out or Quit.");
-
-                    VRCModLogger.Log("[ModConfigPage] Editing QuickMenu's InfoBar");
-
-                    Transform infobarpanelTransform = QuickMenuUtils.GetQuickMenuInstance().transform.Find("QuickMenu_NewElements/_InfoBar/Panel");
-                    RectTransform infobarpanelRectTransform = infobarpanelTransform.GetComponent<RectTransform>();
-                    infobarpanelRectTransform.sizeDelta = new Vector2(infobarpanelRectTransform.sizeDelta.x, infobarpanelRectTransform.sizeDelta.y + 80);
-                    infobarpanelRectTransform.anchoredPosition = new Vector2(infobarpanelRectTransform.anchoredPosition.x, infobarpanelRectTransform.anchoredPosition.y - 40);
-
-
-                    VRCModLogger.Log("[ModConfigPage] Setting up SettingsMenu");
-
-                    Transform cameraMenuTransform = QuickMenuUtils.GetQuickMenuInstance().transform.Find("CameraMenu");
-                    Transform settingsMenuTransform = Instantiate(cameraMenuTransform, QuickMenuUtils.GetQuickMenuInstance().transform);
-                    settingsMenuTransform.name = "SettingsMenu";
-
-                    Button.ButtonClickedEvent showGameConfigMenu = settingsButtonTransform.GetComponent<Button>().onClick;
-                    settingsButtonTransform.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
-                    settingsButtonTransform.GetComponent<Button>().onClick.AddListener(() =>
+                    if (child != null)
                     {
-                        QuickMenuUtils.ShowQuickmenuPage("SettingsMenu");
-                    });
-                    /*
-                    Transform gameSettingsButton = Instantiate(cameraMenuTransform.GetChild(0), settingsMenuTransform);
-                    Transform modSettingsButton = Instantiate(cameraMenuTransform.GetChild(1), settingsMenuTransform);
-                    Instantiate(cameraMenuTransform.Find("BackButton"), settingsMenuTransform);
-
-                    gameSettingsButton.name = "Game Settings";
-                    gameSettingsButton.GetComponentInChildren<Text>().text = "Game Settings";
-                    gameSettingsButton.GetComponent<UiTooltip>().text = "Tune Control, Audio and Video Settings. Log Out or Quit.";
-                    modSettingsButton.name = "Mod Settings";
-                    modSettingsButton.GetComponentInChildren<Text>().text = "Mod Settings";
-                    modSettingsButton.GetComponent<UiTooltip>().text = "Enable Features or Configure Installed Mods";
-                    */
-
-                    VRCModLogger.Log("[ModConfigPage] Editing QuickMenu's SettingsMenu buttons");
-
-                    int i = 0;
-                    foreach (Transform child in settingsMenuTransform)
-                    {
-                        if (child != null)
+                        if (i == 0)
                         {
-                            if (i == 0)
-                            {
-                                child.name = "Game Settings";
-                                child.GetComponentInChildren<Text>().text = "Game\nSettings";
-                                uiTooltipTextField.SetValue(child.GetComponent(uiTooltipType), "Tune Control, Audio and Video Settings. Log Out or Quit.");
-                                child.GetComponent<Button>().onClick = showGameConfigMenu;
-                            }
-                            else if (i == 1)
-                            {
-                                child.name = "Mod Settings";
-                                child.GetComponentInChildren<Text>().text = "Mod\nSettings";
-                                uiTooltipTextField.SetValue(child.GetComponent(uiTooltipType), "Enable Features or Configure Installed Mods");
-                                child.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
-                                child.GetComponent<Button>().onClick.AddListener(() =>
-                                {
-                                    VRCUiManagerUtils.GetVRCUiManager().ShowUi(false, true);
-                                    ModManager.StartCoroutine(QuickMenuUtils.PlaceUiAfterPause());
-                                    VRCUiManagerUtils.GetVRCUiManager().ShowScreen("UserInterface/MenuContent/Screens/ModConfig");
-                                });
-
-                            }
-                            else if (child.name != "BackButton")
-                                Destroy(child.gameObject);
+                            child.name = "Game Settings";
+                            child.GetComponentInChildren<Text>().text = "Game\nSettings";
+                            child.GetComponent<UiTooltip>().text = "Tune Control, Audio and Video Settings. Log Out or Quit.";
+                            child.GetComponent<Button>().onClick = showGameConfigMenu;
                         }
-                        i++;
+                        else if (i == 1)
+                        {
+                            child.name = "Mod Settings";
+                            child.GetComponentInChildren<Text>().text = "Mod\nSettings";
+                            child.GetComponent<UiTooltip>().text = "Enable Features or Configure Installed Mods";
+                            child.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
+                            child.GetComponent<Button>().onClick.AddListener(() =>
+                            {
+                                VRCUiManagerUtils.GetVRCUiManager().ShowUi(false, true);
+                                ModManager.StartCoroutine(QuickMenuUtils.PlaceUiAfterPause());
+                                VRCUiManagerUtils.GetVRCUiManager().ShowScreen("UserInterface/MenuContent/Screens/ModConfig");
+                            });
+
+                        }
+                        else if (child.name != "BackButton")
+                            Destroy(child.gameObject);
                     }
+                    i++;
                 }
 
             }
@@ -310,47 +269,6 @@ namespace VRCTools
             totalHeight += 70;
 
         }
-
-
-
-        // DEBUG
-
-        private Rect inspectorBox = new Rect(20, 20, 700, 700);
-        private Vector2 inspectorScroll;
-
-        void OnGUI()
-        {
-            //inspectorBox = GUI.Window(1, inspectorBox, OnGUIInspector, "Inspector"); // DEBUG
-        }
-
-        private void OnGUIInspector(int id)
-        {
-            GUI.DragWindow(new Rect(0, 0, 600, 26));
-            inspectorScroll = GUILayout.BeginScrollView(inspectorScroll);
-
-            ListAllGO(transform, 0);
-            /*
-            foreach (GameObject rootGO in GetComponent<RectTransform>())
-            {
-                //TODO list all hierarchy
-                ListAllGO(rootGO.transform, 0);
-            }
-            */
-            GUILayout.EndScrollView();
-        }
-
-        private void ListAllGO(Transform gameObject, int depth)
-        {
-            GUIStyle bs = new GUIStyle(GUI.skin.button);
-            bs.margin.left += depth * 10;
-            GUILayout.Button(gameObject.name + "[" + gameObject.position.x + "|" + gameObject.position.y + "|" + gameObject.position.z + "]", bs, GUILayout.Width(400));
-            foreach (Transform child in gameObject.transform)
-            {
-                ListAllGO(child, depth + 1);
-            }
-        }
-
-
 
     }
 }

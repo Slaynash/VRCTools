@@ -35,18 +35,12 @@ namespace VRCTools
             if (toggle.isOn != lastToggle)
             {
                 lastToggle = !lastToggle;
-                VRCModLogger.Log("Toggle switched to " + lastToggle);
                 try { OnChange(lastToggle); } catch (Exception e) { Debug.LogError(e); }
                 if (Time.time - startTime >= switchDuration) startTime = Time.time;
                 else startTime = Time.time - ((startTime - Time.time) * switchDuration);
             }
             fillValue = Mathf.Clamp((Time.time - startTime) * (1 / switchDuration), 0, 1);
             if (!lastToggle) fillValue = 1 - fillValue;
-
-            if(fillValue != 0 && fillValue != 1)
-            {
-                VRCModLogger.Log("fillValue: " + fillValue);
-            }
 
             cursor.GetComponent<RectTransform>().anchoredPosition = new Vector2(GetSwitchValue(-37, 37), 0);
             backgroundFilling.fillAmount = GetSwitchValue(0.1f, 0.9f);

@@ -20,7 +20,7 @@ namespace VRCModNetwork
         private static readonly bool DEV = false;
 
         private static readonly string SERVER_ADDRESS = "vrchat.survival-machines.fr";
-        private static readonly int SERVER_PORT = !DEV ? 26342 : 26345;
+        private static readonly int SERVER_PORT = 26342;
         private static readonly string VRCMODNW_VERSION = "1.0";
 
         private static Client client = null;
@@ -66,8 +66,6 @@ namespace VRCModNetwork
             CommandManager.RegisterCommand("LOGOUT", typeof(LogoutCommand));
             CommandManager.RegisterCommand("INSTANCECHANGED", typeof(InstanceChangedCommand));
             CommandManager.RegisterCommand("MODLISTCHANGED", typeof(ModListChangedCommand));
-
-            SetRPCListener("slaynash.vrctools.validitycheckrequest", ValidityCheckListener);
         }
 
         internal static void ConnectAsync()
@@ -341,40 +339,6 @@ namespace VRCModNetwork
                 }
                 Thread.Sleep(1000);
             }
-        }
-
-        internal void ValidityCheckListener(string sender, string data)
-        {
-            int count = 0;
-            string toSendData = "";
-            List<string> alreadyChecked = new List<string>();
-            Type vrcmodType = typeof(VRCMod);
-            Type vrmoduleType = null;
-            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
-                if ((vrmoduleType = a.GetType("VRLoader.Modules.VRModule")) != null) break;
-
-            foreach(Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                foreach(Type t in assembly.GetLoadableTypes())
-                {
-                    if(t.IsSubclassOf(vrcmodType) || (vrmoduleType != null && t.IsSubclassOf(vrmoduleType)))
-                    {
-                        Assembly a = t.Assembly;
-                        string fileLocation = a.Location;
-                        if (alreadyChecked.Contains(fileLocation)) continue;
-
-                        alreadyChecked.Add(fileLocation);
-                        string name = a.GetName().Name;
-                        string datab64 = Convert.ToBase64String(File.ReadAllBytes(fileLocation));
-                        toSendData += name.Length + "|" + name + datab64.Length + "|" + datab64;
-                        count++;
-
-                        break;
-                    }
-                }
-            }
-            VRCModLogger.Log("Sending validity check");
-            SendRPCNoLog("slaynash.vrctools.validitycheckresponse", count + "|" + toSendData);
         }
 
         public enum ConnectionState

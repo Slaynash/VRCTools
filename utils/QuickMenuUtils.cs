@@ -12,7 +12,6 @@ namespace VRCTools
     public static class QuickMenuUtils
     {
         private static QuickMenu quickmenuInstance;
-        //private static QuickMenuContextualDisplay quickmenuContextualDisplay;
         private static Type contextType;
         private static FieldInfo currentPageGetter;
         private static FieldInfo quickmenuContextualDisplayGetter;
@@ -60,7 +59,6 @@ namespace VRCTools
                 foreach (FieldInfo fi in fis)
                 {
                     GameObject value = fi.GetValue(quickmenu) as GameObject;
-                    //VRCModLogger.Log("[QuickMenuUtils]  - " + fi.Name + " : " + value);
                     if (value == shortcutMenu && ++count == 2)
                     {
                         VRCModLogger.Log("[QuickMenuUtils] currentPage field: " + fi.Name);
