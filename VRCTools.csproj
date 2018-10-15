@@ -77,7 +77,6 @@
     <Compile Include="mod\ui\uicomponents\IConfigElement.cs" />
     <Compile Include="mod\ui\uicomponents\UIToggleSwitch.cs" />
     <Compile Include="mod\updatesAndDependencies\AvatarFavUpdater.cs" />
-    <Compile Include="mod\AvatarStealerChecker.cs" />
     <Compile Include="mod\updatesAndDependencies\DependenciesDownloader.cs" />
     <Compile Include="mod\DiscordManager.cs" />
     <Compile Include="libs\DiscordRpc.cs" />

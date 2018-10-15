@@ -41,7 +41,6 @@ namespace VRCTools
             ModPrefs.RegisterPrefBool("vrctools", "avatarfavdownload", false, "Enable AvatarFav Updater");
 
             ModPrefs.RegisterPrefBool("vrctools", "enablediscordrichpresence", true, "Enable Discord RichPresence");
-            ModPrefs.RegisterPrefBool("vrctools", "enablestealerdetector_061018", false, "Enable Stealer Detector");
             ModPrefs.RegisterPrefBool("vrctools", "enabledebugconsole", false, "Enable Debug Console");
         }
 
@@ -61,8 +60,6 @@ namespace VRCTools
                 ModManager.StartCoroutine(VRCToolsSetup());
                 VRCModLogger.Log("[VRCTools] VRCToolsSetup Coroutine started");
                 initialising = true;
-                
-                //ModManager.StartCoroutine(PrintVRCUiManagerHierarchy());
             }
         }
 
@@ -71,7 +68,6 @@ namespace VRCTools
             VRCModLogger.Log("[VRCTools] Waiting for UI Manager...");
             yield return VRCUiManagerUtils.WaitForUiManagerInit();
             VRCModLogger.Log("[VRCTools] UIManager initialised ! Resuming setup");
-            // DEBUG // DebugUtils.PrintHierarchy(VRCUiManagerUtils.GetVRCUiManager().transform, 0);
 
             VRCModLogger.Log("[VRCTools] CheckDownloadFiles");
             yield return DependenciesDownloader.CheckDownloadFiles();
@@ -91,11 +87,6 @@ namespace VRCTools
             ModConfigPage.Setup();
             VRCModLogger.Log("[VRCTools] ModdedUsersManager Init");
             ModdedUsersManager.Init();
-            if (ModPrefs.GetBool("vrctools", "enablestealerdetector_061018"))
-            {
-                VRCModLogger.Log("[VRCTools] AvatarStealerChecker Setup");
-                AvatarStealerChecker.Setup();
-            }
 
             VRCModLogger.Log("[VRCTools] Init done !");
 
@@ -116,13 +107,11 @@ namespace VRCTools
         private void OnFixedUpdate()
         {
             if (!Initialised) return;
-            AvatarStealerChecker.FixedUpdate();
         }
 
         private void OnLateUpdate()
         {
             if (!Initialised) return;
-            AvatarStealerChecker.LateUpdate();
         }
 
         private void OnGUI()
