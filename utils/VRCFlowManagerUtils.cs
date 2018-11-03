@@ -1,6 +1,6 @@
 ﻿using System;
 using UnityEngine;
-using VRC.Core;
+using UnityEngine.SceneManagement;
 using VRCModLoader;
 
 namespace VRCTools
@@ -20,7 +20,7 @@ namespace VRCTools
             if (GameObject.Find("UserInterface") == null)
             {
                 VRCModLogger.Log("[VRCToolsUpdater] Loading additive scene \"ui\"");
-                AssetManagement.LoadLevelAdditive("ui");
+                SceneManager.LoadScene("ui", LoadSceneMode.Single);
             }
         }
 
@@ -35,4 +35,6 @@ namespace VRCTools
             VRCModLogger.Log("[VRCFlowManagerUtils] Enabled " + flowManagers.Length + " VRCFlowManager");
         }
     }
+
+
 }

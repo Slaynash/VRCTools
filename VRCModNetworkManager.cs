@@ -1,5 +1,6 @@
 ﻿using BestHTTP.Authentication;
 using CComVRCModNetworkEdition;
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -231,12 +232,6 @@ namespace VRCModNetwork
                         VRCModLogger.Log("new UUID: " + uuid);
                         DiscordManager.UserChanged(displayName);
 
-                        if (!uuid.Equals("") && "".Equals(authToken))
-                        {
-                            string password = typeof(ApiCredentials).GetField("password", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null) as string;
-                            authToken = Convert.ToBase64String(Encoding.UTF8.GetBytes(ApiCredentials.GetUsername() + ":" + password));
-                        }
-
                         if (uuid.Equals(""))
                         {
                             userUuid = uuid;
@@ -249,6 +244,14 @@ namespace VRCModNetwork
                         }
                         else
                         {
+                            if (string.IsNullOrEmpty(ApiCredentials.GetUsername()))
+                                authToken = "st_" + GetSteamTicket();
+                            else
+                            {
+                                string password = typeof(ApiCredentials).GetField("password", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null) as string;
+                                authToken = Convert.ToBase64String(Encoding.UTF8.GetBytes(ApiCredentials.GetUsername() + ":" + password));
+                            }
+
                             userUuid = uuid;
                             VRCModLogger.Log("Getting current instanceId");
                             if (RoomManager.currentRoom != null && RoomManager.currentRoom.id != null && RoomManager.currentRoom.currentInstanceIdOnly != null)
@@ -289,6 +292,14 @@ namespace VRCModNetwork
                     }
                 }
             }
+        }
+
+        private static string GetSteamTicket()
+        {
+            byte[] array = new byte[1024];
+            uint newSize;
+            SteamUser.GetAuthSessionTicket(array, 1024, out newSize);
+            return BitConverter.ToString(array).Replace("-", string.Empty);
         }
 
         private static void ModCheckThread()
