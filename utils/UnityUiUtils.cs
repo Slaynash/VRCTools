@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using VRCTools.utils;
 
 namespace VRCTools
 {
@@ -140,14 +141,14 @@ namespace VRCTools
             if(toggle_background == null)
             {
                 Texture2D tex = new Texture2D(2, 2);
-                tex.LoadImage(Convert.FromBase64String(ImageDatas.UI_TOGGLE_BACKGROUND));
+                Texture2DUtils.LoadImage(tex, Convert.FromBase64String(ImageDatas.UI_TOGGLE_BACKGROUND));
                 toggle_background = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
             }
 
             if (toggle_cursor == null)
             {
                 Texture2D tex = new Texture2D(2, 2);
-                tex.LoadImage(Convert.FromBase64String(ImageDatas.UI_TOGGLE_CURSOR));
+                Texture2DUtils.LoadImage(tex, Convert.FromBase64String(ImageDatas.UI_TOGGLE_CURSOR));
                 toggle_cursor = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
             }
 

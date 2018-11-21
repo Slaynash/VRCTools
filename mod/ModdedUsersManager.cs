@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,7 @@ using VRC;
 using VRC.Core;
 using VRCModLoader;
 using VRCModNetwork;
+using VRCTools.utils;
 
 namespace VRCTools
 {
@@ -34,7 +36,7 @@ namespace VRCTools
             userProperty = typeof(Player).GetProperties(BindingFlags.Public | BindingFlags.Instance).First((pi) => pi.PropertyType == typeof(APIUser));
 
             Texture2D tex = new Texture2D(2, 2);
-            tex.LoadImage(Convert.FromBase64String(ImageDatas.VRCTOOLS_LOGO));
+            Texture2DUtils.LoadImage(tex, Convert.FromBase64String(ImageDatas.VRCTOOLS_LOGO));
             vrctoolsSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
         }
 
@@ -52,7 +54,8 @@ namespace VRCTools
 
         private static void OnModdedplayerjoinReceived(string sender, string data)
         {
-            ModdedUser mu = JsonUtility.FromJson<ModdedUser>(data);
+            //ModdedUser mu = JsonUtility.FromJson<ModdedUser>(data);
+            ModdedUser mu = JsonConvert.DeserializeObject<ModdedUser>(data);
             lock (moddedUserList)
             {
                 if (!moddedUserList.ContainsKey(mu.id)) moddedUserList.Add(mu.id, mu);

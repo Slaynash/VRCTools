@@ -62,11 +62,6 @@
       <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-    <Reference Include="VRCCore-Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=67033c44591afb45, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\VRCCore-Editor.dll</HintPath>
-      <Aliases>global</Aliases>
-    </Reference>
     <Reference Include="VRCCore-Standalone">
       <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\VRCCore-Standalone.dll</HintPath>
     </Reference>
@@ -98,6 +93,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="utils\DebugUtils.cs" />
     <Compile Include="utils\QuickMenuUtils.cs" />
+    <Compile Include="utils\Texture2DUtils.cs" />
     <Compile Include="utils\UnityUiUtils.cs" />
     <Compile Include="utils\VRCFlowManagerUtils.cs" />
     <Compile Include="VRCModNetworkManager.cs" />
