@@ -18,7 +18,6 @@ namespace VRCModNetwork
 {
     public class VRCModNetworkManager : IConnectionListener
     {
-        private static readonly bool DEV = false;
 
         private static readonly string SERVER_ADDRESS = "vrchat.survival-machines.fr";
         private static readonly int SERVER_PORT = 26342;
@@ -58,6 +57,7 @@ namespace VRCModNetwork
         private static string userUuid = "";
         private static string userInstanceId = "";
         private static List<ModDesc> modlist = new List<ModDesc>();
+        private static string credentials = "";
 
         private VRCModNetworkManager()
         {
@@ -221,11 +221,9 @@ namespace VRCModNetwork
                 lock (userDatasLock)
                 {
                     // Check if user changed
-                    string uuid = APIUser.CurrentUser == null ? "" : APIUser.CurrentUser.id ?? "";
-                    string displayName = APIUser.CurrentUser == null ? "" : APIUser.CurrentUser.displayName ?? "";
+                    string uuid = APIUser.CurrentUser?.id ?? "";
+                    string displayName = APIUser.CurrentUser?.displayName ?? "";
                     string authToken = ApiCredentials.GetAuthToken() ?? "";
-
-                    Credentials c = ApiCredentials.GetWebCredentials() as Credentials;
 
                     if (!uuid.Equals(userUuid))
                     {
@@ -244,12 +242,20 @@ namespace VRCModNetwork
                         }
                         else
                         {
-                            if (string.IsNullOrEmpty(ApiCredentials.GetUsername()))
+                            if (ApiCredentials.GetAuthTokenProvider() == "steam")
                                 authToken = "st_" + GetSteamTicket();
                             else
                             {
-                                string password = typeof(ApiCredentials).GetField("password", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null) as string;
-                                authToken = Convert.ToBase64String(Encoding.UTF8.GetBytes(ApiCredentials.GetUsername() + ":" + password));
+                                if (!string.IsNullOrEmpty(credentials))
+                                {
+                                    authToken = "login " + Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials)) + " " + ApiCredentials.GetAuthToken();
+                                    credentials = "";
+                                    VRCTools.ModPrefs.SetBool("vrctools", "hasvrcmnwtoken", true);
+                                }
+                                else
+                                {
+                                    authToken = ApiCredentials.GetAuthToken();
+                                }
                             }
 
                             userUuid = uuid;
@@ -301,6 +307,14 @@ namespace VRCModNetwork
             SteamUser.GetAuthSessionTicket(array, 1024, out newSize);
             return BitConverter.ToString(array).Replace("-", string.Empty);
         }
+
+
+        internal static void SetCredentials(string credentials)
+        {
+            VRCModNetworkManager.credentials = credentials;
+        }
+
+
 
         private static void ModCheckThread()
         {

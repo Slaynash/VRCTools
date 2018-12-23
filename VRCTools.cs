@@ -12,10 +12,11 @@ using UnityEngine.UI;
 using VRC.Core;
 using VRCModLoader;
 using VRCModNetwork;
+using static UnityEngine.UI.Button;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.4.7", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
+    [VRCModInfo("VRCTools", "0.5", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
     public class VRCTools : VRCMod
     {
 
@@ -25,6 +26,17 @@ namespace VRCTools
 
 
         private void OnApplicationStart() {
+
+            if (!ApiCredentials.Load())
+            {
+                VRCModLogger.Log("No credential founds");
+            }
+            else
+            {
+                VRCModLogger.Log("Credentials:\n - Token: " + ApiCredentials.GetAuthToken() + "\n - Provider: " + ApiCredentials.GetAuthTokenProvider() + "\n - UserId: " + ApiCredentials.GetAuthTokenProviderUserId());
+            }
+
+
             String lp = "";
             bool first = true;
             foreach (var lp2 in Environment.GetCommandLineArgs())
@@ -42,6 +54,12 @@ namespace VRCTools
 
             ModPrefs.RegisterPrefBool("vrctools", "enablediscordrichpresence", true, "Enable Discord RichPresence");
             ModPrefs.RegisterPrefBool("vrctools", "enabledebugconsole", false, "Enable Debug Console");
+
+            ModPrefs.RegisterPrefBool("vrctools", "hasvrcmnwtoken", false, null, true);
+
+            //Reset the credentials to ask login again if this is the first time the user login to the VRCMNW
+            if (!ModPrefs.GetBool("vrctools", "hasvrcmnwtoken"))
+                ApiCredentials.Clear();
         }
 
         private void OnApplicationQuit()
@@ -69,6 +87,27 @@ namespace VRCTools
             yield return VRCUiManagerUtils.WaitForUiManagerInit();
             VRCModLogger.Log("[VRCTools] UIManager initialised ! Resuming setup");
 
+            VRCModLogger.Log("[VRCTools] Overwriting login button event");
+            VRCUiPageAuthentication[] authpages = Resources.FindObjectsOfTypeAll<VRCUiPageAuthentication>();
+            VRCUiPageAuthentication loginPage = authpages.First((page) => page.gameObject.name == "LoginUserPass");
+            if(loginPage != null)
+            {
+                Button loginButton = loginPage.transform.Find("ButtonDone (1)")?.GetComponent<Button>();
+                if (loginButton != null)
+                {
+                    ButtonClickedEvent bce = loginButton.onClick;
+                    loginButton.onClick = new ButtonClickedEvent();
+                    loginButton.onClick.AddListener(() => {
+                        VRCModNetworkManager.SetCredentials(GetTextFromUiInputField(loginPage.loginUserName) + ":" + GetTextFromUiInputField(loginPage.loginPassword));
+                        bce?.Invoke();
+                    });
+                }
+                else
+                    VRCModLogger.Log("[VRCTools] Unable to find login button in login page");
+            }
+            else
+                VRCModLogger.Log("[VRCTools] Unable to find login page");
+
             VRCModLogger.Log("[VRCTools] CheckDownloadFiles");
             yield return DependenciesDownloader.CheckDownloadFiles();
             VRCModLogger.Log("[VRCTools] CheckVRCModLoaderHash");
@@ -94,9 +133,19 @@ namespace VRCTools
 
             initialising = false;
             Initialised = true;
-            
+
             //DebugUtils.PrintHierarchy(VRCUiManagerUtils.GetVRCUiManager().transform.root, 0);
-            
+
+        }
+
+        private string GetTextFromUiInputField(UiInputField field)
+        {
+            foreach(FieldInfo fi in typeof(UiInputField).GetFields(BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                if (fi.FieldType == typeof(string) && fi.Name != "placeholderInputText")
+                    return fi.GetValue(field) as string;
+            }
+            return null;
         }
 
         private void OnUpdate()
