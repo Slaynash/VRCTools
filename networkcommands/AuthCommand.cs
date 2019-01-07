@@ -9,9 +9,9 @@ namespace VRCModNetwork.commands
 {
     internal class AuthCommand : Command
     {
-        public void Auth(string authToken, string apiType, string instanceId, List<ModDesc> modlist)
+        public void Auth(string authToken, string apiType, string instanceId, string roomSecret, List<ModDesc> modlist)
         {
-            WriteLine(CreateLoginJson(authToken, apiType, instanceId, modlist));
+            WriteLine(CreateLoginJson(authToken, apiType, instanceId, roomSecret, modlist));
         }
 
         public override void Handle(string parts)
@@ -23,9 +23,9 @@ namespace VRCModNetwork.commands
             Destroy();
         }
 
-        private static string CreateLoginJson(string authToken, string apiType, string instanceId, List<ModDesc> modlist)
+        private static string CreateLoginJson(string authToken, string apiType, string instanceId, string roomSecret, List<ModDesc> modlist)
         {
-            return "{\"authType\":\"CLIENT\",\"authToken\":\"" + authToken + "\",\"apiType\":\"" + apiType + "\",\"instanceId\":\"" + instanceId + "\",\"modlist\":[" + ModDesc.CreateModlistJson(modlist) + "]}";
+            return "{\"authType\":\"CLIENT\",\"authToken\":\"" + authToken + "\",\"apiType\":\"" + apiType + "\",\"instanceId\":\"" + instanceId + "\",\"joinSecret\":\"" + roomSecret + "\",\"modlist\":[" + ModDesc.CreateModlistJson(modlist) + "]}";
         }
     }
 }

@@ -12,6 +12,13 @@ namespace VRCTools
     {
 
         private static VRCUiManager uiManagerInstance;
+        private static EventInfo onPageShown;
+
+        public static event Action<VRCUiPage> OnPageShown
+        {
+            add => GetOnPageShown()?.AddEventHandler(GetVRCUiManager(), value);
+            remove => GetOnPageShown()?.RemoveEventHandler(GetVRCUiManager(), value);
+        }
 
         public static VRCUiManager GetVRCUiManager()
         {
@@ -61,6 +68,28 @@ namespace VRCTools
                 }
                 VRCModLogger.Log("[VRCUiManagerUtils] UI Manager loaded");
             }
+        }
+
+        private static EventInfo GetOnPageShown()
+        {
+            if (onPageShown == null)
+            {
+                EventInfo[] events = typeof(VRCUiManager).GetEvents(BindingFlags.Public | BindingFlags.Instance);
+                foreach (EventInfo fi in events)
+                {
+                    if (fi.EventHandlerType == typeof(Action<VRCUiPage>))
+                    {
+                        onPageShown = fi;
+                        break;
+                    }
+                }
+                if (onPageShown == null)
+                {
+                    VRCModLogger.LogError("[VRCUiManagerUtils] Unable to find VRCUiManager.onPageShown");
+                    return null;
+                }
+            }
+            return onPageShown;
         }
     }
 }

@@ -16,7 +16,7 @@ using static UnityEngine.UI.Button;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.5", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
+    [VRCModInfo("VRCTools", "0.5.2", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
     public class VRCTools : VRCMod
     {
 
@@ -57,6 +57,8 @@ namespace VRCTools
 
             ModPrefs.RegisterPrefBool("vrctools", "hasvrcmnwtoken", false, null, true);
 
+            ModPrefs.RegisterPrefBool("vrctools", "allowdiscordjoinrequests", true, "Allow Discord join requests");
+
             //Reset the credentials to ask login again if this is the first time the user login to the VRCMNW
             if (!ModPrefs.GetBool("vrctools", "hasvrcmnwtoken"))
                 ApiCredentials.Clear();
@@ -90,7 +92,7 @@ namespace VRCTools
             VRCModLogger.Log("[VRCTools] Overwriting login button event");
             VRCUiPageAuthentication[] authpages = Resources.FindObjectsOfTypeAll<VRCUiPageAuthentication>();
             VRCUiPageAuthentication loginPage = authpages.First((page) => page.gameObject.name == "LoginUserPass");
-            if(loginPage != null)
+            if (loginPage != null)
             {
                 Button loginButton = loginPage.transform.Find("ButtonDone (1)")?.GetComponent<Button>();
                 if (loginButton != null)
@@ -126,6 +128,10 @@ namespace VRCTools
             ModConfigPage.Setup();
             VRCModLogger.Log("[VRCTools] ModdedUsersManager Init");
             ModdedUsersManager.Init();
+
+            VRCUiManagerUtils.OnPageShown += (page) => {
+                VRCModLogger.Log("[VRCTools] OnPageShown: " + page.screenType + " " + (string.IsNullOrEmpty(page.displayName) ? "" : page.displayName + " ") + "(" + page.GetType() + ")");
+            };
 
             VRCModLogger.Log("[VRCTools] Init done !");
 

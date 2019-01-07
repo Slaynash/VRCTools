@@ -9,9 +9,9 @@ namespace VRCModNetwork.commands
     internal class InstanceChangedCommand : Command
     {
 
-        public void Send(string instanceId)
+        public void Send(string instanceId, string roomSecret)
         {
-            WriteLine(instanceId);
+            WriteLine(instanceId + (!string.IsNullOrEmpty(roomSecret) ? (" " + roomSecret) : ""));
             Destroy();
         }
 

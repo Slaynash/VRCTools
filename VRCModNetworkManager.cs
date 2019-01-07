@@ -20,7 +20,7 @@ namespace VRCModNetwork
     {
 
         private static readonly string SERVER_ADDRESS = "vrchat.survival-machines.fr";
-        private static readonly int SERVER_PORT = 26342;
+        private static int SERVER_PORT = Environment.CommandLine.Contains("--vrctools.dev") ? 26345 : 26342;
         private static readonly string VRCMODNW_VERSION = "1.0";
 
         private static Client client = null;
@@ -56,6 +56,7 @@ namespace VRCModNetwork
 
         private static string userUuid = "";
         private static string userInstanceId = "";
+        private static string roomSecret = "";
         private static List<ModDesc> modlist = new List<ModDesc>();
         private static string credentials = "";
 
@@ -260,8 +261,8 @@ namespace VRCModNetwork
 
                             userUuid = uuid;
                             VRCModLogger.Log("Getting current instanceId");
-                            if (RoomManager.currentRoom != null && RoomManager.currentRoom.id != null && RoomManager.currentRoom.currentInstanceIdOnly != null)
-                                userInstanceId = RoomManager.currentRoom.id + ":" + RoomManager.currentRoom.currentInstanceIdOnly;
+                            if (RoomManager.currentRoom != null && RoomManager.currentRoom.id != null && RoomManager.currentRoom.currentInstanceIdWithTags != null)
+                                userInstanceId = RoomManager.currentRoom.id + ":" + RoomManager.currentRoom.currentInstanceIdWithTags;
                             VRCModLogger.Log("Getting current modList");
                             modlist = ModDesc.GetAllMods();
                             VRCModLogger.Log("Getting current environment");
@@ -273,7 +274,7 @@ namespace VRCModNetwork
                             VRCModLogger.Log("Env: " + env);
                             VRCModLogger.Log("Authenticating");
                             AuthCommand authCommand = CommandManager.CreateInstance("AUTH", client, false) as AuthCommand;
-                            authCommand.Auth(authToken, stringEnv, userInstanceId, modlist);
+                            authCommand.Auth(authToken, stringEnv, userInstanceId, roomSecret, modlist);
                             VRCModLogger.Log("Done");
                         }
                     }
@@ -281,18 +282,19 @@ namespace VRCModNetwork
                     if (IsAuthenticated)
                     {
                         string roomId = "";
-                        if(RoomManager.currentRoom != null && RoomManager.currentRoom.id != null && RoomManager.currentRoom.currentInstanceIdOnly != null)
+                        if(RoomManager.currentRoom?.currentInstanceIdOnly != null)
                         {
-                            roomId = RoomManager.currentRoom.id + ":" + RoomManager.currentRoom.currentInstanceIdOnly;
+                            roomId = RoomManager.currentRoom.id + ":" + RoomManager.currentRoom.currentInstanceIdWithTags;
                         }
                         if (!userInstanceId.Equals(roomId))
                         {
-                            VRCModLogger.Log("Updating instance id");
+                            VRCModLogger.Log("Updating instance id. Current room: " + roomId);
                             userInstanceId = roomId;
+                            roomSecret = "";
                             if(roomId != "")
-                                DiscordManager.RoomChanged(RoomManager.currentRoom.name, roomId, RoomManager.currentRoom.currentInstanceAccess, RoomManager.currentRoom.capacity);
-                            else DiscordManager.RoomChanged("", roomId, ApiWorldInstance.AccessType.InviteOnly, 0);
-                            ((InstanceChangedCommand)CommandManager.CreateInstance("INSTANCECHANGED", client)).Send(userInstanceId);
+                                roomSecret = DiscordManager.RoomChanged(RoomManager.currentRoom.name, RoomManager.currentRoom.id + ":" + RoomManager.currentRoom.currentInstanceIdOnly, RoomManager.currentRoom.currentInstanceIdWithTags, RoomManager.currentRoom.currentInstanceAccess, RoomManager.currentRoom.capacity);
+                            else DiscordManager.RoomChanged("", "", "", ApiWorldInstance.AccessType.InviteOnly, 0);
+                            ((InstanceChangedCommand)CommandManager.CreateInstance("INSTANCECHANGED", client)).Send(roomId, roomSecret);
                             VRCModLogger.Log("Done");
                         }
                     }
