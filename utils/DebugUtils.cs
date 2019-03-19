@@ -15,7 +15,7 @@ namespace VRCTools
             for (int i = 0; i < depth; i++) s += "\t";
             s += transform.name + " [";
 
-            MonoBehaviour[] mbs = transform.GetComponents<MonoBehaviour>();
+            Component[] mbs = transform.GetComponents<Component>();
             for (int i = 0; i < mbs.Length; i++)
             {
                 if (mbs[i] == null) continue;

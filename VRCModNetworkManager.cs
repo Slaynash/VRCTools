@@ -1,5 +1,5 @@
 ﻿using BestHTTP.Authentication;
-using CComVRCModNetworkEdition;
+using CCom;
 using Steamworks;
 using System;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace VRCModNetwork
 
         private static readonly string SERVER_ADDRESS = "vrchat.survival-machines.fr";
         private static int SERVER_PORT = Environment.CommandLine.Contains("--vrctools.dev") ? 26345 : 26342;
-        private static readonly string VRCMODNW_VERSION = "1.0";
+        private static readonly string VRCMODNW_VERSION = "1.1";
 
         private static Client client = null;
         public static ConnectionState State { private set; get; }
@@ -60,6 +60,12 @@ namespace VRCModNetwork
         private static List<ModDesc> modlist = new List<ModDesc>();
         private static string credentials = "";
 
+
+
+        private static Action onConnectSuccess;
+        private static Action<string> onConnectError;
+        private static Thread modsCheckerThread;
+
         private VRCModNetworkManager()
         {
             client.SetConnectionListener(this);
@@ -70,11 +76,14 @@ namespace VRCModNetwork
             CommandManager.RegisterCommand("MODLISTCHANGED", typeof(ModListChangedCommand));
         }
 
-        internal static void ConnectAsync()
+        internal static void ConnectAsync(Action onConnectionSuccess = null, Action<string> onConnectionError = null)
         {
+            onConnectSuccess = onConnectionSuccess;
+            onConnectError = onConnectionError;
+            /*
             if (!VRCTools.ModPrefs.GetBool("vrctools", "remoteauthcheck"))
                 VRCModLogger.Log("[VRCMOD NWManager] Trying to connect to server, but client doesn't allow auth");
-            else if (State != ConnectionState.DISCONNECTED)
+            else*/ if (State != ConnectionState.DISCONNECTED)
                 VRCModLogger.Log("[VRCMOD NWManager] Trying to connect to server, but client is not disconnected");
             else if (client != null && client.autoReconnect)
                 VRCModLogger.Log("[VRCMOD NWManager] Trying to connect to server, but client already exist and is tagged as auto-reconnecting");
@@ -85,10 +94,13 @@ namespace VRCModNetwork
                     client = new Client(SERVER_ADDRESS, SERVER_PORT, VRCMODNW_VERSION);
                     if (instance == null) instance = new VRCModNetworkManager();
                     client.SetConnectionListener(instance);
-                    Thread modsCheckerThread = new Thread(() => ModCheckThread());
-                    modsCheckerThread.Name = "Mod Check Thread";
-                    modsCheckerThread.IsBackground = true;
-                    modsCheckerThread.Start();
+                    if (modsCheckerThread == null)
+                    {
+                        modsCheckerThread = new Thread(() => ModCheckThread());
+                        modsCheckerThread.Name = "Mod Check Thread";
+                        modsCheckerThread.IsBackground = true;
+                        modsCheckerThread.Start();
+                    }
                 }
                 State = ConnectionState.CONNECTING;
                 client.StartConnection();
@@ -188,6 +200,7 @@ namespace VRCModNetwork
         public void ConnectionFailed(string error) {
             State = ConnectionState.DISCONNECTED;
             VRCModNetworkStatus.UpdateNetworkStatus();
+            onConnectError?.Invoke(error);
         }
         public void Connected()
         {
@@ -195,6 +208,7 @@ namespace VRCModNetwork
             VRCModLogger.Log("Client autoReconnect set to true");
             State = ConnectionState.CONNECTED;
             VRCModNetworkStatus.UpdateNetworkStatus();
+            onConnectSuccess?.Invoke();
             OnConnected?.Invoke();
         }
         public void Disconnected(string error)
@@ -225,8 +239,9 @@ namespace VRCModNetwork
                     string uuid = APIUser.CurrentUser?.id ?? "";
                     string displayName = APIUser.CurrentUser?.displayName ?? "";
                     string authToken = ApiCredentials.GetAuthToken() ?? "";
-
-                    if (!uuid.Equals(userUuid))
+                    
+                    /*
+                    if (false && !uuid.Equals(userUuid))
                     {
                         VRCModLogger.Log("new UUID: " + uuid);
                         DiscordManager.UserChanged(displayName);
@@ -278,6 +293,7 @@ namespace VRCModNetwork
                             VRCModLogger.Log("Done");
                         }
                     }
+                    */
 
                     if (IsAuthenticated)
                     {
@@ -314,6 +330,28 @@ namespace VRCModNetwork
         internal static void SetCredentials(string credentials)
         {
             VRCModNetworkManager.credentials = credentials;
+        }
+
+
+        internal static void Auth(string username, string password, string uuid, Action onSuccess, Action<string> onError)
+        {
+            userUuid = uuid;
+            VRCModLogger.Log("Getting current instanceId");
+            if (RoomManager.currentRoom != null && RoomManager.currentRoom.id != null && RoomManager.currentRoom.currentInstanceIdWithTags != null)
+                userInstanceId = RoomManager.currentRoom.id + ":" + RoomManager.currentRoom.currentInstanceIdWithTags;
+            VRCModLogger.Log("Getting current modList");
+            modlist = ModDesc.GetAllMods();
+            VRCModLogger.Log("Getting current environment");
+            ApiServerEnvironment env = VRCApplicationSetup._instance.ServerEnvironment;
+            string stringEnv = "";
+            if (env == ApiServerEnvironment.Dev) stringEnv = "dev";
+            if (env == ApiServerEnvironment.Beta) stringEnv = "beta";
+            if (env == ApiServerEnvironment.Release) stringEnv = "release";
+            VRCModLogger.Log("Env: " + env);
+            VRCModLogger.Log("Authenticating");
+            AuthCommand authCommand = CommandManager.CreateInstance("AUTH", client, false) as AuthCommand;
+            authCommand.Auth(username, password, uuid, stringEnv, userInstanceId, roomSecret, modlist, onSuccess, onError);
+            VRCModLogger.Log("Done");
         }
 
 

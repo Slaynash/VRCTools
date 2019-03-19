@@ -1,4 +1,4 @@
-﻿using CComVRCModNetworkEdition;
+﻿using CCom;
 using System;
 
 namespace VRCModNetwork.commands

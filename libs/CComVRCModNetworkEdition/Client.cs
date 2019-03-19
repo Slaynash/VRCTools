@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using VRCModLoader;
 
-namespace CComVRCModNetworkEdition
+namespace CCom
 {
     internal class Client
     {
@@ -38,17 +38,6 @@ namespace CComVRCModNetworkEdition
             this.address = address;
             this.port = port;
             this.clientVersion = clientVersion;
-            thread = new Thread(() =>
-            {
-                ClientThread();
-                while (autoReconnect)
-                {
-                    Thread.Sleep(2000);
-                    ClientThread();
-                }
-            });
-            thread.Name = "VRCMod Networking Thread (Listen)";
-            thread.IsBackground = true;
 
             keepaliveThread = new Thread(() =>
             {
@@ -139,6 +128,22 @@ namespace CComVRCModNetworkEdition
 
         public void StartConnection()
         {
+            if (thread != null && thread.IsAlive)
+            {
+                VRCModLogger.LogError("[VRCMODNW] Unable to start connection: The connection thread is already started");
+                return;
+            }
+            thread = new Thread(() =>
+            {
+                ClientThread();
+                while (autoReconnect)
+                {
+                    Thread.Sleep(2000);
+                    ClientThread();
+                }
+            });
+            thread.Name = "VRCMod Networking Thread (Listen)";
+            thread.IsBackground = true;
             thread.Start();
         }
 

@@ -1,4 +1,4 @@
-﻿namespace CComVRCModNetworkEdition
+﻿namespace CCom
 {
     internal interface IConnectionListener
     {

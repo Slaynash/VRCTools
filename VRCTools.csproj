@@ -35,6 +35,9 @@
     <CodeAnalysisRuleSet />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>D:\jeux\steam\SteamApps\common\VRChat\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -79,6 +82,10 @@
     <Reference Include="VRCCore-Standalone">
       <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\VRCCore-Standalone.dll</HintPath>
     </Reference>
+    <Reference Include="VRCSDK2, Version=0.0.0.0, Culture=neutral, PublicKeyToken=67033c44591afb45, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\VRCSDK2.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="libs\CComVRCModNetworkEdition\Client.cs" />
@@ -86,6 +93,7 @@
     <Compile Include="libs\CComVRCModNetworkEdition\CommandManager.cs" />
     <Compile Include="libs\CComVRCModNetworkEdition\ConnectionListener.cs" />
     <Compile Include="datas\ImageDatas.cs" />
+    <Compile Include="mod\BasicLogoutLogAndPatch.cs" />
     <Compile Include="mod\ModValues.cs" />
     <Compile Include="mod\ui\uicomponents\IConfigElement.cs" />
     <Compile Include="mod\ui\uicomponents\UIToggleSwitch.cs" />
@@ -96,6 +104,7 @@
     <Compile Include="mod\ui\pages\ModConfigPage.cs" />
     <Compile Include="mod\serializables\ModdedUser.cs" />
     <Compile Include="mod\ModdedUsersManager.cs" />
+    <Compile Include="mod\VRCModNetworkLogin.cs" />
     <Compile Include="networkcommands\AuthCommand.cs" />
     <Compile Include="networkcommands\InstanceChangedCommand.cs" />
     <Compile Include="networkcommands\LogoutCommand.cs" />

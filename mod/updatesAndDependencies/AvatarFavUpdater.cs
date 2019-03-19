@@ -78,10 +78,6 @@ namespace VRCTools
                         yield return DownloadAvatarFav(avatarfavPath);
                     }
                 }
-                else
-                {
-                    VRCFlowManagerUtils.EnableVRCFlowManager();
-                }
             }
             else
             {

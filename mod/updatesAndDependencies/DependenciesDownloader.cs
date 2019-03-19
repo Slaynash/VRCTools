@@ -19,13 +19,23 @@ namespace VRCTools
             string vrccedllPath = Values.VRCToolsDependenciesPath + "VRCCore-Editor.dll";
 
             int buildNumber = -1;
-            VRCModLogger.Log("[ModConfigPage] Getting game version");
+            VRCModLogger.Log("[DependenciesDownloader] Getting game version");
             PropertyInfo vrcApplicationSetupInstanceProperty = typeof(VRCApplicationSetup).GetProperties(BindingFlags.Public | BindingFlags.Static).First((pi) => pi.PropertyType == typeof(VRCApplicationSetup));
             if (vrcApplicationSetupInstanceProperty != null) buildNumber = ((VRCApplicationSetup)vrcApplicationSetupInstanceProperty.GetValue(null, null)).buildNumber;
-            VRCModLogger.Log("[ModConfigPage] Game build " + buildNumber);
+            VRCModLogger.Log("[DependenciesDownloader] Game build " + buildNumber);
 
 
             yield return DownloadDependency(ModValues.discordrpcdependencyDownloadLink, "discord-rpc.dll");
+            yield return DownloadDependency(ModValues.oharmonydependencyDownloadLink, "0Harmony.dll");
+            try
+            {
+                VRCModLogger.LogError("[DependenciesDownloader] Loading 0Harmony.dll");
+                Assembly.LoadFile(Values.VRCToolsDependenciesPath + "0Harmony.dll");
+            }
+            catch(Exception e)
+            {
+                VRCModLogger.LogError("[DependenciesDownloader] Unable to load 0Harmony.dll: " + e);
+            }
         }
 
         private static IEnumerator DownloadDependency(string downloadUrl, string dllName)
