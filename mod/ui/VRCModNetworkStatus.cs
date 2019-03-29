@@ -12,6 +12,7 @@ namespace VRCTools
     internal static class VRCModNetworkStatus
     {
         private static Text networkstatusText;
+        private static VRCModNetworkManager.ConnectionState currentState = (VRCModNetworkManager.ConnectionState)(-1);
 
         public static void Setup()
         {
@@ -45,7 +46,7 @@ namespace VRCTools
                 networkstatusText.fontSize = baseTextTransform.GetComponent<Text>().fontSize;
                 networkstatusText.fontStyle = baseTextTransform.GetComponent<Text>().fontStyle;
 
-                UpdateNetworkStatus();
+                Update();
             }
             else
             {
@@ -54,10 +55,12 @@ namespace VRCTools
         }
 
 
-        internal static void UpdateNetworkStatus()
+        internal static void Update()
         {
-            if (networkstatusText != null)
+            if (networkstatusText != null && currentState != VRCModNetworkManager.State)
             {
+                currentState = VRCModNetworkManager.State;
+                
                 if (VRCModNetworkManager.IsAuthenticated)
                     networkstatusText.text = "VRCModNetwork status: <color=lime>Authenticated</color>";
                 else if (VRCModNetworkManager.State == VRCModNetworkManager.ConnectionState.CONNECTED)

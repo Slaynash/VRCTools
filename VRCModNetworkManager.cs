@@ -36,7 +36,6 @@ namespace VRCModNetwork
                 if (value != authenticated)
                 {
                     authenticated = value;
-                    VRCModNetworkStatus.UpdateNetworkStatus();
                     if (value) OnAuthenticated?.Invoke();
                     else OnLogout?.Invoke();
                 }
@@ -191,7 +190,6 @@ namespace VRCModNetwork
         public void ConnectionStarted()
         {
             State = ConnectionState.CONNECTING;
-            VRCModNetworkStatus.UpdateNetworkStatus();
         }
 
         public void WaitingForConnection() => State = ConnectionState.CONNECTION_ETABLISHED;
@@ -199,7 +197,6 @@ namespace VRCModNetwork
 
         public void ConnectionFailed(string error) {
             State = ConnectionState.DISCONNECTED;
-            VRCModNetworkStatus.UpdateNetworkStatus();
             onConnectError?.Invoke(error);
         }
         public void Connected()
@@ -207,7 +204,6 @@ namespace VRCModNetwork
             client.autoReconnect = true;
             VRCModLogger.Log("Client autoReconnect set to true");
             State = ConnectionState.CONNECTED;
-            VRCModNetworkStatus.UpdateNetworkStatus();
             onConnectSuccess?.Invoke();
             OnConnected?.Invoke();
         }

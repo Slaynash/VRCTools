@@ -20,7 +20,7 @@ using static UnityEngine.UI.Button;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.6.2a", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
+    [VRCModInfo("VRCTools", "0.6.2c", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
     public class VRCTools : VRCMod
     {
 
@@ -159,6 +159,7 @@ namespace VRCTools
         {
             if (!Initialised) return;
             VRCModNetworkManager.Update();
+            VRCModNetworkStatus.Update();
             ModdedUsersManager.Update();
             DiscordManager.Update();
         }

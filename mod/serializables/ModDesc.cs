@@ -5,6 +5,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.Serialization;
 using VRCModLoader;
+using VRLoader.Modules;
 
 namespace VRCTools
 {
@@ -38,28 +39,7 @@ namespace VRCTools
         {
             List<ModDesc> list = new List<ModDesc>();
             foreach (VRCMod mod in ModManager.Mods) list.Add(new ModDesc(mod.Name, mod.Version, mod.Author, mod.DownloadLink ?? "", "VRCMod"));
-            Type vrmoduleType = null;
-            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                if ((vrmoduleType = a.GetType("VRLoader.Modules.VRModule")) != null)
-                {
-                    break;
-                }
-            }
-            if (vrmoduleType != null)
-            {
-                foreach (UnityEngine.Object vrmodule in Resources.FindObjectsOfTypeAll(vrmoduleType))
-                {
-                    //TODO Get Name, Version from object
-                    PropertyInfo nameProperty = vrmodule.GetType().GetProperty("Name", BindingFlags.Public | BindingFlags.Instance);
-                    string name = nameProperty.GetValue(vrmodule, null) as string ?? vrmodule.GetType().Name;
-                    PropertyInfo versionProperty = vrmodule.GetType().GetProperty("Version", BindingFlags.Public | BindingFlags.Instance);
-                    string version = versionProperty.GetValue(vrmodule, null) as string ?? "?";
-                    PropertyInfo authorProperty = vrmodule.GetType().GetProperty("Author", BindingFlags.Public | BindingFlags.Instance);
-                    string author = authorProperty.GetValue(vrmodule, null) as string ?? "?";
-                    list.Add(new ModDesc(name, version, author, "", "VRModule"));
-                }
-            }
+            foreach (VRModule mod in ModManager.Modules) list.Add(new ModDesc(mod.Name, mod.Version, mod.Author, "", "VRModule"));
             return list;
         }
 

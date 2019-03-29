@@ -86,6 +86,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\VRCSDK2.dll</HintPath>
     </Reference>
+    <Reference Include="VRLoader, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="libs\CComVRCModNetworkEdition\Client.cs" />
