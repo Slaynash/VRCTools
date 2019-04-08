@@ -24,6 +24,8 @@ namespace VRCTools
         internal static bool VrcmnwDoLogin { get => vrcmnwDoLogin; private set => vrcmnwDoLogin = value; }
         private static bool vrcmnwConnected = false;
         internal static bool VrcmnwConnected { get => vrcmnwConnected; private set => vrcmnwConnected = value; }
+        public static bool Authenticating { get; private set; }
+
         private static ApiContainer vrcmnwLoginCallbackContainer = null;
         private static Action<ApiContainer> vrcmnwLoginCallback = null;
         private static GameObject vrcmnwLoginPageGO = null;
@@ -64,7 +66,7 @@ namespace VRCTools
                             try
                             {
                                 VRCUiPopupManagerUtils.ShowPopup("VRChat", "Logging in...");
-                                FinishLogin();
+                                FinishLogin(true);
                             }
                             catch (Exception e)
                             {
@@ -108,7 +110,7 @@ namespace VRCTools
                                 else
                                     errorHR = error;
                                 VRCUiPopupManagerUtils.ShowPopup("Login Failed", "Unable to login to the VRCModNetwork: " + errorHR, "Close", () => VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup());
-                            });
+                            }, true);
                         }
                         else
                             VRCUiPopupManagerUtils.ShowPopup("Cannot Login", "Please fill out valid data for each input.", "Close", () => VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup());
@@ -219,19 +221,22 @@ namespace VRCTools
             }
         }
 
-        private static void TryLoginToVRCModNetwork(string username, string password, Action<string> onError)
+        internal static void TryLoginToVRCModNetwork(string username, string password, Action<string> onError, bool showPopup)
         {
             APIUser user = vrcmnwLoginCallbackContainer.Model as APIUser;
             VRCModLogger.Log("Invoking auth (uuid: " + (user.id ?? "null") + ")");
 
-            VRCUiPopupManagerUtils.ShowPopup("Login", "Logging in to VRCModNework");
-
+            if(showPopup) VRCUiPopupManagerUtils.ShowPopup("Login", "Logging in to VRCModNework");
+            Authenticating = true;
             VRCModNetworkManager.Auth(username, password, user.id, () =>
             {
                 SecurePlayerPrefs.SetString("vrcmnw_un_" + user.id, username, "vl9u1grTnvXA");
                 SecurePlayerPrefs.SetString("vrcmnw_pw_" + user.id, password, "vl9u1grTnvXA");
 
-                FinishLogin();
+
+                FinishLogin(showPopup);
+                Authenticating = false;
+                vrcmnwLoginCallback = null;
             }, onError);
         }
 
@@ -353,7 +358,7 @@ namespace VRCTools
                             {
                                 string username = SecurePlayerPrefs.GetString("vrcmnw_un_" + currentUser.id, "vl9u1grTnvXA");
                                 string password = SecurePlayerPrefs.GetString("vrcmnw_pw_" + currentUser.id, "vl9u1grTnvXA");
-                                TryLoginToVRCModNetwork(username, password, (error) => ShowVRCMNWLoginMenu(true));
+                                TryLoginToVRCModNetwork(username, password, (error) => ShowVRCMNWLoginMenu(true), true);
                             }
                             else
                                 ShowVRCMNWLoginMenu(true);
@@ -375,32 +380,30 @@ namespace VRCTools
 
 
 
-        internal static void TryConnectToVRCModNetwork()
+        internal static IEnumerator TryConnectToVRCModNetwork()
         {
-            ModManager.StartCoroutine(TryConnectToVRCModNetworkCoroutine());
-        }
-
-        private static IEnumerator TryConnectToVRCModNetworkCoroutine()
-        {
-            yield return null;
-            yield return null;
-            yield return null;
-            yield return null;
-
-            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Connecting to the VRCModNetwork...");
-            VRCModNetworkManager.ConnectAsync(() =>
+            bool waiting = true;
+            Action onSuccess = () =>
             {
                 vrcmnwConnected = true;
-            }, error =>
+                waiting = false;
+            };
+            Action<string> onError = (error) =>
             {
-                VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Unable to connect to the VRCModNetwork", "Retry", TryConnectToVRCModNetwork, "Ignore", () =>
+                VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Unable to connect to the VRCModNetwork", "Retry", () => { waiting = false; }, "Ignore", () =>
                 {
                     vrcmnwDoLogin = false;
+                    waiting = false;
                 });
-            });
+            };
+            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Connecting to the VRCModNetwork...");
+            VRCModNetworkManager.ConnectAsync(onSuccess, onError);
+            while (waiting)
+                yield return null;
+            VRCModNetworkManager.OnDisconnected -= onError;
         }
 
-        private static void ShowVRCMNWLoginMenu(bool pause)
+        internal static void ShowVRCMNWLoginMenu(bool pause)
         {
             if (pause)
             {
@@ -414,10 +417,10 @@ namespace VRCTools
 
 
 
-        private static void FinishLogin()
+        private static void FinishLogin(bool showPopup)
         {
-            vrcmnwLoginCallback(vrcmnwLoginCallbackContainer);
-            popupCompleteCallback?.Invoke();
+            vrcmnwLoginCallback?.Invoke(vrcmnwLoginCallbackContainer);
+            if(showPopup) popupCompleteCallback?.Invoke();
         }
     }
 }

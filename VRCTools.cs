@@ -20,7 +20,7 @@ using static UnityEngine.UI.Button;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.6.2c", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
+    [VRCModInfo("VRCTools", "0.6.3", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
     public class VRCTools : VRCMod
     {
 
@@ -29,17 +29,7 @@ namespace VRCTools
 
 
         private void OnApplicationStart() {
-
-            if (!ApiCredentials.Load())
-            {
-                VRCModLogger.Log("No credential founds");
-            }
-            else
-            {
-                VRCModLogger.Log("Credentials:\n - Token: " + ApiCredentials.GetAuthToken() + "\n - Provider: " + ApiCredentials.GetAuthTokenProvider() + "\n - UserId: " + ApiCredentials.GetAuthTokenProviderUserId());
-            }
-
-
+            
             string lp = "";
             bool first = true;
             foreach (var lp2 in Environment.GetCommandLineArgs())
@@ -47,7 +37,7 @@ namespace VRCTools
                 if (first) first = false;
                 else lp += " " + lp2;
             }
-            VRCModLogger.Log("Launch parameters:" + lp);
+            VRCModLogger.Log("[VRCTools] Launch parameters:" + lp);
 
             ModPrefs.RegisterCategory("vrctools", "VRCTools");
             ModPrefs.RegisterPrefBool("vrctools", "avatarfavdownloadasked", false, null, true);
@@ -59,79 +49,52 @@ namespace VRCTools
             ModPrefs.RegisterPrefBool("vrctools", "allowdiscordjoinrequests", true, "Allow Discord join requests");
         }
 
-        private void OnApplicationQuit()
-        {
-            DiscordManager.OnApplicationQuit();
-        }
-
         private void OnLevelWasLoaded(int level)
         {
-            VRCModLogger.Log("[VRCTools] OnLevelWasLoaded " + level);
             if (level == 0 && !initialising && !Initialised)
             {
-                VRCModLogger.Log("[VRCTools] Disabling VRCFlowManager");
                 VRCFlowManagerUtils.DisableVRCFlowManager();
-                VRCModLogger.Log("[VRCTools] Initialising VRCTools");
                 ModManager.StartCoroutine(VRCToolsSetup());
-                VRCModLogger.Log("[VRCTools] VRCToolsSetup Coroutine started");
-                initialising = true;
             }
         }
 
         private IEnumerator VRCToolsSetup()
         {
-            VRCModLogger.Log("[VRCTools] Waiting for UI Manager...");
+            initialising = true;
+            VRCModLogger.Log("[VRCTools] Initialising VRCTools");
             yield return VRCUiManagerUtils.WaitForUiManagerInit();
-            VRCModLogger.Log("[VRCTools] UIManager initialised ! Resuming setup");
-
-            VRCModLogger.Log("[VRCTools] CheckDownloadFiles");
+            
             yield return DependenciesDownloader.CheckDownloadFiles();
-            VRCModLogger.Log("[VRCTools] CheckVRCModLoaderHash");
             yield return VRCModLoaderUpdater.CheckVRCModLoaderHash();
-            if (ModPrefs.GetBool("vrctools", "enablediscordrichpresence"))
-            {
-                VRCModLogger.Log("[VRCTools] DiscordManager Init");
-                DiscordManager.Init();
-            }
-            VRCModLogger.Log("[VRCTools] Checking AvatarFav update");
-            yield return AvatarFavUpdater.CheckForAvatarFavUpdate();
 
-            VRCModLogger.Log("[VRCTools] VRCModNetworkStatus Setup");
+            if (ModPrefs.GetBool("vrctools", "enablediscordrichpresence"))
+                DiscordManager.Init();
+
+            yield return AvatarFavUpdater.CheckForAvatarFavUpdate();
+            
             VRCModNetworkStatus.Setup();
-            VRCModLogger.Log("[VRCTools] VRCModNetworkLoginPage Setup");
-            try
-            {
+            try {
                 VRCModNetworkLogin.SetupVRCModNetworkLoginPage();
-            }
-            catch(Exception e)
-            {
+            } catch(Exception e) {
                 VRCModLogger.Log("Unable to setup VRCModNetworkLoginPage: " + e);
+                yield break;
             }
+
             if (VRCModNetworkLogin.VrcmnwDoLogin)
-            {
-                VRCModLogger.Log("[VRCTools] Injecting VRCModNetwork login page");
                 VRCModNetworkLogin.InjectVRCModNetworkLoginPage();
-            }
-            VRCModLogger.Log("[VRCTools] ModConfigPage Setup");
             ModConfigPage.Setup();
-            VRCModLogger.Log("[VRCTools] ModdedUsersManager Init");
             ModdedUsersManager.Init();
-            /*
-            VRCUiManagerUtils.OnPageShown += (page) => {
-                VRCModLogger.Log("[VRCTools] OnPageShown: " + page.screenType + " " + (string.IsNullOrEmpty(page.displayName) ? "" : page.displayName + " ") + "(" + page.GetType() + ")");
-            };
-            */
+
             VRCModLogger.Log("[VRCTools] Init done !");
 
-            VRCModLogger.Log("[VRCTools] Connecting to VRCModNetwork");
-            if (VRCModNetworkLogin.VrcmnwDoLogin)
-                VRCModNetworkLogin.TryConnectToVRCModNetwork();
             while (VRCModNetworkLogin.VrcmnwDoLogin && !VRCModNetworkLogin.VrcmnwConnected)
-                yield return null;
-            VRCModLogger.Log("[VRCTools] Connection loop finished");
+            {
+                VRCModLogger.Log("[VRCTools] Trying to connect to the VRCModNetwork");
+                yield return VRCModNetworkLogin.TryConnectToVRCModNetwork();
+            }
+
             VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
-
-
+            
             VRCFlowManagerUtils.EnableVRCFlowManager();
 
             initialising = false;
@@ -139,21 +102,7 @@ namespace VRCTools
 
         }
 
-
-
-
-
-        /*
-        private string GetTextFromUiInputField(UiInputField field)
-        {
-            foreach(FieldInfo fi in typeof(UiInputField).GetFields(BindingFlags.NonPublic | BindingFlags.Instance))
-            {
-                if (fi.FieldType == typeof(string) && fi.Name != "placeholderInputText")
-                    return fi.GetValue(field) as string;
-            }
-            return null;
-        }
-        */
+        
 
         private void OnUpdate()
         {
@@ -162,6 +111,11 @@ namespace VRCTools
             VRCModNetworkStatus.Update();
             ModdedUsersManager.Update();
             DiscordManager.Update();
+        }
+
+        private void OnApplicationQuit()
+        {
+            DiscordManager.OnApplicationQuit();
         }
     }
 }

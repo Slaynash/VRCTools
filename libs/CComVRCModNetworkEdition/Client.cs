@@ -74,7 +74,7 @@ namespace CCom
                 if (connectionListener != null) connectionListener.ConnectionStarted();
                 VRCModLogger.Log("[VRCMODNW] Connecting to server...");
                 socket = new TcpClient();
-                socket.ReceiveTimeout = 10000; //10s
+                socket.ReceiveTimeout = 4000; //4s
                 socket.Connect(address, port);
                 sslStream = new SslStream(
                     socket.GetStream(),

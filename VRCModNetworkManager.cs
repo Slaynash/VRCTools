@@ -36,7 +36,11 @@ namespace VRCModNetwork
                 if (value != authenticated)
                 {
                     authenticated = value;
-                    if (value) OnAuthenticated?.Invoke();
+                    VRCModLogger.Log("[VRCModNetwork] IsAuthenticated: " + authenticated);
+                    if (value)
+                    {
+                        OnAuthenticated?.Invoke();
+                    }
                     else OnLogout?.Invoke();
                 }
             }
@@ -64,6 +68,7 @@ namespace VRCModNetwork
         private static Action onConnectSuccess;
         private static Action<string> onConnectError;
         private static Thread modsCheckerThread;
+        private static List<Action> sheduled = new List<Action>();
 
         private VRCModNetworkManager()
         {
@@ -79,13 +84,20 @@ namespace VRCModNetwork
         {
             onConnectSuccess = onConnectionSuccess;
             onConnectError = onConnectionError;
-            /*
-            if (!VRCTools.ModPrefs.GetBool("vrctools", "remoteauthcheck"))
-                VRCModLogger.Log("[VRCMOD NWManager] Trying to connect to server, but client doesn't allow auth");
-            else*/ if (State != ConnectionState.DISCONNECTED)
+            if (State != ConnectionState.DISCONNECTED)
+            {
                 VRCModLogger.Log("[VRCMOD NWManager] Trying to connect to server, but client is not disconnected");
+                onConnectSuccess = null;
+                onConnectError("Client is not disconnected");
+                onConnectError = null;
+            }
             else if (client != null && client.autoReconnect)
+            {
                 VRCModLogger.Log("[VRCMOD NWManager] Trying to connect to server, but client already exist and is tagged as auto-reconnecting");
+                onConnectSuccess = null;
+                onConnectError("Client is tagged as auto-reconnecting");
+                onConnectError = null;
+            }
             else
             {
                 if (client == null)
@@ -170,17 +182,20 @@ namespace VRCModNetwork
 
         internal static void HandleRpc(string sender, string rpcId, string data)
         {
-            if(rpcListeners.TryGetValue(rpcId, out Action<string, string> listener))
+            SheduleForMainThread(() =>
             {
-                try
+                if (rpcListeners.TryGetValue(rpcId, out Action<string, string> listener))
                 {
-                    listener(sender, data);
+                    try
+                    {
+                        listener(sender, data);
+                    }
+                    catch (Exception e)
+                    {
+                        VRCModLogger.LogError("Error while handling rpc " + rpcId + ": " + e);
+                    }
                 }
-                catch (Exception e)
-                {
-                    VRCModLogger.LogError("Error while handling rpc " + rpcId + ": " + e);
-                }
-            }
+            });
 
         }
 
@@ -198,6 +213,8 @@ namespace VRCModNetwork
         public void ConnectionFailed(string error) {
             State = ConnectionState.DISCONNECTED;
             onConnectError?.Invoke(error);
+            onConnectSuccess = null;
+            onConnectError = null;
         }
         public void Connected()
         {
@@ -205,13 +222,19 @@ namespace VRCModNetwork
             VRCModLogger.Log("Client autoReconnect set to true");
             State = ConnectionState.CONNECTED;
             onConnectSuccess?.Invoke();
+            onConnectSuccess = null;
+            onConnectError = null;
             OnConnected?.Invoke();
+            OnConnected = null;
         }
         public void Disconnected(string error)
         {
             State = ConnectionState.DISCONNECTED;
             ResetDatas();
             OnDisconnected?.Invoke(error);
+            onConnectError?.Invoke(error);
+            onConnectSuccess = null;
+            onConnectError = null;
         }
 
         private static void ResetDatas()
@@ -227,6 +250,21 @@ namespace VRCModNetwork
 
         internal static void Update()
         {
+            lock (sheduled) {
+                foreach(Action a in sheduled)
+                {
+                    try
+                    {
+                        a?.Invoke();
+                    }
+                    catch(Exception e)
+                    {
+                        VRCModLogger.LogError("An error occured while handling RPC: " + e);
+                    }
+                }
+                sheduled.Clear();
+            }
+
             if (State == ConnectionState.CONNECTED)
             {
                 lock (userDatasLock)
@@ -310,6 +348,21 @@ namespace VRCModNetwork
                             VRCModLogger.Log("Done");
                         }
                     }
+                    else if (APIUser.IsLoggedIn && !VRCModNetworkLogin.Authenticating)
+                    {
+                        if (SecurePlayerPrefs.HasKey("vrcmnw_un_" + APIUser.CurrentUser.id) && SecurePlayerPrefs.HasKey("vrcmnw_pw_" + APIUser.CurrentUser.id))
+                        {
+                            string username = SecurePlayerPrefs.GetString("vrcmnw_un_" + APIUser.CurrentUser.id, "vl9u1grTnvXA");
+                            string password = SecurePlayerPrefs.GetString("vrcmnw_pw_" + APIUser.CurrentUser.id, "vl9u1grTnvXA");
+                            VRCModNetworkLogin.TryLoginToVRCModNetwork(username, password, (error) => {
+                                VRCModNetworkLogin.ShowVRCMNWLoginMenu(true);
+                                SecurePlayerPrefs.DeleteKey("vrcmnw_un_" + APIUser.CurrentUser.id);
+                                SecurePlayerPrefs.DeleteKey("vrcmnw_pw_" + APIUser.CurrentUser.id);
+                            }, false);
+                        }
+                        else
+                            VRCModNetworkLogin.ShowVRCMNWLoginMenu(true);
+                    }
                 }
             }
         }
@@ -346,11 +399,17 @@ namespace VRCModNetwork
             VRCModLogger.Log("Env: " + env);
             VRCModLogger.Log("Authenticating");
             AuthCommand authCommand = CommandManager.CreateInstance("AUTH", client, false) as AuthCommand;
-            authCommand.Auth(username, password, uuid, stringEnv, userInstanceId, roomSecret, modlist, onSuccess, onError);
+            authCommand.Auth(username, password, uuid, stringEnv, userInstanceId, roomSecret, modlist, () => SheduleForMainThread(() => onSuccess()), (e) => SheduleForMainThread(() => onError(e)));
             VRCModLogger.Log("Done");
         }
 
-
+        private static void SheduleForMainThread(Action a)
+        {
+            lock (sheduled)
+            {
+                sheduled.Add(a);
+            }
+        }
 
         private static void ModCheckThread()
         {
