@@ -29,6 +29,7 @@ namespace VRCTools
             presence.largeImageKey = "logo";
             presence.partySize = 0;
             presence.partyMax = 0;
+            presence.startTimestamp = (long)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
             presence.partyId = "";
             presence.largeImageText = "VRChat";
             DeviceChanged();
@@ -93,6 +94,7 @@ namespace VRCTools
                 {
                     presence.state = "In a private world";
                     presence.partyId = "";
+                    presence.startTimestamp = 0;
                     if(ModPrefs.GetBool("vrctools", "allowdiscordjoinrequests") && (accessType == ApiWorldInstance.AccessType.InvitePlus))
                         presence.joinSecret = GenerateRandomString(127);
                 }
@@ -117,7 +119,7 @@ namespace VRCTools
                 presence.state = "Not in a world";
                 presence.partyId = "";
                 presence.partyMax = 0;
-                presence.startTimestamp = 0;
+                presence.startTimestamp = (long)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
                 presence.joinSecret = "";
             }
 
