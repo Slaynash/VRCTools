@@ -47,6 +47,7 @@ namespace VRCTools
             ModPrefs.RegisterPrefBool("vrctools", "enabledebugconsole", false, "Enable Debug Console");
 
             ModPrefs.RegisterPrefBool("vrctools", "allowdiscordjoinrequests", true, "Allow Discord join requests");
+            ModPrefs.RegisterPrefBool("vrctools", "hidenameondiscord", true, "Hide your name on Discord");
         }
 
         private void OnLevelWasLoaded(int level)
