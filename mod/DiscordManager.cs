@@ -16,12 +16,11 @@ namespace VRCTools
 
         private static DiscordRpc.RichPresence presence;
         private static DiscordRpc.EventHandlers eventHandlers;
-        private static bool running = false;private static long startTime;
+        private static bool running = false;
 
 
         public static void Init()
         {
-            startTime = (long)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
             eventHandlers = new DiscordRpc.EventHandlers();
             eventHandlers.errorCallback = (code, message) => VRCModLogger.LogError("[VRCTools] [Discord] (E" + code + ") " + message);
 
@@ -30,7 +29,7 @@ namespace VRCTools
             presence.largeImageKey = "logo";
             presence.partySize = 0;
             presence.partyMax = 0;
-            presence.startTimestamp = startTime;
+            presence.startTimestamp = (long)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
             presence.partyId = "";
             presence.largeImageText = "VRChat";
             DeviceChanged();
@@ -95,7 +94,7 @@ namespace VRCTools
                 {
                     presence.state = "In a private world";
                     presence.partyId = "";
-                    // presence.startTimestamp = startTime;
+                    presence.startTimestamp = 0;
                     if(ModPrefs.GetBool("vrctools", "allowdiscordjoinrequests") && (accessType == ApiWorldInstance.AccessType.InvitePlus))
                         presence.joinSecret = GenerateRandomString(127);
                 }
@@ -120,7 +119,7 @@ namespace VRCTools
                 presence.state = "Not in a world";
                 presence.partyId = "";
                 presence.partyMax = 0;
-                presence.startTimestamp = startTime;
+                presence.startTimestamp = (long)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
                 presence.joinSecret = "";
             }
 
