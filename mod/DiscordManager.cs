@@ -24,22 +24,31 @@ namespace VRCTools
             eventHandlers = new DiscordRpc.EventHandlers();
             eventHandlers.errorCallback = (code, message) => VRCModLogger.LogError("[VRCTools] [Discord] (E" + code + ") " + message);
 
-            // VRCModLogger.Log("Supported VR Devices: " + string.Join(", ", UnityEngine.XR.XRSettings.supportedDevices)); // 2019.04.30 22:31:44 Log        -  [VRCMod] None, OpenVR
-            // VRCModLogger.Log("Active VR Device: " + UnityEngine.XR.XRSettings.loadedDeviceName); // 2019.04.30 22:31:44 Log        -  [VRCMod]
-
             presence.state = "Not in a world";
             presence.details = "Not logged in" + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "PC") + ")";
             presence.largeImageKey = "logo";
             presence.partySize = 0;
             presence.partyMax = 0;
             presence.partyId = "";
+            presence.largeImageText = "VRChat";
             DeviceChanged();
             try
             {
                 string steamId = null;
-                if (VRCApplicationSetup._instance.ServerEnvironment == ApiServerEnvironment.Release) steamId = "438100";
-                if (VRCApplicationSetup._instance.ServerEnvironment == ApiServerEnvironment.Beta) steamId = "744530";
-                if (VRCApplicationSetup._instance.ServerEnvironment == ApiServerEnvironment.Dev) steamId = "326100";
+                switch (VRCApplicationSetup._instance.ServerEnvironment)
+                {
+                    case ApiServerEnvironment.Release:
+                        steamId = "438100"; presence.largeImageText += " Release";
+                        break;
+                    case ApiServerEnvironment.Beta:
+                        steamId = "744530"; presence.largeImageText += " Beta";
+                        break;
+                    case ApiServerEnvironment.Dev:
+                        steamId = "326100"; presence.largeImageText += " Dev";
+                        break;
+                    default:
+                        break;
+                }
                 
                 DiscordRpc.Initialize("404400696171954177", ref eventHandlers, true, steamId);
                 DiscordRpc.UpdatePresence(ref presence);
@@ -56,15 +65,18 @@ namespace VRCTools
 
         public static void DeviceChanged() {
             var isInVR = VRCTrackingManager.IsInVRMode();
-            // var family = UnityEngine.XR.XRDevice.family;
             var model = UnityEngine.XR.XRDevice.model;
             if (isInVR) {
                 if (model.ToLower().Contains("oculus") || model.ToLower().Contains("rift")) {
                     presence.smallImageKey = "headset_rift";
                     presence.smallImageText = "Oculus Rift";
-                } else if(model.ToLower().Contains("htc") || model.ToLower().Contains("vive")) 
+                } else if (model.ToLower().Contains("htc") || model.ToLower().Contains("vive")) {
                     presence.smallImageKey = "headset_vive";
                     presence.smallImageText = "HTC Vive";
+                } else {
+                    presence.smallImageKey = "headset_generic";
+                    presence.smallImageText = "VR Headset";
+                }
             } else {
                     presence.smallImageKey = "desktop";
                     presence.smallImageText = "Desktop";
@@ -119,15 +131,15 @@ namespace VRCTools
             if (!displayName.Equals(""))
             {
                 if (ModPrefs.GetBool("vrctools", "hidenameondiscord")) {
-                    presence.details = "Logged in" + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "Desktop") + ")";
+                    presence.details = "Logged in" + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "PC") + ")";
                 } else {
-                    presence.details = "as " + displayName + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "Desktop") + ")";
+                    presence.details = "as " + displayName + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "PC") + ")";
                 }
                 DiscordRpc.UpdatePresence(ref presence);
             }
             else
             {
-                presence.details = "Not logged in" + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "Desktop") + ")";
+                presence.details = "Not logged in" + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "PC") + ")";
                 RoomChanged("", "", "", 0, 0);
             }
         }
