@@ -119,15 +119,15 @@ namespace VRCTools
             if (!displayName.Equals(""))
             {
                 if (ModPrefs.GetBool("vrctools", "hidenameondiscord")) {
-                    presence.details = "Logged in" + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "Desktop") + ")";
+                    presence.details = "Logged in" + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "PC") + ")";
                 } else {
-                    presence.details = "as " + displayName + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "Desktop") + ")";
+                    presence.details = "as " + displayName + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "PC") + ")";
                 }
                 DiscordRpc.UpdatePresence(ref presence);
             }
             else
             {
-                presence.details = "Not logged in" + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "Desktop") + ")";
+                presence.details = "Not logged in" + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "PC") + ")";
                 RoomChanged("", "", "", 0, 0);
             }
         }
