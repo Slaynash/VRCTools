@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using UnityEngine.VR;
 using VRC.Core;
 using VRCModLoader;
 
@@ -17,17 +18,22 @@ namespace VRCTools
         private static DiscordRpc.EventHandlers eventHandlers;
         private static bool running = false;
 
+
         public static void Init()
         {
             eventHandlers = new DiscordRpc.EventHandlers();
             eventHandlers.errorCallback = (code, message) => VRCModLogger.LogError("[VRCTools] [Discord] (E" + code + ") " + message);
 
+            // VRCModLogger.Log("Supported VR Devices: " + string.Join(", ", UnityEngine.XR.XRSettings.supportedDevices)); // 2019.04.30 22:31:44 Log        -  [VRCMod] None, OpenVR
+            // VRCModLogger.Log("Active VR Device: " + UnityEngine.XR.XRSettings.loadedDeviceName); // 2019.04.30 22:31:44 Log        -  [VRCMod]
+
             presence.state = "Not in a world";
-            presence.details = "Not logged in" + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "Desktop") + ")";
+            presence.details = "Not logged in" + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "PC") + ")";
             presence.largeImageKey = "logo";
             presence.partySize = 0;
             presence.partyMax = 0;
             presence.partyId = "";
+            DeviceChanged();
             try
             {
                 string steamId = null;
@@ -46,6 +52,24 @@ namespace VRCTools
                 VRCModLogger.Log("[DiscordManager] Unable to init discord RichPresence:");
                 VRCModLogger.Log("[DiscordManager] " + e);
             }
+        }
+
+        public static void DeviceChanged() {
+            var isInVR = VRCTrackingManager.IsInVRMode();
+            // var family = UnityEngine.XR.XRDevice.family;
+            var model = UnityEngine.XR.XRDevice.model;
+            if (isInVR) {
+                if (model.ToLower().Contains("oculus") || model.ToLower().Contains("rift")) {
+                    presence.smallImageKey = "headset_rift";
+                    presence.smallImageText = "Oculus Rift";
+                } else if(model.ToLower().Contains("htc") || model.ToLower().Contains("vive")) 
+                    presence.smallImageKey = "headset_vive";
+                    presence.smallImageText = "HTC Vive";
+            } else {
+                    presence.smallImageKey = "desktop";
+                    presence.smallImageText = "Desktop";
+            }
+            VRCModLogger.Log("[DiscordManager.DeviceChanged] isInVR: " + isInVR + " Model: " + model);
         }
 
         public static string RoomChanged(string worldName, string worldAndRoomId, string roomIdWithTags, ApiWorldInstance.AccessType accessType, int maxPlayers)
@@ -94,7 +118,11 @@ namespace VRCTools
             if (!running) return;
             if (!displayName.Equals(""))
             {
-                presence.details = "as " + displayName + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "Desktop") + ")";
+                if (ModPrefs.GetBool("vrctools", "hidenameondiscord")) {
+                    presence.details = "Logged in" + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "Desktop") + ")";
+                } else {
+                    presence.details = "as " + displayName + " (" + (VRCTrackingManager.IsInVRMode() ? "VR" : "Desktop") + ")";
+                }
                 DiscordRpc.UpdatePresence(ref presence);
             }
             else

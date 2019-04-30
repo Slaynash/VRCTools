@@ -227,11 +227,11 @@ namespace VRCModNetwork
                 {
                     // Check if user changed
                     string uuid = APIUser.CurrentUser?.id ?? "";
-                    string displayName = APIUser.CurrentUser?.displayName ?? "";
 
                     if (!uuid.Equals(userUuid))
                     {
                         VRCModLogger.Log("[VRCModNetwork] new UUID: " + uuid);
+                        string displayName = APIUser.CurrentUser?.displayName ?? "";
                         DiscordManager.UserChanged(displayName);
 
                         userUuid = uuid; // use it as a lock to avoid spamming
