@@ -20,7 +20,7 @@ using static UnityEngine.UI.Button;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.6.3", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
+    [VRCModInfo("VRCTools", "0.6.5", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
     public class VRCTools : VRCMod
     {
 
@@ -62,8 +62,37 @@ namespace VRCTools
         {
             initialising = true;
             VRCModLogger.Log("[VRCTools] Initialising VRCTools");
+            try
+            {
+                OculusUtils.ApplyPatches();
+            }
+            catch(Exception e)
+            {
+                VRCModLogger.Log("[VRCTools] Error while applying Oculus patches: " + e);
+            }
             yield return VRCUiManagerUtils.WaitForUiManagerInit();
-            
+
+            VRCModLogger.Log("[VRCTools] Overwriting login button event");
+            VRCUiPageAuthentication[] authpages = Resources.FindObjectsOfTypeAll<VRCUiPageAuthentication>();
+            VRCUiPageAuthentication loginPage = authpages.First((page) => page.gameObject.name == "LoginUserPass");
+            if (loginPage != null)
+            {
+                Button loginButton = loginPage.transform.Find("ButtonDone (1)")?.GetComponent<Button>();
+                if (loginButton != null)
+                {
+                    ButtonClickedEvent bce = loginButton.onClick;
+                    loginButton.onClick = new ButtonClickedEvent();
+                    loginButton.onClick.AddListener(() => {
+                        VRCModNetworkManager.SetCredentials(GetTextFromUiInputField(loginPage.loginUserName) + ":" + GetTextFromUiInputField(loginPage.loginPassword));
+                        bce?.Invoke();
+                    });
+                }
+                else
+                    VRCModLogger.Log("[VRCTools] Unable to find login button in login page");
+            }
+            else
+                VRCModLogger.Log("[VRCTools] Unable to find login page");
+
             yield return DependenciesDownloader.CheckDownloadFiles();
             yield return VRCModLoaderUpdater.CheckVRCModLoaderHash();
 
@@ -73,25 +102,23 @@ namespace VRCTools
             yield return AvatarFavUpdater.CheckForAvatarFavUpdate();
             
             VRCModNetworkStatus.Setup();
-            try {
-                VRCModNetworkLogin.SetupVRCModNetworkLoginPage();
-            } catch(Exception e) {
-                VRCModLogger.Log("Unable to setup VRCModNetworkLoginPage: " + e);
-                yield break;
-            }
-
-            if (VRCModNetworkLogin.VrcmnwDoLogin)
-                VRCModNetworkLogin.InjectVRCModNetworkLoginPage();
             ModConfigPage.Setup();
             ModdedUsersManager.Init();
 
-            VRCModLogger.Log("[VRCTools] Init done !");
-
-            while (VRCModNetworkLogin.VrcmnwDoLogin && !VRCModNetworkLogin.VrcmnwConnected)
+            /*
+            if (ApiCredentials.Load())
             {
-                VRCModLogger.Log("[VRCTools] Trying to connect to the VRCModNetwork");
-                yield return VRCModNetworkLogin.TryConnectToVRCModNetwork();
+                VRCModLogger.Log("ApiCredentials.GetAuthTokenProviderUserId() => " + ApiCredentials.());
+                if (!SecurePlayerPrefs.HasKey("vrcmnw_token_" + ApiCredentials.GetAuthTokenProviderUserId()))
+                {
+                    ApiCredentials.Clear();
+                }
             }
+            */
+            ApiCredentials.Clear();
+
+
+            VRCModLogger.Log("[VRCTools] Init done !");
 
             VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
             
@@ -100,9 +127,17 @@ namespace VRCTools
             initialising = false;
             Initialised = true;
 
+            VRCModNetworkManager.ConnectAsync();
+
         }
 
-        
+        private string GetTextFromUiInputField(UiInputField field)
+        {
+            FieldInfo textField = typeof(UiInputField).GetFields(BindingFlags.NonPublic | BindingFlags.Instance).First(f => f.FieldType == typeof(string) && f.Name != "placeholderInputText");
+            return textField.GetValue(field) as string;
+        }
+
+
 
         private void OnUpdate()
         {
