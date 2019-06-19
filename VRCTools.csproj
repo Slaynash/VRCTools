@@ -79,10 +79,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.ImageConversionModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
-    </Reference>
     <Reference Include="VRCCore-Standalone">
       <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\VRCCore-Standalone.dll</HintPath>
     </Reference>
