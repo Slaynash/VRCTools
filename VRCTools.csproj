@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -23,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
     <LangVersion>7.2</LangVersion>
     <CodeAnalysisRuleSet />
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,11 +34,9 @@
     <WarningLevel>4</WarningLevel>
     <LangVersion>7.2</LangVersion>
     <CodeAnalysisRuleSet />
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>D:\jeux\steam\SteamApps\common\VRChat\0Harmony.dll</HintPath>
-    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -79,6 +78,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.VRModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\UnityEngine.VRModule.dll</HintPath>
+    </Reference>
     <Reference Include="VRCCore-Standalone">
       <HintPath>D:\jeux\steam\SteamApps\common\VRChat\VRChat_Data\Managed\VRCCore-Standalone.dll</HintPath>
     </Reference>
@@ -96,6 +99,37 @@
     <Compile Include="libs\CComVRCModNetworkEdition\CommandManager.cs" />
     <Compile Include="libs\CComVRCModNetworkEdition\ConnectionListener.cs" />
     <Compile Include="datas\ImageDatas.cs" />
+    <Compile Include="libs\Harmony\Attributes.cs" />
+    <Compile Include="libs\Harmony\CodeInstruction.cs" />
+    <Compile Include="libs\Harmony\CodeTranspiler.cs" />
+    <Compile Include="libs\Harmony\Extras\DelegateTypeFactory.cs" />
+    <Compile Include="libs\Harmony\Extras\FastAccess.cs" />
+    <Compile Include="libs\Harmony\Extras\MethodInvoker.cs" />
+    <Compile Include="libs\Harmony\GlobalSuppressions.cs" />
+    <Compile Include="libs\Harmony\HarmonyInstance.cs" />
+    <Compile Include="libs\Harmony\HarmonyMethod.cs" />
+    <Compile Include="libs\Harmony\HarmonySharedState.cs" />
+    <Compile Include="libs\Harmony\ILCopying\ByteBuffer.cs" />
+    <Compile Include="libs\Harmony\ILCopying\Emitter.cs" />
+    <Compile Include="libs\Harmony\ILCopying\ILInstruction.cs" />
+    <Compile Include="libs\Harmony\ILCopying\Memory.cs" />
+    <Compile Include="libs\Harmony\ILCopying\MethodCopier.cs" />
+    <Compile Include="libs\Harmony\ILCopying\Signature.cs" />
+    <Compile Include="libs\Harmony\MethodPatcher.cs" />
+    <Compile Include="libs\Harmony\Patch.cs" />
+    <Compile Include="libs\Harmony\PatchFunctions.cs" />
+    <Compile Include="libs\Harmony\PatchProcessor.cs" />
+    <Compile Include="libs\Harmony\Priority.cs" />
+    <Compile Include="libs\Harmony\Tools\AccessCache.cs" />
+    <Compile Include="libs\Harmony\Tools\AccessTools.cs" />
+    <Compile Include="libs\Harmony\Tools\DynamicTools.cs" />
+    <Compile Include="libs\Harmony\Tools\Extensions.cs" />
+    <Compile Include="libs\Harmony\Tools\FileLog.cs" />
+    <Compile Include="libs\Harmony\Tools\PatchTools.cs" />
+    <Compile Include="libs\Harmony\Tools\SelfPatching.cs" />
+    <Compile Include="libs\Harmony\Tools\SymbolExtensions.cs" />
+    <Compile Include="libs\Harmony\Tools\Traverse.cs" />
+    <Compile Include="libs\Harmony\Transpilers.cs" />
     <Compile Include="mod\BasicLogoutLogAndPatch.cs" />
     <Compile Include="mod\ModValues.cs" />
     <Compile Include="utils\OculusUtils.cs" />
