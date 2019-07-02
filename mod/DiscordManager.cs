@@ -73,8 +73,8 @@ namespace VRCTools
                     presence.smallImageKey = "headset_rift";
                 } else if (model.ToLower().Contains("htc") || model.ToLower().Contains("vive")) {
                     presence.smallImageKey = "headset_htc";
-                } else if (model.ToLower().Contains("steam") || model.ToLower().Contains("index")) {
-                    presence.smallImageKey = "headset_steam";
+                } else if (model.ToLower().Contains("valve") || model.ToLower().Contains("steam") || model.ToLower().Contains("index")) {
+                    presence.smallImageKey = "headset_valve";
                 } else {
                     presence.smallImageKey = "headset_generic";
                     // presence.smallImageText = "VR Headset";
