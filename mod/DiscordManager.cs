@@ -68,18 +68,16 @@ namespace VRCTools
             var isInVR = VRCTrackingManager.IsInVRMode();
             var model = UnityEngine.XR.XRDevice.model;
             if (isInVR) {
-                if (model.ToLower().Contains("oculus") || model.ToLower().Contains("rift")) {
+                presence.smallImageText = model;
+                if (model.ToLower().Contains("oculus")) {
                     presence.smallImageKey = "headset_rift";
-                    presence.smallImageText = "Oculus Rift";
                 } else if (model.ToLower().Contains("htc") || model.ToLower().Contains("vive")) {
-                    presence.smallImageKey = "headset_vive";
-                    presence.smallImageText = "HTC Vive";
+                    presence.smallImageKey = "headset_htc";
                 } else if (model.ToLower().Contains("steam") || model.ToLower().Contains("index")) {
                     presence.smallImageKey = "headset_steam";
-                    presence.smallImageText = "Steam VR";
                 } else {
                     presence.smallImageKey = "headset_generic";
-                    presence.smallImageText = "VR Headset";
+                    // presence.smallImageText = "VR Headset";
                 }
             } else {
                     presence.smallImageKey = "desktop";
