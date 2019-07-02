@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -74,6 +74,9 @@ namespace VRCTools
                 } else if (model.ToLower().Contains("htc") || model.ToLower().Contains("vive")) {
                     presence.smallImageKey = "headset_vive";
                     presence.smallImageText = "HTC Vive";
+                } else if (model.ToLower().Contains("steam") || model.ToLower().Contains("index")) {
+                    presence.smallImageKey = "headset_steam";
+                    presence.smallImageText = "Steam VR";
                 } else {
                     presence.smallImageKey = "headset_generic";
                     presence.smallImageText = "VR Headset";
