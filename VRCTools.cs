@@ -63,6 +63,7 @@ namespace VRCTools
         {
             initialising = true;
             VRCModLogger.Log("[VRCTools] Initialising VRCTools");
+            /*
             try
             {
                 OculusUtils.ApplyPatches();
@@ -71,6 +72,7 @@ namespace VRCTools
             {
                 VRCModLogger.Log("[VRCTools] Error while applying Oculus patches: " + e);
             }
+            */
             yield return VRCUiManagerUtils.WaitForUiManagerInit();
 
             VRCModLogger.Log("[VRCTools] Overwriting login button event");
