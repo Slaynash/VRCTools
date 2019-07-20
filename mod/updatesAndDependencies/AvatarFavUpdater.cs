@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -152,12 +153,12 @@ namespace VRCTools
                 Thread t = new Thread(() =>
                 {
                     Thread.Sleep(1000);
-                    System.Diagnostics.Process.Start(Path.GetDirectoryName(Path.GetDirectoryName(avatarfavPath)) + "\\VRChat.exe", args);
+                    Process.Start(Path.GetDirectoryName(Path.GetDirectoryName(avatarfavPath)) + "\\VRChat.exe", args);
                     Thread.Sleep(100);
                 });
                 t.Start();
 
-                Application.Quit();
+                Process.GetCurrentProcess().Kill();
             }
             else
             {
