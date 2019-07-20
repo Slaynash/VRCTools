@@ -20,7 +20,7 @@ using static UnityEngine.UI.Button;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.6.5", "Slaynash", "https://survival-machines.fr/vrcmod/VRCTools.dll")]
+    [VRCModInfo("VRCTools", "0.6.6", "Slaynash")]
     public class VRCTools : VRCMod
     {
 
@@ -105,18 +105,16 @@ namespace VRCTools
             VRCModNetworkStatus.Setup();
             ModConfigPage.Setup();
             ModdedUsersManager.Init();
-
+            
             /*
             if (ApiCredentials.Load())
             {
-                VRCModLogger.Log("ApiCredentials.GetAuthTokenProviderUserId() => " + ApiCredentials.());
                 if (!SecurePlayerPrefs.HasKey("vrcmnw_token_" + ApiCredentials.GetAuthTokenProviderUserId()))
                 {
                     ApiCredentials.Clear();
                 }
             }
             */
-            ApiCredentials.Clear();
 
 
             VRCModLogger.Log("[VRCTools] Init done !");

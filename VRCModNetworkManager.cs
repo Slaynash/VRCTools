@@ -252,10 +252,12 @@ namespace VRCModNetwork
                             }
                             else if (ApiCredentials.GetAuthTokenProvider() == "steam")
                                 TryAuthenticate("st_" + SteamUtils.GetSteamTicket());
+                            /*
                             else if (ApiCredentials.GetAuthTokenProvider() == "oculus")
                                 OculusUtils.GetAccessToken(
                                     ticket => TryAuthenticate($"oculus {ticket} {OculusUtils.OculusId} {OculusUtils.OculusName}"),
                                     error => VRCModLogger.LogError("[VRCModNetwork] Error while fetching oculus ticket: " + error));
+                            */
                             else if (!string.IsNullOrEmpty(credentials))
                             {
                                 TryAuthenticate("login " + Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials)));
@@ -264,8 +266,11 @@ namespace VRCModNetwork
                             }
                             else
                             {
+                                /*
                                 VRCModLogger.LogError("[VRCModNetwork] Unable to auth: Required auth datas are missing");
                                 return;
+                                */
+                                TryAuthenticate("ac " + uuid + " " + ApiCredentials.GetAuthToken()); // may broke at any time
                             }
                         }
                     }
