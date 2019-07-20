@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Threading;
@@ -17,7 +18,7 @@ namespace VRCTools
 
         public static IEnumerator CheckForAvatarFavUpdate()
         {
-            string avatarfavPath = Values.ModsPath + "AvatarFav.dll";
+            string avatarfavPath = ModManager.Mods.FirstOrDefault(m => m.Name == "AvatarFav")?.GetType().Assembly.Location ?? Path.Combine(Values.ModsPath, "AvatarFav.dll");
             VRCModLogger.Log("AvatarFav.dll path: " + avatarfavPath);
             string fileHash = "";
             if (ModPrefs.GetBool("vrctools", "avatarfavdownloadasked"))
