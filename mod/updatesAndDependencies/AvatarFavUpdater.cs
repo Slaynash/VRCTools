@@ -133,6 +133,8 @@ namespace VRCTools
             {
                 VRCUiPopupManagerUtils.ShowPopup("AvatarFav Updater", "Saving AvatarFav");
                 VRCModLogger.Log("[AvatarFavUpdater] Saving file");
+                if (File.Exists(avatarfavPath))
+                    File.Delete(avatarfavPath);
                 File.WriteAllBytes(avatarfavPath, vrctoolsDownload.bytes);
 
                 VRCModLogger.Log("[AvatarFavUpdater] Showing restart dialog");
