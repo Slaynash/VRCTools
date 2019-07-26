@@ -133,13 +133,27 @@ namespace VRCTools
             {
                 VRCUiPopupManagerUtils.ShowPopup("AvatarFav Updater", "Saving AvatarFav");
                 VRCModLogger.Log("[AvatarFavUpdater] Saving file");
-                File.WriteAllBytes(avatarfavPath, vrctoolsDownload.bytes);
-
-                VRCModLogger.Log("[AvatarFavUpdater] Showing restart dialog");
                 bool choiceDone = false;
-                VRCUiPopupManagerUtils.ShowPopup("AvatarFav Updater", "Update downloaded", "Restart", () => {
+                if (File.Exists(avatarfavPath)){
+                    try {
+                      File.Delete(avatarfavPath);
+                    }
+                    catch (String ex){
+                        VRCUiPopupManagerUtils.ShowPopup("AvatarFav Updater", "Unable to update AvatarFav: " + ex, "Quit", () => Application.Quit());
+                        VRCModLogger.Log("[AvatarFavUpdater] Unable to delete old AvatarFav.dll: " + ex);
+                    }
+                };
+                try {
+                    File.WriteAllBytes(avatarfavPath, vrctoolsDownload.bytes);
+                    VRCModLogger.Log("[AvatarFavUpdater] Showing restart dialog");
+                    VRCUiPopupManagerUtils.ShowPopup("AvatarFav Updater", "Update downloaded", "Restart", () => {
                     choiceDone = true;
                 });
+                } catch (String ex){
+                    VRCUiPopupManagerUtils.ShowPopup("AvatarFav Updater", "Unable to update AvatarFav: " + ex, "Quit", () => Application.Quit());
+                    VRCModLogger.Log("[AvatarFavUpdater] Unable to delete old AvatarFav.dll: " + ex);
+                }    
+
                 yield return new WaitUntil(() => choiceDone);
 
                 VRCUiPopupManagerUtils.ShowPopup("AvatarFav Updater", "Restarting game");
