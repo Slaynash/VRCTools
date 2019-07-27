@@ -19,7 +19,8 @@ namespace VRCTools
 
         public static IEnumerator CheckForAvatarFavUpdate()
         {
-            string avatarfavPath = ModManager.Mods.FirstOrDefault(m => m.Name == "AvatarFav")?.GetType().Assembly.Location ?? Path.Combine(Values.ModsPath, "AvatarFav.dll");
+            string exitingAvatarfavFileName = ModManager.Mods.FirstOrDefault(m => m.Name == "AvatarFav")?.GetType().Assembly.CodeBase.Split('/').Last();
+            string avatarfavPath = Path.Combine(Values.ModsPath, exitingAvatarfavFileName ?? "AvatarFav.dll");
             VRCModLogger.Log("AvatarFav.dll path: " + avatarfavPath);
             string fileHash = "";
             if (ModPrefs.GetBool("vrctools", "avatarfavdownloadasked"))
