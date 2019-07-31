@@ -30,7 +30,6 @@ namespace VRCTools
                 go.GetComponent<VRCUiPage>().screenType = avatarscreen.GetComponent<VRCUiPage>().screenType;
                 go.GetComponent<VRCUiPage>().displayName = "Mod Conf";
                 go.GetComponent<VRCUiPage>().AudioShow = avatarscreen.GetComponent<VRCUiPage>().AudioShow;
-                go.GetComponent<VRCUiPage>().AudioLoop = avatarscreen.GetComponent<VRCUiPage>().AudioLoop;
                 go.GetComponent<VRCUiPage>().AudioHide = avatarscreen.GetComponent<VRCUiPage>().AudioHide;
 
                 VRCModLogger.Log("[ModConfigPage] Adding ModConfigPage component");
