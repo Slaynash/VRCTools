@@ -20,7 +20,7 @@ namespace VRCModNetwork
     public class VRCModNetworkManager : IConnectionListener
     {
 
-        private static readonly string SERVER_ADDRESS = "vrchat.survival-machines.fr";
+        private static readonly string SERVER_ADDRESS = "vrchat2.survival-machines.fr";
         private static readonly int SERVER_PORT = Environment.CommandLine.Contains("--vrctools.dev") ? 26345 : 26342;
         private static readonly string VRCMODNW_VERSION = "1.1";
 

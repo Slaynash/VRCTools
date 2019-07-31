@@ -20,7 +20,7 @@ using static UnityEngine.UI.Button;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.6.8", "Slaynash")]
+    [VRCModInfo("VRCTools", "0.7.0", "Slaynash")]
     public class VRCTools : VRCMod
     {
 
