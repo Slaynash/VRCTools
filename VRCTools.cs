@@ -12,11 +12,14 @@ using System.Text;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using VRC.Core;
 using VRC.Core.BestHTTP;
 using VRCModLoader;
 using VRCModNetwork;
 using static UnityEngine.UI.Button;
+
+using VRCMenuUtils;
 
 namespace VRCTools
 {
@@ -48,15 +51,8 @@ namespace VRCTools
 
             ModPrefs.RegisterPrefBool("vrctools", "allowdiscordjoinrequests", true, "Allow Discord join requests");
             ModPrefs.RegisterPrefBool("vrctools", "hidenameondiscord", true, "Hide your name on Discord");
-        }
 
-        private void OnLevelWasLoaded(int level)
-        {
-            if (level == 0 && !initialising && !Initialised)
-            {
-                VRCFlowManagerUtils.DisableVRCFlowManager();
-                ModManager.StartCoroutine(VRCToolsSetup());
-            }
+            VRCMenuUtilsAPI.RunBeforeFlowManager(VRCToolsSetup());
         }
 
         private IEnumerator VRCToolsSetup()
@@ -123,7 +119,7 @@ namespace VRCTools
 
             VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
             
-            VRCFlowManagerUtils.EnableVRCFlowManager();
+            //VRCFlowManagerUtils.EnableVRCFlowManager();
 
             initialising = false;
             Initialised = true;
@@ -137,8 +133,6 @@ namespace VRCTools
             FieldInfo textField = typeof(UiInputField).GetFields(BindingFlags.NonPublic | BindingFlags.Instance).First(f => f.FieldType == typeof(string) && f.Name != "placeholderInputText");
             return textField.GetValue(field) as string;
         }
-
-
 
         private void OnUpdate()
         {

@@ -1,0 +1,17 @@
+Assembly-CSharp.dll
+Assembly-CSharp-firstpass.dll
+Newtonsoft.Json.dll
+Photon3Unity3D.dll
+UnityEngine.AudioModule.dll
+UnityEngine.CoreModule.dll
+UnityEngine.dll
+UnityEngine.TextRenderingModule.dll
+UnityEngine.UI.dll
+UnityEngine.UIModule.dll
+UnityEngine.UnityWebRequestWWWModule.dll
+UnityEngine.VRModule.dll
+VRCCore-Standalone.dll
+VRCModLoader.dll
+VRCSDK2.dll
+VRLoader.dll
+VRCMenuUtils.dll
