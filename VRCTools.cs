@@ -97,8 +97,6 @@ namespace VRCTools
 
             if (ModPrefs.GetBool("vrctools", "enablediscordrichpresence"))
                 DiscordManager.Init();
-
-            yield return AvatarFavUpdater.CheckForAvatarFavUpdate();
             
             VRCModNetworkStatus.Setup();
             ModConfigPage.Setup();
