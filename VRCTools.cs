@@ -43,14 +43,7 @@ namespace VRCTools
             VRCModLogger.Log("[VRCTools] Launch parameters:" + lp);
 
             ModPrefs.RegisterCategory("vrctools", "VRCTools");
-            ModPrefs.RegisterPrefBool("vrctools", "avatarfavdownloadasked", false, null, true);
-            ModPrefs.RegisterPrefBool("vrctools", "avatarfavdownload", false, "Enable AvatarFav Updater");
-
-            ModPrefs.RegisterPrefBool("vrctools", "enablediscordrichpresence", true, "Enable Discord RichPresence");
             ModPrefs.RegisterPrefBool("vrctools", "enabledebugconsole", false, "Enable Debug Console");
-
-            ModPrefs.RegisterPrefBool("vrctools", "allowdiscordjoinrequests", true, "Allow Discord join requests");
-            ModPrefs.RegisterPrefBool("vrctools", "hidenameondiscord", true, "Hide your name on Discord");
 
             VRCMenuUtilsAPI.RunBeforeFlowManager(VRCToolsSetup());
         }
@@ -94,9 +87,6 @@ namespace VRCTools
 
             yield return DependenciesDownloader.CheckDownloadFiles();
             yield return VRCModLoaderUpdater.CheckVRCModLoaderHash();
-
-            if (ModPrefs.GetBool("vrctools", "enablediscordrichpresence"))
-                DiscordManager.Init();
             
             VRCModNetworkStatus.Setup();
             ModConfigPage.Setup();
@@ -138,12 +128,6 @@ namespace VRCTools
             VRCModNetworkManager.Update();
             VRCModNetworkStatus.Update();
             ModdedUsersManager.Update();
-            DiscordManager.Update();
-        }
-
-        private void OnApplicationQuit()
-        {
-            DiscordManager.OnApplicationQuit();
         }
     }
 }

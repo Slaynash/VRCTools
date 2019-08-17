@@ -231,8 +231,6 @@ namespace VRCModNetwork
                     if (!uuid.Equals(userUuid))
                     {
                         VRCModLogger.Log("[VRCModNetwork] new UUID: " + uuid);
-                        string displayName = APIUser.CurrentUser?.displayName ?? "";
-                        DiscordManager.UserChanged(displayName);
 
                         userUuid = uuid; // use it as a lock to avoid spamming
                         if (uuid.Equals(""))
@@ -286,11 +284,7 @@ namespace VRCModNetwork
                         {
                             VRCModLogger.Log("[VRCModNetwork] Updating instance id. Current room: " + roomId);
                             userInstanceId = roomId;
-                            roomSecret = "";
-                            if(roomId != "")
-                                roomSecret = DiscordManager.RoomChanged(RoomManagerBase.currentRoom.name, RoomManagerBase.currentRoom.id + ":" + RoomManagerBase.currentRoom.currentInstanceIdOnly, RoomManagerBase.currentRoom.currentInstanceIdWithTags, RoomManager.currentRoom.currentInstanceAccess, RoomManager.currentRoom.capacity);
-                            else DiscordManager.RoomChanged("", "", "", ApiWorldInstance.AccessType.InviteOnly, 0);
-                            ((InstanceChangedCommand)CommandManager.CreateInstance("INSTANCECHANGED", client)).Send(roomId, roomSecret);
+                            ((InstanceChangedCommand)CommandManager.CreateInstance("INSTANCECHANGED", client)).Send(roomId);
                             VRCModLogger.Log("[VRCModNetwork] Done");
                         }
                     }
