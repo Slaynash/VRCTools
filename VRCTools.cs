@@ -1,20 +1,9 @@
-﻿using Harmony;
-using I2.Loc;
-using System;
+﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
-using VRC.Core;
-using VRC.Core.BestHTTP;
 using VRCModLoader;
 using VRCModNetwork;
 using static UnityEngine.UI.Button;
@@ -23,11 +12,9 @@ using VRCMenuUtils;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.7.0", "Slaynash")]
+    [VRCModInfo("VRCTools", "0.8.0", "Slaynash")]
     public class VRCTools : VRCMod
     {
-
-        private bool initialising = false;
         public static bool Initialised { get; private set; }
 
 
@@ -50,7 +37,6 @@ namespace VRCTools
 
         private IEnumerator VRCToolsSetup()
         {
-            initialising = true;
             VRCModLogger.Log("[VRCTools] Initialising VRCTools");
             /*
             try
@@ -106,10 +92,7 @@ namespace VRCTools
             VRCModLogger.Log("[VRCTools] Init done !");
 
             VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
-            
-            //VRCFlowManagerUtils.EnableVRCFlowManager();
 
-            initialising = false;
             Initialised = true;
 
             VRCModNetworkManager.ConnectAsync();
