@@ -13,4 +13,4 @@ VRCCore-Standalone.dll
 VRCModLoader.dll
 VRCSDK2.dll
 VRLoader.dll
-VRCMenuUtils.dll
+0Harmony.1.2.0.1.dll

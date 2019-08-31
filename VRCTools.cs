@@ -93,7 +93,6 @@ namespace VRCTools
             else
                 VRCModLogger.Log("[VRCTools] Unable to find login page");
 
-            yield return DependenciesDownloader.CheckDownloadFiles();
             yield return VRCModLoaderUpdater.CheckVRCModLoaderHash();
             
             VRCModNetworkStatus.Setup();
