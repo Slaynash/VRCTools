@@ -56,11 +56,6 @@ namespace VRCTools
             }
         }
 
-        private void OnLevelWasLoaded(int level)
-        {
-            VRCModLogger.Log("[VRCTools.OnLevelWasLoaded] " + level);
-        }
-
         private IEnumerator VRCToolsSetup()
         {
             if (!usingVRCMenuUtils)
@@ -73,8 +68,7 @@ namespace VRCTools
             yield return VRCUiManagerUtils.WaitForUiManagerInit();
 
             VRCModLogger.Log("[VRCTools] Overwriting login button event");
-            VRCUiPageAuthentication[] authpages = Resources.FindObjectsOfTypeAll<VRCUiPageAuthentication>();
-            VRCUiPageAuthentication loginPage = authpages.First((page) => page.gameObject.name == "LoginUserPass");
+            VRCUiPageAuthentication loginPage = Resources.FindObjectsOfTypeAll<VRCUiPageAuthentication>().FirstOrDefault((page) => page.gameObject.name == "LoginUserPass");
             if (loginPage != null)
             {
                 Button loginButton = loginPage.transform.Find("ButtonDone (1)")?.GetComponent<Button>();
@@ -95,19 +89,11 @@ namespace VRCTools
 
             yield return VRCModLoaderUpdater.CheckVRCModLoaderHash();
             
+
+
             VRCModNetworkStatus.Setup();
             ModConfigPage.Setup();
             ModdedUsersManager.Init();
-            
-            /*
-            if (ApiCredentials.Load())
-            {
-                if (!SecurePlayerPrefs.HasKey("vrcmnw_token_" + ApiCredentials.GetAuthTokenProviderUserId()))
-                {
-                    ApiCredentials.Clear();
-                }
-            }
-            */
 
 
             VRCModLogger.Log("[VRCTools] Init done !");

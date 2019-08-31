@@ -53,6 +53,7 @@ namespace VRCModNetwork.commands
                     SecurePlayerPrefs.DeleteKey("vrcmnw_token_" + id);
                 });
             }
+            VRCModNetworkManager.authError = error;
         }
     }
 }

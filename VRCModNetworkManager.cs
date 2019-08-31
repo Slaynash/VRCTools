@@ -60,6 +60,7 @@ namespace VRCModNetwork
         private static string roomSecret = "";
         private static List<ModDesc> modlist = new List<ModDesc>();
         private static string credentials = "";
+        internal static string authError = "";
 
         private static Thread modsCheckerThread;
         private static List<Action> sheduled = new List<Action>();
@@ -200,6 +201,7 @@ namespace VRCModNetwork
                 userInstanceId = "";
                 modlist.Clear();
                 IsAuthenticated = false;
+                authError = "";
             }
         }
 
@@ -288,20 +290,15 @@ namespace VRCModNetwork
 
         private static void TryAuthenticate(string authData)
         {
-            VRCModLogger.Log("[VRCModNetwork] Getting current instanceId");
             if (RoomManagerBase.currentRoom != null && RoomManagerBase.currentRoom.id != null && RoomManagerBase.currentRoom.currentInstanceIdWithTags != null)
                 userInstanceId = RoomManagerBase.currentRoom.id + ":" + RoomManagerBase.currentRoom.currentInstanceIdWithTags;
-            VRCModLogger.Log("[VRCModNetwork] Getting current modList");
             modlist = ModDesc.GetAllMods();
-            VRCModLogger.Log("[VRCModNetwork] Getting current environment");
             ApiServerEnvironment env = VRCApplicationSetup._instance.ServerEnvironment;
             string stringEnv = "release";
             if (env == ApiServerEnvironment.Dev) stringEnv = "dev";
-            VRCModLogger.Log("[VRCModNetwork] Env: " + env);
-            VRCModLogger.Log("[VRCModNetwork] Authenticating");
+            VRCModLogger.Log("[VRCModNetwork] Authenticating...");
             AuthCommand authCommand = CommandManager.CreateInstance("AUTH", client, false) as AuthCommand;
             authCommand.Auth(userUuid, authData, stringEnv, userInstanceId, roomSecret, modlist);
-            VRCModLogger.Log("[VRCModNetwork] Done");
         }
 
         internal static void SetCredentials(string credentials_)

@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using VRC;
@@ -54,7 +52,6 @@ namespace VRCTools
 
         private static void OnModdedplayerjoinReceived(string sender, string data)
         {
-            //ModdedUser mu = JsonUtility.FromJson<ModdedUser>(data);
             ModdedUser mu = JsonConvert.DeserializeObject<ModdedUser>(data);
             lock (moddedUserList)
             {
@@ -80,7 +77,6 @@ namespace VRCTools
                         {
                             roomCleared = true;
                             moddedUserList.Clear();
-                            VRCModLogger.Log("[ModdedUsersManager] Cleared userlist");
                         }
                     }
                     else
@@ -88,7 +84,6 @@ namespace VRCTools
                         if (roomCleared)
                         {
                             roomCleared = false;
-                            VRCModLogger.Log("[ModdedUsersManager] Now in instance");
                         }
                         foreach (Player p in PlayerManager.GetAllPlayers())
                         {
@@ -101,7 +96,7 @@ namespace VRCTools
                                     Transform vrctplayerSprite = UnityUiUtils.DuplicateImage(p.vrcPlayer.friendSprite.transform, new Vector2(140 * 2, 0));
                                     vrctplayerSprite.GetComponent<Image>().sprite = vrctoolsSprite;
 
-                                    VRCModLogger.Log("[ModdedUsersManager] Added VRCTools sprite to " + pid + "'s nameplate");
+                                    VRCModLogger.Log("[VRCTools - ModdedUsersManager] Added VRCTools sprite to " + pid + "'s nameplate");
                                 }
                                 npl.Add(pid);
                             }

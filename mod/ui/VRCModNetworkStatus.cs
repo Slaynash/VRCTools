@@ -46,6 +46,7 @@ namespace VRCTools
                 networkstatusText.font = baseTextTransform.GetComponent<Text>().font;
                 networkstatusText.fontSize = baseTextTransform.GetComponent<Text>().fontSize;
                 networkstatusText.fontStyle = baseTextTransform.GetComponent<Text>().fontStyle;
+                networkstatusText.horizontalOverflow = HorizontalWrapMode.Overflow;
 
                 Update();
             }
@@ -62,8 +63,9 @@ namespace VRCTools
             {
                 currentState = VRCModNetworkManager.State;
                 currentAuthState = VRCModNetworkManager.IsAuthenticated;
-
-                if (VRCModNetworkManager.IsAuthenticated)
+                if(!string.IsNullOrEmpty(VRCModNetworkManager.authError))
+                    networkstatusText.text = "VRCModNetwork status: <color=red>" + VRCModNetworkManager.authError + "</color>";
+                else if (VRCModNetworkManager.IsAuthenticated)
                     networkstatusText.text = "VRCModNetwork status: <color=lime>Authenticated</color>";
                 else if (VRCModNetworkManager.State == VRCModNetworkManager.ConnectionState.CONNECTED)
                     networkstatusText.text = "VRCModNetwork status: <color=orange>Not Authenticated</color>";
