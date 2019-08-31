@@ -8,13 +8,15 @@ using VRCModLoader;
 using VRCModNetwork;
 using static UnityEngine.UI.Button;
 
-using VRCMenuUtils;
+using UnityEngine.SceneManagement;
 
 namespace VRCTools
 {
     [VRCModInfo("VRCTools", "0.8.0", "Slaynash")]
     public class VRCTools : VRCMod
     {
+        private bool usingVRCMenuUtils = false;
+
         public static bool Initialised { get; private set; }
 
 
@@ -32,22 +34,42 @@ namespace VRCTools
             ModPrefs.RegisterCategory("vrctools", "VRCTools");
             ModPrefs.RegisterPrefBool("vrctools", "enabledebugconsole", false, "Enable Debug Console");
 
-            VRCMenuUtilsAPI.RunBeforeFlowManager(VRCToolsSetup());
+            Type vrcMenuUtilsAPI = null;
+            usingVRCMenuUtils = AppDomain.CurrentDomain.GetAssemblies().Any(a =>
+            {
+                vrcMenuUtilsAPI = a.GetType("VRCMenuUtils.VRCMenuUtilsAPI");
+                return vrcMenuUtilsAPI != null;
+            });
+
+            VRCModLogger.Log("[VRCTools] Using VRCMenuUtils: " + usingVRCMenuUtils);
+
+            if (!usingVRCMenuUtils)
+            {
+                SceneManager.sceneLoaded += (scene, mode) =>
+                {
+                    ModManager.StartCoroutine(VRCToolsSetup());
+                };
+            }
+            else
+            {
+                vrcMenuUtilsAPI.GetMethod("RunBeforeFlowManager").Invoke(null, new object[] { VRCToolsSetup() });
+            }
+        }
+
+        private void OnLevelWasLoaded(int level)
+        {
+            VRCModLogger.Log("[VRCTools.OnLevelWasLoaded] " + level);
         }
 
         private IEnumerator VRCToolsSetup()
         {
+            if (!usingVRCMenuUtils)
+            {
+                yield return null;
+                VRCFlowManagerUtils.DisableVRCFlowManager();
+            }
             VRCModLogger.Log("[VRCTools] Initialising VRCTools");
-            /*
-            try
-            {
-                OculusUtils.ApplyPatches();
-            }
-            catch(Exception e)
-            {
-                VRCModLogger.Log("[VRCTools] Error while applying Oculus patches: " + e);
-            }
-            */
+
             yield return VRCUiManagerUtils.WaitForUiManagerInit();
 
             VRCModLogger.Log("[VRCTools] Overwriting login button event");
@@ -94,6 +116,9 @@ namespace VRCTools
             VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
 
             Initialised = true;
+
+            if (!usingVRCMenuUtils)
+                VRCFlowManagerUtils.EnableVRCFlowManager();
 
             VRCModNetworkManager.ConnectAsync();
 

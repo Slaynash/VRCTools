@@ -250,12 +250,6 @@ namespace VRCModNetwork
                             }
                             else if (ApiCredentials.GetAuthTokenProvider() == "steam")
                                 TryAuthenticate("st_" + SteamUtils.GetSteamTicket());
-                            /*
-                            else if (ApiCredentials.GetAuthTokenProvider() == "oculus")
-                                OculusUtils.GetAccessToken(
-                                    ticket => TryAuthenticate($"oculus {ticket} {OculusUtils.OculusId} {OculusUtils.OculusName}"),
-                                    error => VRCModLogger.LogError("[VRCModNetwork] Error while fetching oculus ticket: " + error));
-                            */
                             else if (!string.IsNullOrEmpty(credentials))
                             {
                                 TryAuthenticate("login " + Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials)));
@@ -301,10 +295,8 @@ namespace VRCModNetwork
             modlist = ModDesc.GetAllMods();
             VRCModLogger.Log("[VRCModNetwork] Getting current environment");
             ApiServerEnvironment env = VRCApplicationSetup._instance.ServerEnvironment;
-            string stringEnv = "";
+            string stringEnv = "release";
             if (env == ApiServerEnvironment.Dev) stringEnv = "dev";
-            if (env == ApiServerEnvironment.Beta) stringEnv = "beta";
-            if (env == ApiServerEnvironment.Release) stringEnv = "release";
             VRCModLogger.Log("[VRCModNetwork] Env: " + env);
             VRCModLogger.Log("[VRCModNetwork] Authenticating");
             AuthCommand authCommand = CommandManager.CreateInstance("AUTH", client, false) as AuthCommand;

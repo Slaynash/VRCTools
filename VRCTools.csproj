@@ -37,7 +37,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
@@ -80,9 +81,6 @@
     </Reference>
     <Reference Include="VRCCore-Standalone">
       <HintPath>lib\VRCCore-Standalone.dll</HintPath>
-    </Reference>
-    <Reference Include="VRCMenuUtils">
-      <HintPath>lib\VRCMenuUtils.dll</HintPath>
     </Reference>
     <Reference Include="VRCModLoader">
       <HintPath>lib\VRCModLoader.dll</HintPath>
@@ -157,6 +155,7 @@
     <Compile Include="utils\SteamUtils.cs" />
     <Compile Include="utils\Texture2DUtils.cs" />
     <Compile Include="utils\UnityUiUtils.cs" />
+    <Compile Include="utils\VRCFlowManagerUtils.cs" />
     <Compile Include="VRCModNetworkManager.cs" />
     <Compile Include="utils\Values.cs" />
     <Compile Include="utils\WebRequestsUtils.cs" />
