@@ -123,6 +123,7 @@ namespace VRCTools
                 ModPrefs.SaveConfigs();
                 VRCUiManagerUtils.GetVRCUiManager().CloseUi(true);
                 VRCUiCursorManager.SetUiActive(false);
+                ModComponent.OnModSettingsApplied();
             });
             CreateButton("Close",  300, () =>
             {

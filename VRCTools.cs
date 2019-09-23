@@ -12,7 +12,7 @@ using UnityEngine.SceneManagement;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.8.0", "Slaynash")]
+    [VRCModInfo("VRCTools", "0.8.2", "Slaynash")]
     public class VRCTools : VRCMod
     {
         private bool usingVRCMenuUtils = false;
@@ -47,7 +47,8 @@ namespace VRCTools
             {
                 SceneManager.sceneLoaded += (scene, mode) =>
                 {
-                    ModManager.StartCoroutine(VRCToolsSetup());
+                    if(scene.buildIndex == 0 && !Initialised)
+                        ModManager.StartCoroutine(VRCToolsSetup());
                 };
             }
             else
@@ -56,13 +57,17 @@ namespace VRCTools
             }
         }
 
+        private void OnLevelWasLoaded(int level)
+        {
+            if (!usingVRCMenuUtils && level == 0 && !Initialised)
+            {
+                VRCFlowManagerUtils.DisableVRCFlowManager();
+                ModManager.StartCoroutine(VRCToolsSetup());
+            }
+        }
+
         private IEnumerator VRCToolsSetup()
         {
-            if (!usingVRCMenuUtils)
-            {
-                yield return null;
-                VRCFlowManagerUtils.DisableVRCFlowManager();
-            }
             VRCModLogger.Log("[VRCTools] Initialising VRCTools");
 
             yield return VRCUiManagerUtils.WaitForUiManagerInit();
