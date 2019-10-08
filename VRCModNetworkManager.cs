@@ -21,7 +21,7 @@ namespace VRCModNetwork
     {
 
         private static readonly string SERVER_ADDRESS = "vrchat2.survival-machines.fr";
-        private static readonly int SERVER_PORT = Environment.CommandLine.Contains("--vrctools.dev") ? 26345 : 26342;
+        private static readonly int SERVER_PORT = (Application.platform == RuntimePlatform.WindowsPlayer ? (Environment.CommandLine.Contains("--vrctools.dev") ? 26345 : 26342) : 26342);
         private static readonly string VRCMODNW_VERSION = "1.1";
 
         private static Client client;

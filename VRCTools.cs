@@ -21,15 +21,17 @@ namespace VRCTools
 
 
         private void OnApplicationStart() {
-            
-            string lp = "";
-            bool first = true;
-            foreach (var lp2 in Environment.GetCommandLineArgs())
+            if (Application.platform == RuntimePlatform.WindowsPlayer)
             {
-                if (first) first = false;
-                else lp += " " + lp2;
+                string lp = "";
+                bool first = true;
+                foreach (var lp2 in Environment.GetCommandLineArgs())
+                {
+                    if (first) first = false;
+                    else lp += " " + lp2;
+                }
+                VRCModLogger.Log("[VRCTools] Launch parameters:" + lp);
             }
-            VRCModLogger.Log("[VRCTools] Launch parameters:" + lp);
 
             ModPrefs.RegisterCategory("vrctools", "VRCTools");
             ModPrefs.RegisterPrefBool("vrctools", "enabledebugconsole", false, "Enable Debug Console");
@@ -43,15 +45,15 @@ namespace VRCTools
 
             VRCModLogger.Log("[VRCTools] Using VRCMenuUtils: " + usingVRCMenuUtils);
 
-            if (!usingVRCMenuUtils)
+            /*if (!usingVRCMenuUtils)
             {
                 SceneManager.sceneLoaded += (scene, mode) =>
                 {
                     if(scene.buildIndex == 0 && !Initialised)
                         ModManager.StartCoroutine(VRCToolsSetup());
                 };
-            }
-            else
+            }*/
+            if (usingVRCMenuUtils)
             {
                 vrcMenuUtilsAPI.GetMethod("RunBeforeFlowManager").Invoke(null, new object[] { VRCToolsSetup() });
             }
@@ -59,7 +61,7 @@ namespace VRCTools
 
         private void OnLevelWasLoaded(int level)
         {
-            if (!usingVRCMenuUtils && level == 0 && !Initialised)
+            if (!usingVRCMenuUtils && level == (Application.platform == RuntimePlatform.WindowsPlayer ? 0 : 2) && !Initialised)
             {
                 VRCFlowManagerUtils.DisableVRCFlowManager();
                 ModManager.StartCoroutine(VRCToolsSetup());
@@ -93,14 +95,16 @@ namespace VRCTools
                 VRCModLogger.Log("[VRCTools] Unable to find login page");
 
             yield return VRCModLoaderUpdater.CheckVRCModLoaderHash();
-            
 
-
-            VRCModNetworkStatus.Setup();
-            ModConfigPage.Setup();
-            ModdedUsersManager.Init();
-
-
+            try
+            {
+                VRCModNetworkStatus.Setup();
+                ModConfigPage.Setup();
+                ModdedUsersManager.Init();
+            } catch (Exception ex)
+            {
+                VRCModLogger.Log("[VRCTools]" + ex.ToString());
+            }
             VRCModLogger.Log("[VRCTools] Init done !");
 
             VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();

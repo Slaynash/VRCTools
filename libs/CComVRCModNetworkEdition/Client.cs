@@ -98,6 +98,7 @@ namespace CCom
                     throw new Exception("Connection aborted");
                 }
 
+                if (UnityEngine.Application.platform == UnityEngine.RuntimePlatform.WindowsPlayer)
                 socket.ReceiveTimeout = -1; //no receive timeout
 
                 VRCModLogger.Log("[VRCMODNW] Connected.");
