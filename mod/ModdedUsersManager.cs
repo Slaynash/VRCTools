@@ -25,7 +25,8 @@ namespace VRCTools
 
         internal static void Init()
         {
-            if (Environment.CommandLine.Contains("--vrctools.enablenameplateicons")) enableNameplateIcons = true;
+            if (Application.platform == RuntimePlatform.WindowsPlayer)
+                if (Environment.CommandLine.Contains("--vrctools.enablenameplateicons")) enableNameplateIcons = true;
 
             VRCModNetworkManager.SetRPCListener("slaynash.vrctools.moddedplayerlistonjoin", OnModdedplayerlistonjoinReceived);
             VRCModNetworkManager.SetRPCListener("slaynash.vrctools.moddedplayerjoined", OnModdedplayerjoinReceived);
