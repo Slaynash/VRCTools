@@ -223,7 +223,7 @@ namespace VRCModNetwork
                 sheduled.Clear();
             }
 
-            if (State == ConnectionState.CONNECTED)
+            if (State == ConnectionState.CONNECTED || State == ConnectionState.NEED_REAUTH)
             {
                 lock (userDatasLock)
                 {

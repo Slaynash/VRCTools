@@ -12,7 +12,7 @@ using UnityEngine.SceneManagement;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.8.3", "Slaynash")]
+    [VRCModInfo("VRCTools", "0.8.4", "Slaynash")]
     public class VRCTools : VRCMod
     {
         private bool usingVRCMenuUtils = false;
