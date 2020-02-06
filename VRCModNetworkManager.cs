@@ -260,11 +260,9 @@ namespace VRCModNetwork
                             }
                             else
                             {
-                                /*
                                 VRCModLogger.LogError("[VRCModNetwork] Unable to auth: Required auth datas are missing");
+                                State = ConnectionState.NEED_REAUTH;
                                 return;
-                                */
-                                TryAuthenticate("ac " + uuid + " " + ApiCredentials.GetAuthToken()); // may broke at any time
                             }
                         }
                     }
@@ -366,7 +364,8 @@ namespace VRCModNetwork
             DISCONNECTED,
             CONNECTION_ETABLISHED,
             CONNECTING,
-            CONNECTED
+            CONNECTED,
+            NEED_REAUTH
         }
     }
 }

@@ -21,12 +21,12 @@ namespace VRCTools
         private static PropertyInfo userProperty;
         private static Sprite vrctoolsSprite;
         private static bool roomCleared = true;
-        private static bool enableNameplateIcons = false;
+        private static bool disableNameplateIcons = false;
 
         internal static void Init()
         {
             if (Application.platform == RuntimePlatform.WindowsPlayer)
-                if (Environment.CommandLine.Contains("--vrctools.enablenameplateicons")) enableNameplateIcons = true;
+                if (Environment.CommandLine.Contains("--vrctools.disablenameplateicons")) disableNameplateIcons = true;
 
             VRCModNetworkManager.SetRPCListener("slaynash.vrctools.moddedplayerlistonjoin", OnModdedplayerlistonjoinReceived);
             VRCModNetworkManager.SetRPCListener("slaynash.vrctools.moddedplayerjoined", OnModdedplayerjoinReceived);
@@ -67,7 +67,7 @@ namespace VRCTools
 
         internal static void Update()
         {
-            if (enableNameplateIcons)
+            if (!disableNameplateIcons)
             {
                 lock (moddedUserList)
                 {

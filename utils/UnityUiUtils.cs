@@ -69,24 +69,15 @@ namespace VRCTools
 
         public static Transform DuplicateImage(Transform baseImage, Vector2 posDelta)
         {
-            GameObject imageGO = new GameObject("DuplicatedImage", typeof(RectTransform), typeof(Image));
-            RectTransform rtO = baseImage.GetComponent<RectTransform>();
-            RectTransform rtT = imageGO.GetComponent<RectTransform>();
+            Transform imageT = GameObject.Instantiate(baseImage, baseImage.parent);
+            Image imageImage = imageT.GetComponent<Image>();
+            imageImage.sprite = baseImage.GetComponent<Image>().sprite;
+            imageImage.type = baseImage.GetComponent<Image>().type;
+            imageImage.fillCenter = baseImage.GetComponent<Image>().fillCenter;
 
-            imageGO.transform.SetParent(baseImage.parent);
-            imageGO.GetComponent<Image>().sprite = baseImage.GetComponent<Image>().sprite;
-            imageGO.GetComponent<Image>().type = baseImage.GetComponent<Image>().type;
-            imageGO.GetComponent<Image>().fillCenter = baseImage.GetComponent<Image>().fillCenter;
+            imageT.localPosition += new Vector3(posDelta.x, posDelta.y);
 
-            rtT.localScale = rtO.localScale;
-
-            rtT.anchoredPosition = rtO.anchoredPosition;
-            rtT.sizeDelta = rtO.sizeDelta;
-
-            rtT.localPosition = rtO.localPosition + new Vector3(posDelta.x, posDelta.y, 0);
-            rtT.localRotation = rtO.localRotation;
-
-            return imageGO.transform;
+            return imageT;
         }
 
         public static Transform CreateScrollView(RectTransform parentTransform, int viewWidth, int viewHeight, int maxWidth, int maxHeight, bool scrollHorizontally, bool scrollVertically)

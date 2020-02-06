@@ -75,6 +75,8 @@ namespace VRCTools
                     networkstatusText.text = "VRCModNetwork status: <color=lime>Authenticated</color>";
                 else if (VRCModNetworkManager.State == VRCModNetworkManager.ConnectionState.CONNECTED)
                     networkstatusText.text = "VRCModNetwork status: <color=orange>Not Authenticated</color>";
+                else if (VRCModNetworkManager.State == VRCModNetworkManager.ConnectionState.NEED_REAUTH)
+                    networkstatusText.text = "VRCModNetwork status: <color=orange>Not Authenticated - Relogin required</color>";
                 else if (VRCModNetworkManager.State == VRCModNetworkManager.ConnectionState.CONNECTING)
                     networkstatusText.text = "VRCModNetwork status: <color=orange>Connecting</color>";
                 else
