@@ -20,7 +20,7 @@ namespace VRCModNetwork
     public class VRCModNetworkManager : IConnectionListener
     {
 
-        private static readonly string SERVER_ADDRESS = "vrchat2.survival-machines.fr";
+        private static readonly string SERVER_ADDRESS = Environment.CommandLine.Contains("--vrctools.dev") ? "localhost" : "vrchat2.survival-machines.fr";
         private static readonly int SERVER_PORT = (Application.platform == RuntimePlatform.WindowsPlayer ? (Environment.CommandLine.Contains("--vrctools.dev") ? 26345 : 26342) : 26342);
         private static readonly string VRCMODNW_VERSION = "1.1";
 
@@ -88,6 +88,8 @@ namespace VRCModNetwork
                     client = new Client(SERVER_ADDRESS, SERVER_PORT, VRCMODNW_VERSION);
                     if (instance == null) instance = new VRCModNetworkManager();
                     client.SetConnectionListener(instance);
+                    client.autoReconnect = true;
+                    VRCModLogger.Log("[VRCModNetworkManager] Client autoReconnect set to true");
                     if (modsCheckerThread == null)
                     {
                         modsCheckerThread = new Thread(ModCheckThread)
@@ -181,8 +183,6 @@ namespace VRCModNetwork
         public void ConnectionFailed(string error) => State = ConnectionState.DISCONNECTED;
         public void Connected()
         {
-            client.autoReconnect = true;
-            VRCModLogger.Log("[VRCModNetworkManager] Client autoReconnect set to true");
             State = ConnectionState.CONNECTED;
             OnConnected?.Invoke();
         }

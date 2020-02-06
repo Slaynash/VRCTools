@@ -139,8 +139,9 @@ namespace CCom
                 ClientThread();
                 while (autoReconnect)
                 {
-                    Thread.Sleep(2000);
                     ClientThread();
+                    if (autoReconnect)
+                        Thread.Sleep(15000);
                 }
             });
             thread.Name = "VRCMod Networking Thread (Listen)";
