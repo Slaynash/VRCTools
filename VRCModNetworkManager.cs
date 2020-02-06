@@ -246,17 +246,17 @@ namespace VRCModNetwork
                         }
                         else
                         {
-                            if (SecurePlayerPrefs.HasKey("vrcmnw_token_" + uuid))
-                            {
-                                TryAuthenticate("vrcmnw " + uuid + " " + SecurePlayerPrefs.GetString("vrcmnw_token_" + uuid, "vl9u1grTnvXA"));
-                            }
-                            else if (ApiCredentials.GetAuthTokenProvider() == "steam")
+                            if (ApiCredentials.GetAuthTokenProvider() == "steam")
                                 TryAuthenticate("st_" + SteamUtils.GetSteamTicket());
                             else if (!string.IsNullOrEmpty(credentials))
                             {
                                 TryAuthenticate("login " + Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials)));
                                 credentials = "";
                                 VRCTools.ModPrefs.SetBool("vrctools", "hasvrcmnwtoken", true);
+                            }
+                            else if (SecurePlayerPrefs.HasKey("vrcmnw_token_" + uuid))
+                            {
+                                TryAuthenticate("vrcmnw " + uuid + " " + SecurePlayerPrefs.GetString("vrcmnw_token_" + uuid, "vl9u1grTnvXA"));
                             }
                             else
                             {
