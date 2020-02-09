@@ -12,7 +12,7 @@ using UnityEngine.SceneManagement;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.8.4", "Slaynash")]
+    [VRCModInfo("VRCTools", "0.8.5", "Slaynash")]
     public class VRCTools : VRCMod
     {
         private bool usingVRCMenuUtils = false;
@@ -84,7 +84,7 @@ namespace VRCTools
                     ButtonClickedEvent bce = loginButton.onClick;
                     loginButton.onClick = new ButtonClickedEvent();
                     loginButton.onClick.AddListener(() => {
-                        VRCModNetworkManager.SetCredentials(GetTextFromUiInputField(loginPage.loginUserName) + ":" + GetTextFromUiInputField(loginPage.loginPassword));
+                        VRCModNetworkManager.SetCredentials(Uri.EscapeDataString(GetTextFromUiInputField(loginPage.loginUserName)) + ":" + Uri.EscapeDataString(GetTextFromUiInputField(loginPage.loginPassword)));
                         bce?.Invoke();
                     });
                 }
