@@ -50,7 +50,11 @@ namespace VRCModNetwork.commands
             {
                 VRCModNetworkManager.SheduleForMainThread(() =>
                 {
-                    SecurePlayerPrefs.DeleteKey("vrcmnw_token_" + id);
+                    if (SecurePlayerPrefs.HasKey("vrcmnw_token_" + id))
+                    {
+                        SecurePlayerPrefs.DeleteKey("vrcmnw_token_" + id);
+                        VRCModNetworkManager.userUuid = "";
+                    }
                 });
             }
             VRCModNetworkManager.authError = error;

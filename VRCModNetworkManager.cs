@@ -22,7 +22,7 @@ namespace VRCModNetwork
 
         private static readonly string SERVER_ADDRESS = Environment.CommandLine.Contains("--vrctools.dev") ? "localhost" : "vrchat2.survival-machines.fr";
         private static readonly int SERVER_PORT = (Application.platform == RuntimePlatform.WindowsPlayer ? (Environment.CommandLine.Contains("--vrctools.dev") ? 26345 : 26342) : 26342);
-        private static readonly string VRCMODNW_VERSION = "1.1";
+        private static readonly string VRCMODNW_VERSION = "1.1.1";
 
         private static Client client;
         public static ConnectionState State { private set; get; }
@@ -55,7 +55,7 @@ namespace VRCModNetwork
         private static VRCModNetworkManager instance;
         private static readonly object userDatasLock = new object();
 
-        private static string userUuid = "";
+        internal static string userUuid = "";
         private static string userInstanceId = "";
         private static string roomSecret = "";
         private static List<ModDesc> modlist = new List<ModDesc>();
@@ -246,17 +246,22 @@ namespace VRCModNetwork
                         }
                         else
                         {
-                            if (ApiCredentials.GetAuthTokenProvider() == "steam")
+                            if (SecurePlayerPrefs.HasKey("vrcmnw_token_" + uuid))
+                            {
+                                VRCModLogger.Log("[VRCModNetwork] Logging in using VRCModNetwork token");
+                                TryAuthenticate("vrcmnw " + uuid + " " + SecurePlayerPrefs.GetString("vrcmnw_token_" + uuid, "vl9u1grTnvXA"));
+                            }
+                            else if (ApiCredentials.GetAuthTokenProvider() == "steam")
+                            {
+                                VRCModLogger.Log("[VRCModNetwork] Logging in using Steam token");
                                 TryAuthenticate("st_" + SteamUtils.GetSteamTicket());
+                            }
                             else if (!string.IsNullOrEmpty(credentials))
                             {
+                                VRCModLogger.Log("[VRCModNetwork] Logging in using VRChat credentials");
                                 TryAuthenticate("login " + Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials)));
                                 credentials = "";
                                 VRCTools.ModPrefs.SetBool("vrctools", "hasvrcmnwtoken", true);
-                            }
-                            else if (SecurePlayerPrefs.HasKey("vrcmnw_token_" + uuid))
-                            {
-                                TryAuthenticate("vrcmnw " + uuid + " " + SecurePlayerPrefs.GetString("vrcmnw_token_" + uuid, "vl9u1grTnvXA"));
                             }
                             else
                             {
