@@ -104,6 +104,7 @@
     <Compile Include="libs\CComVRCModNetworkEdition\ConnectionListener.cs" />
     <Compile Include="datas\ImageDatas.cs" />
     <Compile Include="mod\ModValues.cs" />
+    <Compile Include="mod\ui\pages\VRCModNetworkLogin.cs" />
     <Compile Include="mod\ui\uicomponents\IConfigElement.cs" />
     <Compile Include="mod\ui\uicomponents\UIToggleSwitch.cs" />
     <Compile Include="mod\ui\pages\ModConfigPage.cs" />

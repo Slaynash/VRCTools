@@ -12,10 +12,11 @@ using UnityEngine.SceneManagement;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.9.0", "Slaynash")]
+    [VRCModInfo("VRCTools", "0.10.0", "Slaynash")]
     public class VRCTools : VRCMod
     {
         private bool usingVRCMenuUtils = false;
+        private bool initializing = false;
 
         public static bool Initialised { get; private set; }
 
@@ -61,7 +62,7 @@ namespace VRCTools
 
         private void OnLevelWasLoaded(int level)
         {
-            if (!usingVRCMenuUtils && level == (Application.platform == RuntimePlatform.WindowsPlayer ? 0 : 2) && !Initialised)
+            if (!usingVRCMenuUtils && level == (Application.platform == RuntimePlatform.WindowsPlayer ? 0 : 2) && !Initialised && !initializing)
             {
                 VRCFlowManagerUtils.DisableVRCFlowManager();
                 ModManager.StartCoroutine(VRCToolsSetup());
@@ -71,6 +72,7 @@ namespace VRCTools
         private IEnumerator VRCToolsSetup()
         {
             VRCModLogger.Log("[VRCTools] Initialising VRCTools");
+            initializing = true;
 
             yield return VRCUiManagerUtils.WaitForUiManagerInit();
 
@@ -99,6 +101,7 @@ namespace VRCTools
             try
             {
                 VRCModNetworkStatus.Setup();
+                VRCModNetworkLogin.SetupVRCModNetworkLoginPage();
                 ModConfigPage.Setup();
                 ModdedUsersManager.Init();
             } catch (Exception ex)
@@ -106,10 +109,16 @@ namespace VRCTools
                 VRCModLogger.Log("[VRCTools]" + ex.ToString());
             }
             VRCModLogger.Log("[VRCTools] Init done !");
+            if (VRCModNetworkLogin.VrcmnwDoLogin)
+            {
+                VRCModLogger.Log("[VRCTools] Injecting VRCModNetwork login page");
+                VRCModNetworkLogin.InjectVRCModNetworkLoginPage();
+            }
 
             VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
 
             Initialised = true;
+            initializing = false;
 
             if (!usingVRCMenuUtils)
                 VRCFlowManagerUtils.EnableVRCFlowManager();
@@ -130,6 +139,11 @@ namespace VRCTools
             VRCModNetworkManager.Update();
             VRCModNetworkStatus.Update();
             ModdedUsersManager.Update();
+
+            if(Input.GetKeyDown(KeyCode.F2))
+            {
+                VRCModLogger.Log(SteamUtils.GetSteamTicket());
+            }
         }
     }
 }
