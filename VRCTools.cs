@@ -46,14 +46,6 @@ namespace VRCTools
 
             VRCModLogger.Log("[VRCTools] Using VRCMenuUtils: " + usingVRCMenuUtils);
 
-            /*if (!usingVRCMenuUtils)
-            {
-                SceneManager.sceneLoaded += (scene, mode) =>
-                {
-                    if(scene.buildIndex == 0 && !Initialised)
-                        ModManager.StartCoroutine(VRCToolsSetup());
-                };
-            }*/
             if (usingVRCMenuUtils)
             {
                 vrcMenuUtilsAPI.GetMethod("RunBeforeFlowManager").Invoke(null, new object[] { VRCToolsSetup() });
@@ -72,10 +64,16 @@ namespace VRCTools
         private IEnumerator VRCToolsSetup()
         {
             VRCModLogger.Log("[VRCTools] Initialising VRCTools");
+            VRCModLogger.Log("[VRCTools] Current scene: " + SceneManager.GetActiveScene().name + "(index: " + SceneManager.GetActiveScene().buildIndex + ", path: " + SceneManager.GetActiveScene().path + ")");
+            VRCModLogger.Log("[VRCTools] ModComponent Sibling index: " + ModComponent.Instance.transform.GetSiblingIndex());
+            VRCModLogger.Log("[VRCTools] Root gameobjects:");
+            foreach(GameObject g in SceneManager.GetActiveScene().GetRootGameObjects())
+                VRCModLogger.Log(" - " + g);
+            VRCModLogger.Log("[VRCTools] Call trace: " + new System.Diagnostics.StackTrace());
             initializing = true;
 
             yield return VRCUiManagerUtils.WaitForUiManagerInit();
-
+            
             VRCModLogger.Log("[VRCTools] Overwriting login button event");
             VRCUiPageAuthentication loginPage = Resources.FindObjectsOfTypeAll<VRCUiPageAuthentication>().FirstOrDefault((page) => page.gameObject.name == "LoginUserPass");
             if (loginPage != null)
@@ -114,7 +112,6 @@ namespace VRCTools
                 VRCModLogger.Log("[VRCTools] Injecting VRCModNetwork login page");
                 VRCModNetworkLogin.InjectVRCModNetworkLoginPage();
             }
-
             VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
 
             Initialised = true;

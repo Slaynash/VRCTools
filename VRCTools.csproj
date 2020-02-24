@@ -37,8 +37,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony.1.2.0.1">
-      <HintPath>lib\0Harmony.1.2.0.1.dll</HintPath>
+    <Reference Include="0Harmony.1.2.0.1, Version=1.2.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\jeux\Steam\SteamApps\common\VRChat\Mods\0Harmony.1.2.0.1.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -69,6 +70,9 @@
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>lib\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>lib\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
       <HintPath>lib\UnityEngine.TextRenderingModule.dll</HintPath>
@@ -110,6 +114,7 @@
     <Compile Include="mod\ui\pages\ModConfigPage.cs" />
     <Compile Include="mod\serializables\ModdedUser.cs" />
     <Compile Include="mod\ModdedUsersManager.cs" />
+    <Compile Include="networkcommands\VRCLinkCommand.cs" />
     <Compile Include="networkcommands\AuthCommand.cs" />
     <Compile Include="networkcommands\InstanceChangedCommand.cs" />
     <Compile Include="networkcommands\LogoutCommand.cs" />

@@ -232,7 +232,7 @@ namespace VRCTools
             VRCModLogger.Log("Invoking auth (uuid: " + (user.id ?? "null") + ")");
 
             VRCUiPopupManagerUtils.ShowPopup("Login", "Logging in to VRCModNework");
-            /*
+            
             VRCModNetworkManager.Auth(username, password, user.id, () =>
             {
                 SecurePlayerPrefs.SetString("vrcmnw_un_" + user.id, username, "vl9u1grTnvXA");
@@ -240,9 +240,6 @@ namespace VRCTools
 
                 FinishLogin();
             }, onError);
-            */
-
-            onError("Not Implemented"); // TODO
         }
 
         internal static void InjectVRCModNetworkLoginPage()

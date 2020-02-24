@@ -11,53 +11,43 @@ namespace VRCModNetwork.commands
 {
     internal class AuthCommand : Command
     {
-        private string id = null;
+        private Action onSuccess;
+        private Action<string> onError;
 
-        public void Auth(string id, string authToken, string apiType, string instanceId, string roomSecret, List<ModDesc> modlist)
+        internal void Auth(string username, string password, string uuid, string instanceId, string roomSecret, List<ModDesc> modlist, Action onSuccess, Action<string> onError)
         {
-            VRCModLogger.Log("Authdata:" + authToken);
-            WriteLine(CreateLoginJson(authToken, apiType, instanceId, roomSecret, modlist));
-            this.id = id;
+            this.onSuccess = onSuccess;
+            this.onError = onError;
+            WriteLine(CreateLoginJson(username, password, uuid, instanceId, roomSecret, modlist));
         }
 
         public override void Handle(string parts)
         {
+            Destroy();
             if (parts.StartsWith("OK"))
             {
                 VRCModNetworkManager.SheduleForMainThread(() =>
                 {
+                    int returnValue = int.Parse(parts.Split(new[] { ' ' }, 2)[1]);
                     VRCModNetworkManager.IsAuthenticated = true;
-                    if (!parts.Equals("OK"))
-                    {
-                        string token = parts.Substring(3);
-                        SecurePlayerPrefs.SetString("vrcmnw_token_" + id, token, "vl9u1grTnvXA");
-                    }
+                    
+                    VRCModNetworkManager.VRCAuthStatus = returnValue;
+                    onSuccess?.Invoke();
                 });
             }
-            Destroy();
+            else
+                onError(parts);
         }
 
-        private static string CreateLoginJson(string authToken, string apiType, string instanceId, string roomSecret, List<ModDesc> modlist)
+        private static string CreateLoginJson(string username, string password, string uuid, string instanceId, string roomSecret, List<ModDesc> modlist)
         {
-            return "{\"authType\":\"CLIENT\",\"authToken\":\"" + authToken + "\",\"apiType\":\"" + apiType + "\",\"instanceId\":\"" + instanceId + "\",\"joinSecret\":\"" + roomSecret + "\",\"modlist\":[" + ModDesc.CreateModlistJson(modlist) + "]}";
+            return "{\"authType\":\"CLIENT\",\"name\":\"" + Convert.ToBase64String(Encoding.UTF8.GetBytes(username)) + "\",\"password\":\"" + Convert.ToBase64String(Encoding.UTF8.GetBytes(password)) + "\",\"vrcuuid\":\"" + uuid + "\",\"instanceId\":\"" + Convert.ToBase64String(Encoding.UTF8.GetBytes(instanceId)) + "\",\"joinSecret\":\"" + roomSecret + "\",\"modlist\":[" + ModDesc.CreateModlistJson(modlist) + "]}";
         }
 
         public override void RemoteError(string error)
         {
             base.RemoteError(error);
-
-            if(id != null)
-            {
-                VRCModNetworkManager.SheduleForMainThread(() =>
-                {
-                    if (SecurePlayerPrefs.HasKey("vrcmnw_token_" + id))
-                    {
-                        SecurePlayerPrefs.DeleteKey("vrcmnw_token_" + id);
-                        VRCModNetworkManager.userUuid = "";
-                    }
-                });
-            }
-            VRCModNetworkManager.authError = error;
+            onError(error);
         }
     }
 }

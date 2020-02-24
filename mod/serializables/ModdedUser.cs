@@ -4,7 +4,8 @@ namespace VRCTools
 {
     internal class ModdedUser
     {
-        public string id;
+        public string vrctid;
+        public string vrcid;
         internal ModDesc[] mods;
 
         internal static ModdedUser[] ParseJson(string json)

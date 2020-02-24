@@ -46,7 +46,7 @@ namespace VRCTools
             {
                 foreach (ModdedUser mu in muld)
                 {
-                    if (!moddedUserList.ContainsKey(mu.id)) moddedUserList.Add(mu.id, mu);
+                    if (!moddedUserList.ContainsKey(mu.vrcid)) moddedUserList.Add(mu.vrcid, mu);
                 }
             }
         }
@@ -56,7 +56,7 @@ namespace VRCTools
             ModdedUser mu = JsonConvert.DeserializeObject<ModdedUser>(data);
             lock (moddedUserList)
             {
-                if (!moddedUserList.ContainsKey(mu.id)) moddedUserList.Add(mu.id, mu);
+                if (!moddedUserList.ContainsKey(mu.vrcid)) moddedUserList.Add(mu.vrcid, mu);
             }
         }
 

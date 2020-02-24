@@ -9,9 +9,9 @@ namespace VRCModNetwork.commands
     internal class ModListChangedCommand : Command
     {
 
-        public void Send(string instanceId)
+        public void Send(string modListJson)
         {
-            WriteLine(instanceId);
+            WriteLine(modListJson);
             Destroy();
         }
 
