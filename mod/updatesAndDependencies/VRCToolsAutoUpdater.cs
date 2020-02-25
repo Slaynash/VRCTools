@@ -77,11 +77,25 @@ namespace VRCTools
                 VRCUiPopupManagerUtils.ShowPopup("VRCTools Updater", "Saving VRCTools");
                 VRCModLogger.Log("[AvatarFavUpdater] Saving file");
                 File.WriteAllBytes(vrctoolsPath, vrctoolsDownload.bytes);
-                VRCUiPopupManagerUtils.ShowPopup("VRCTools Updater", "A VRCTools updated has been downloaded. Please restart your game for it to take effect", "OK", () => VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup());
+                updatePopupClose = false;
+                VRCUiPopupManagerUtils.ShowPopup("VRCTools Updater", "A VRCTools updated has been downloaded. Please restart your game for it to take effect", "OK", () =>
+                {
+                    VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
+                    updatePopupClose = true;
+                });
+                while (!updatePopupClose)
+                    yield return null;
             }
             else
             {
-                VRCUiPopupManagerUtils.ShowPopup("VRCTools Updater", "Failed to download the VRCTools update (E" + responseCode + "): " + vrctoolsDownload.text, "OK", () => VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup());
+                updatePopupClose = false;
+                VRCUiPopupManagerUtils.ShowPopup("VRCTools Updater", "Failed to download the VRCTools update (E" + responseCode + "): " + vrctoolsDownload.text, "OK", () =>
+                {
+                    VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
+                    updatePopupClose = true;
+                });
+                while (!updatePopupClose)
+                    yield return null;
             }
         }
     }
