@@ -95,6 +95,7 @@ namespace VRCTools
                 VRCModLogger.Log("[VRCTools] Unable to find login page");
 
             yield return VRCModLoaderUpdater.CheckVRCModLoaderHash();
+            yield return VRCToolsAutoUpdater.CheckAndUpdate();
 
             try
             {
@@ -137,10 +138,12 @@ namespace VRCTools
             VRCModNetworkStatus.Update();
             ModdedUsersManager.Update();
 
+            /*
             if(Input.GetKeyDown(KeyCode.F2))
             {
                 VRCModLogger.Log(SteamUtils.GetSteamTicket());
             }
+            */
         }
     }
 }

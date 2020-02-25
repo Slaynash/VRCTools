@@ -15,7 +15,7 @@ namespace VRCModNetwork.commands
             Destroy();
             if (!parts.Equals("OK"))
             {
-                string[] rpcparts = parts.Split(new char[] { ' ' }, 4);
+                string[] rpcparts = parts.Split(new char[] { ' ' }, 3);
                 VRCModNetworkManager.HandleRpc(rpcparts[0], rpcparts[1], rpcparts[2]);
                 WriteLine("OK");
             }

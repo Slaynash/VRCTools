@@ -48,7 +48,7 @@ namespace VRCTools
 
         internal static IEnumerator ShowVRCModLoaderUpdatePopup()
         {
-            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "A VRCModLoader update is available. You can install it using the installer (more info on the VRCTools website)", "OK", () =>
+            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "A VRCModLoader update is available. You can install it using the mod manager (see the #how-to discord channel for more infos)", "OK", () =>
             {
                 VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
                 updatePopupClose = true;

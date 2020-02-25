@@ -114,6 +114,7 @@
     <Compile Include="mod\ui\pages\ModConfigPage.cs" />
     <Compile Include="mod\serializables\ModdedUser.cs" />
     <Compile Include="mod\ModdedUsersManager.cs" />
+    <Compile Include="mod\updatesAndDependencies\VRCToolsAutoUpdater.cs" />
     <Compile Include="networkcommands\VRCLinkCommand.cs" />
     <Compile Include="networkcommands\AuthCommand.cs" />
     <Compile Include="networkcommands\InstanceChangedCommand.cs" />
