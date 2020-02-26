@@ -113,6 +113,12 @@ namespace VRCTools
                 VRCModLogger.Log("[VRCTools] Injecting VRCModNetwork login page");
                 VRCModNetworkLogin.InjectVRCModNetworkLoginPage();
             }
+
+            VRCModNetworkManager.ConnectAsync();
+
+            while (VRCModNetworkManager.State != VRCModNetworkManager.ConnectionState.CONNECTED && VRCModNetworkManager.State != VRCModNetworkManager.ConnectionState.DISCONNECTED)
+                yield return null;
+
             VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
 
             Initialised = true;
@@ -120,8 +126,6 @@ namespace VRCTools
 
             if (!usingVRCMenuUtils)
                 VRCFlowManagerUtils.EnableVRCFlowManager();
-
-            VRCModNetworkManager.ConnectAsync();
 
         }
 

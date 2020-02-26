@@ -15,8 +15,9 @@ namespace CCom
         {
             try
             {
-                if(Log) client.WriteLine(outId + " " + s);
-                else client.WriteLineNoLog(outId + " " + s);
+                //if(Log) client.WriteLine(outId + " " + s);
+                //else client.WriteLineNoLog(outId + " " + s);
+                client.WriteLine(outId + " " + s);
             }
             catch (Exception e)
             {
