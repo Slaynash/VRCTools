@@ -250,6 +250,7 @@ namespace VRCTools
                 harmonyInstance.Patch(typeof(APIUser).GetMethod("Login", (BindingFlags)(-1)), null, null, GetPatch("LoginPatch"));
                 harmonyInstance.Patch(typeof(APIUser).GetMethod("ThirdPartyLogin", (BindingFlags)(-1)), null, null, GetPatch("ThirdPartyLoginPatch"));
                 harmonyInstance.Patch(typeof(APIUser).GetMethod("FetchCurrentUser", (BindingFlags)(-1)), null, null, GetPatch("FetchCurrentUserPatch"));
+                harmonyInstance.Patch(typeof(APIUser).GetMethod("VerifyTwoFactorAuthCode", (BindingFlags)(-1)), null, null, GetPatch("VerifyTwoFactorAuthCodePatch"));
             }
             catch (Exception arg)
             {
@@ -321,6 +322,28 @@ namespace VRCTools
             return newInst.AsEnumerable();
         }
 
+        private static IEnumerable<CodeInstruction> VerifyTwoFactorAuthCodePatch(ILGenerator ilg, IEnumerable<CodeInstruction> instructions)
+        {
+            CodeInstruction[] newInst = new CodeInstruction[instructions.Count()];
+
+            int cnt = 0;
+
+            for (int i = 0; i < instructions.Count(); i++)
+            {
+                CodeInstruction instruction = instructions.ElementAt(i);
+                if (instruction.opcode == OpCodes.Call && (++cnt) == 6)
+                {
+                    newInst[i] = new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(VRCModNetworkLogin), "SendPostRequest2FAPatch"));
+                }
+                else
+                {
+                    newInst[i] = instruction;
+                }
+            }
+
+            return newInst.AsEnumerable();
+        }
+
         public static void SendGetRequestLoginPatch1(string target, ApiContainer responseContainer = null, Dictionary<string, object> requestParams = null, bool disableCache = false, float cacheLifetime = 3600f, API.CredentialsBundle credentials = null)
         {
             VRCModLogger.Log("SendGetRequestLoginPatch1 - ResponseContainer Type: " + responseContainer.GetType());
@@ -333,11 +356,16 @@ namespace VRCTools
             SendRequestLoginPatch(endpoint, method, responseContainer, requestParams, authenticationRequired, disableCache, cacheLifetime, retryCount, credentials);
         }
 
+        public static void SendPostRequest2FAPatch(string target, ApiContainer responseContainer = null, Dictionary<string, object> requestParams = null, API.CredentialsBundle credentials = null)
+        {
+            VRCModLogger.Log("SendPostRequest2FAPatch - ResponseContainer Type: " + responseContainer.GetType());
+            SendRequestLoginPatch(target, HTTPMethods.Post, responseContainer, requestParams, true, false, 3600f, 2, credentials);
+        }
+
 
         private static void SendRequestLoginPatch(string endpoint, HTTPMethods method, ApiContainer responseContainer = null, Dictionary<string, object> requestParams = null, bool authenticationRequired = true, bool disableCache = false, float cacheLifetime = 3600f, int retryCount = 2, API.CredentialsBundle credentials = null)
         {
-
-            ApiModelContainer<APIUser> responseContainerExt = new ApiModelContainer<APIUser>
+            ApiDictContainer responseContainerExt = new ApiDictContainer(new string[0])
             {
                 OnSuccess = (c) =>
                 {
@@ -347,32 +375,53 @@ namespace VRCTools
                     }
                     else
                     {
-                        vrcmnwLoginCallbackContainer = c;
-                        vrcmnwLoginCallback = responseContainer.OnSuccess;
+                        ApiModelContainer<APIUser> apiModelContainer = new ApiModelContainer<APIUser>();
+                        apiModelContainer.setFromContainer(c);
+                        if (apiModelContainer.ValidModelData())
+                        {
+                            vrcmnwLoginCallbackContainer = apiModelContainer;
+                            vrcmnwLoginCallback = responseContainer.OnSuccess;
 
-                        try
-                        {
-                            FieldInfo popupCompleteCallbackField = typeof(VRCUiPopup).GetFields(BindingFlags.NonPublic | BindingFlags.Instance).Where(f => f.FieldType == typeof(Action)).First();
-                            popupCompleteCallback = popupCompleteCallbackField.GetValue(VRCUiManagerUtils.GetVRCUiManager().currentPopup) as Action;
-                            VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
-                            APIUser currentUser = vrcmnwLoginCallbackContainer.Model as APIUser;
-                            if (SecurePlayerPrefs.HasKey("vrcmnw_un_" + currentUser.id) && SecurePlayerPrefs.HasKey("vrcmnw_pw_" + currentUser.id))
+                            try
                             {
-                                string username = SecurePlayerPrefs.GetString("vrcmnw_un_" + currentUser.id, "vl9u1grTnvXA");
-                                string password = SecurePlayerPrefs.GetString("vrcmnw_pw_" + currentUser.id, "vl9u1grTnvXA");
-                                TryLoginToVRCModNetwork(username, password, (error) => ShowVRCMNWLoginMenu(true));
+                                FieldInfo popupCompleteCallbackField = typeof(VRCUiPopup).GetFields(BindingFlags.NonPublic | BindingFlags.Instance).Where(f => f.FieldType == typeof(Action)).First();
+                                popupCompleteCallback = popupCompleteCallbackField.GetValue(VRCUiManagerUtils.GetVRCUiManager().currentPopup) as Action;
+                                VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
+                                APIUser currentUser = apiModelContainer.Model as APIUser;
+                                try
+                                {
+                                    if (SecurePlayerPrefs.HasKey("vrcmnw_un_" + currentUser.id) && SecurePlayerPrefs.HasKey("vrcmnw_pw_" + currentUser.id))
+                                    {
+                                        string username = SecurePlayerPrefs.GetString("vrcmnw_un_" + currentUser.id, "vl9u1grTnvXA");
+                                        string password = SecurePlayerPrefs.GetString("vrcmnw_pw_" + currentUser.id, "vl9u1grTnvXA");
+                                        TryLoginToVRCModNetwork(username, password, (error) => ShowVRCMNWLoginMenu(true));
+                                    }
+                                    else
+                                        ShowVRCMNWLoginMenu(true);
+                                }
+                                catch(Exception e)
+                                {
+                                    VRCModLogger.LogError("SendGetRequestLoginPatch - Unable to log in: " + e);
+                                    responseContainer.OnSuccess(c);
+                                }
                             }
-                            else
-                                ShowVRCMNWLoginMenu(true);
+                            catch (Exception e)
+                            {
+                                VRCModLogger.LogError("SendGetRequestLoginPatch - Unable to show popup: " + e);
+                                responseContainer.OnSuccess(c);
+                            }
                         }
-                        catch (Exception e)
+                        else
                         {
-                            VRCModLogger.LogError("SendGetRequestLoginPatch - Unable to show popup: " + e);
                             responseContainer.OnSuccess(c);
                         }
                     }
                 },
-                OnError = responseContainer.OnError
+                OnError = (c) =>
+                {
+                    VRCModLogger.Log("API RETURNED ERROR: " + c);
+                    responseContainer.OnError(c);
+                }
             };
 
             API.SendRequest(endpoint, method, responseContainerExt, requestParams, authenticationRequired, disableCache, cacheLifetime, retryCount, credentials);
