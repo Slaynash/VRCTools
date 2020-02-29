@@ -2,6 +2,7 @@
 using CCom;
 using Steamworks;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -101,7 +102,7 @@ namespace VRCModNetwork
                     client = new Client(SERVER_ADDRESS, SERVER_PORT, VRCMODNW_VERSION);
                     if (instance == null) instance = new VRCModNetworkManager();
                     client.SetConnectionListener(instance);
-                    client.autoReconnect = true;
+                    //client.autoReconnect = true;
                     VRCModLogger.Log("[VRCModNetworkManager] Client autoReconnect set to true");
                     if (modsCheckerThread == null)
                     {
@@ -116,6 +117,36 @@ namespace VRCModNetwork
                 State = ConnectionState.CONNECTING;
                 client.StartConnection();
             }
+        }
+
+        internal static IEnumerator ConnectInit()
+        {
+            bool retry = true;
+            do
+            {
+                VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Connecting to VRCModNetwork...");
+
+                ConnectAsync();
+
+                while (VRCModNetworkManager.State != VRCModNetworkManager.ConnectionState.CONNECTED && VRCModNetworkManager.State != VRCModNetworkManager.ConnectionState.DISCONNECTED)
+                    yield return null;
+
+                VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
+
+                if (VRCModNetworkManager.State == ConnectionState.DISCONNECTED)
+                {
+                    client.autoReconnect = false; // avoid doing 2 reconnections at the same time
+                    bool waitforpopup = true;
+                    VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Connection to the VRCModNetwork failed", "Retry", () => waitforpopup = false, "Ignore", () => retry = waitforpopup = false);
+                    while (waitforpopup)
+                        yield return null;
+                }
+                else
+                    retry = false;
+            }
+            while (retry);
+
+            client.autoReconnect = true;
         }
 
         /// <summary>
@@ -246,7 +277,7 @@ namespace VRCModNetwork
 
                     if (!uuid.Equals(userUuid))
                     {
-                        VRCModLogger.Log("[VRCModNetwork] new UUID: " + uuid);
+                        VRCModLogger.Log("[VRCModNetwork] new UUID: " + (uuid ?? "{null string object}" ) + ". Old uuid: " + (userUuid ?? "{null string object}"));
 
                         userUuid = uuid; // use it as a lock to avoid spamming
                         if (uuid.Equals(""))
@@ -323,7 +354,7 @@ namespace VRCModNetwork
 
         internal static void Auth(string username, string password, string uuid, Action onSuccess, Action<string> onError)
         {
-            userUuid = uuid;
+            //userUuid = uuid;
             if (RoomManagerBase.currentRoom != null && RoomManagerBase.currentRoom.id != null && RoomManagerBase.currentRoom.currentInstanceIdWithTags != null)
                 userInstanceId = RoomManagerBase.currentRoom.id + ":" + RoomManagerBase.currentRoom.currentInstanceIdWithTags;
             modlist = ModDesc.GetAllMods();
@@ -337,6 +368,7 @@ namespace VRCModNetwork
             //VRCUiPopupManagerUtils.ShowPopup("Login Failed", "Unable to link account: Not Supported", "Close", () => VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup());
             //Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials))
             VRCLinkCommand command = CommandManager.CreateInstance("VRCLINK", client, false) as VRCLinkCommand;
+            VRCModLogger.Log("[VRCModNetworkManager] LinkVRCAccount called. Token provider is " + ApiCredentials.GetAuthTokenProvider() + ".");
             if (ApiCredentials.GetAuthTokenProvider() == "steam")
             {
                 VRCModLogger.Log("[VRCModNetwork] Logging in using Steam token");
@@ -350,23 +382,33 @@ namespace VRCModNetwork
                     VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Unable to link account using Steam: " + e, "Close", () => VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup());
                 });
             }
-            else if (!string.IsNullOrEmpty(credentials))
+            else if (ApiCredentials.GetAuthTokenProvider() == "vrchat")
             {
-                VRCModLogger.Log("[VRCModNetwork] Logging in using VRChat credentials");
-                command.LinkCrendentials(APIUser.CurrentUser.id, Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials)), () =>
+                if (!string.IsNullOrEmpty(credentials))
                 {
-                    VRCAuthStatus = 1;
-                    VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
-                }, (e) =>
+                    VRCModLogger.Log("[VRCModNetwork] Logging in using VRChat credentials");
+                    command.LinkCrendentials(APIUser.CurrentUser.id, Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials)), () =>
+                    {
+                        VRCAuthStatus = 1;
+                        VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
+                    }, (e) =>
+                    {
+                        VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Unable to link account using VRChat crendentials: " + e, "Close", () => VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup());
+                    });
+                    credentials = "";
+                }
+                else
                 {
-                    VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Unable to link account using VRChat crendentials: " + e, "Close", () => VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup());
-                });
-                credentials = "";
+                    VRCModLogger.LogError("[VRCModNetwork] Unable to auth: Required auth datas are missing");
+                    VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Unable to link account using VRChat crendentials: Required auth datas are missing. Please log out and log back in.", "Close", () => VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup());
+                    State = ConnectionState.NEED_REAUTH;
+                    return;
+                }
             }
             else
             {
-                VRCModLogger.LogError("[VRCModNetwork] Unable to auth: Required auth datas are missing");
-                VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Unable to link account using VRChat crendentials: Required auth datas are missing. Please log out and log back in", "Close", () => VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup());
+                VRCModLogger.LogError("[VRCModNetwork] Unable to auth: Unsupported VRChat token provider (" + ApiCredentials.GetAuthTokenProvider() + ")");
+                VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Unable to link account: Unsupported VRChat token provider. Please report this error to Slaynash#2879 on discord.", "Close", () => VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup());
                 State = ConnectionState.NEED_REAUTH;
                 return;
             }
@@ -374,6 +416,7 @@ namespace VRCModNetwork
 
         internal static void SetCredentials(string credentials_)
         {
+            VRCModLogger.Log("[VRCModNetworkManager] SetCredentials called with a length of " + credentials_.Length + ".");
             credentials = credentials_;
         }
 

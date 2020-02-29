@@ -19,9 +19,6 @@ namespace VRCTools
 {
     internal class VRCModNetworkLogin
     {
-
-        private static bool vrcmnwDoLogin = true;
-        internal static bool VrcmnwDoLogin { get => vrcmnwDoLogin; private set => vrcmnwDoLogin = value; }
         private static bool vrcmnwConnected = false;
         internal static bool VrcmnwConnected { get => vrcmnwConnected; private set => vrcmnwConnected = value; }
         private static ApiContainer vrcmnwLoginCallbackContainer = null;
@@ -59,7 +56,6 @@ namespace VRCTools
                     buttonBack.onClick = new ButtonClickedEvent();
                     buttonBack.onClick.AddListener(() =>
                     {
-                        vrcmnwDoLogin = false;
                         if (vrcmnwLoginCallback != null && vrcmnwLoginCallbackContainer != null)
                             try
                             {
@@ -222,18 +218,17 @@ namespace VRCTools
             else
             {
                 VRCModLogger.LogError("[VRCTools] Unable to find UserInterface/MenuContent/Screens/Authentication/LoginUserPass");
-                vrcmnwDoLogin = false;
             }
         }
 
         private static void TryLoginToVRCModNetwork(string username, string password, Action<string> onError)
         {
             APIUser user = vrcmnwLoginCallbackContainer.Model as APIUser;
-            VRCModLogger.Log("Invoking auth (uuid: " + (user.id ?? "null") + ")");
+            VRCModLogger.Log("Invoking auth (uuid: " + (VRCModNetworkManager.userUuid ?? "{null}") + ", vrcmnwuuid: " + VRCModNetworkManager.userUuid + ")");
 
             VRCUiPopupManagerUtils.ShowPopup("Login", "Logging in to VRCModNework");
             
-            VRCModNetworkManager.Auth(username, password, user.id, () =>
+            VRCModNetworkManager.Auth(username, password, string.IsNullOrEmpty(VRCModNetworkManager.userUuid) ? user.id : VRCModNetworkManager.userUuid, () => // might be bugged
             {
                 SecurePlayerPrefs.SetString("vrcmnw_un_" + user.id, username, "vl9u1grTnvXA");
                 SecurePlayerPrefs.SetString("vrcmnw_pw_" + user.id, password, "vl9u1grTnvXA");
@@ -365,11 +360,11 @@ namespace VRCTools
 
         private static void SendRequestLoginPatch(string endpoint, HTTPMethods method, ApiContainer responseContainer = null, Dictionary<string, object> requestParams = null, bool authenticationRequired = true, bool disableCache = false, float cacheLifetime = 3600f, int retryCount = 2, API.CredentialsBundle credentials = null)
         {
-            ApiDictContainer responseContainerExt = new ApiDictContainer(new string[0])
+            ApiDictContainer responseContainerExt = new ApiDictContainer()
             {
                 OnSuccess = (c) =>
                 {
-                    if (!vrcmnwDoLogin || APIUser.IsLoggedIn)
+                    if (VRCModNetworkManager.State == VRCModNetworkManager.ConnectionState.DISCONNECTED || APIUser.IsLoggedIn)
                     {
                         responseContainer.OnSuccess(c);
                     }
@@ -429,35 +424,6 @@ namespace VRCTools
 
         #endregion
 
-
-
-        internal static void TryConnectToVRCModNetwork()
-        {
-            ModManager.StartCoroutine(TryConnectToVRCModNetworkCoroutine());
-        }
-
-        private static IEnumerator TryConnectToVRCModNetworkCoroutine()
-        {
-            yield return null;
-            yield return null;
-            yield return null;
-            yield return null;
-
-            VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Connecting to the VRCModNetwork...");
-            /*
-            VRCModNetworkManager.ConnectAsync(() =>
-            {
-                vrcmnwConnected = true;
-            }, error =>
-            {
-                VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Unable to connect to the VRCModNetwork", "Retry", TryConnectToVRCModNetwork, "Ignore", () =>
-                {
-                    vrcmnwDoLogin = false;
-                });
-            });
-            */
-            throw new InvalidOperationException("This function shouldn't be ran");
-        }
 
         private static void ShowVRCMNWLoginMenu(bool pause)
         {

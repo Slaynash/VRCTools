@@ -12,13 +12,13 @@ using UnityEngine.SceneManagement;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.10.0", "Slaynash")]
+    [VRCModInfo("VRCTools", "0.10.1", "Slaynash")]
     public class VRCTools : VRCMod
     {
         private bool usingVRCMenuUtils = false;
         private bool initializing = false;
 
-        public static bool Initialised { get; private set; }
+        public static bool Initialized { get; private set; }
 
 
         private void OnApplicationStart() {
@@ -54,7 +54,7 @@ namespace VRCTools
 
         private void OnLevelWasLoaded(int level)
         {
-            if (!usingVRCMenuUtils && level == (Application.platform == RuntimePlatform.WindowsPlayer ? 0 : 2) && !Initialised && !initializing)
+            if (!usingVRCMenuUtils && level == (Application.platform == RuntimePlatform.WindowsPlayer ? 0 : 2) && !Initialized && !initializing)
             {
                 VRCFlowManagerUtils.DisableVRCFlowManager();
                 ModManager.StartCoroutine(VRCToolsSetup());
@@ -69,10 +69,25 @@ namespace VRCTools
             VRCModLogger.Log("[VRCTools] Root gameobjects:");
             foreach(GameObject g in SceneManager.GetActiveScene().GetRootGameObjects())
                 VRCModLogger.Log(" - " + g);
-            VRCModLogger.Log("[VRCTools] Call trace: " + new System.Diagnostics.StackTrace());
+            VRCModLogger.Log("[VRCTools] Call trace - THIS IS NOT AN ERROR:");
+            VRCModLogger.Log(new System.Diagnostics.StackTrace().ToString());
             initializing = true;
 
             yield return VRCUiManagerUtils.WaitForUiManagerInit();
+
+            if(!HarmonyLoaded())
+            {
+                bool waitforpopup = true;
+                VRCUiPopupManagerUtils.ShowPopup("VRCTools", "Missing library: Harmony. Please install it using the VRChat Mod Manager (see #how-to on discord.gg/rCqKSvR)", "Close game", () => Application.Quit(), "Ignore", () => waitforpopup = false);
+                while (waitforpopup)
+                    yield return null;
+
+                Initialized = true;
+                if (!usingVRCMenuUtils)
+                    VRCFlowManagerUtils.EnableVRCFlowManager();
+
+                yield break;
+            }
             
             VRCModLogger.Log("[VRCTools] Overwriting login button event");
             VRCUiPageAuthentication loginPage = Resources.FindObjectsOfTypeAll<VRCUiPageAuthentication>().FirstOrDefault((page) => page.gameObject.name == "LoginUserPass");
@@ -107,26 +122,25 @@ namespace VRCTools
             {
                 VRCModLogger.Log("[VRCTools]" + ex.ToString());
             }
-            VRCModLogger.Log("[VRCTools] Init done !");
-            if (VRCModNetworkLogin.VrcmnwDoLogin)
-            {
-                VRCModLogger.Log("[VRCTools] Injecting VRCModNetwork login page");
-                VRCModNetworkLogin.InjectVRCModNetworkLoginPage();
-            }
 
-            VRCModNetworkManager.ConnectAsync();
+            VRCModLogger.Log("[VRCTools] Injecting VRCModNetwork login page");
+            VRCModNetworkLogin.InjectVRCModNetworkLoginPage();
 
-            while (VRCModNetworkManager.State != VRCModNetworkManager.ConnectionState.CONNECTED && VRCModNetworkManager.State != VRCModNetworkManager.ConnectionState.DISCONNECTED)
-                yield return null;
+            yield return VRCModNetworkManager.ConnectInit();
 
             VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
 
-            Initialised = true;
+            Initialized = true;
             initializing = false;
 
             if (!usingVRCMenuUtils)
                 VRCFlowManagerUtils.EnableVRCFlowManager();
 
+        }
+
+        private bool HarmonyLoaded()
+        {
+            return AppDomain.CurrentDomain.GetAssemblies().ToList().Any(a => a.GetName().ToString().StartsWith("0Harmony"));
         }
 
         private string GetTextFromUiInputField(UiInputField field)
@@ -137,7 +151,7 @@ namespace VRCTools
 
         private void OnUpdate()
         {
-            if (!Initialised) return;
+            if (!Initialized) return;
             VRCModNetworkManager.Update();
             VRCModNetworkStatus.Update();
             ModdedUsersManager.Update();
