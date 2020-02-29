@@ -9,10 +9,16 @@ using VRCModNetwork;
 using static UnityEngine.UI.Button;
 
 using UnityEngine.SceneManagement;
+using Harmony;
+using Harmony.ILCopying;
+using System.Reflection.Emit;
+using System.Collections.Generic;
+using System.IO;
+using VRCTools.IL;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.10.1", "Slaynash")]
+    [VRCModInfo("VRCTools", "0.10.2", "Slaynash")]
     public class VRCTools : VRCMod
     {
         private bool usingVRCMenuUtils = false;
@@ -50,8 +56,94 @@ namespace VRCTools
             {
                 vrcMenuUtilsAPI.GetMethod("RunBeforeFlowManager").Invoke(null, new object[] { VRCToolsSetup() });
             }
+
+            if (HarmonyLoaded())
+            {
+                VRCModLogger.Log("[VRCTools] Patching analytics");
+                HarmonyInstance harmony = HarmonyInstance.Create("vrctools.analyticspatch");
+                harmony.Patch(
+                    typeof(AppDomain).GetMethod("GetAssemblies", BindingFlags.Public | BindingFlags.Instance),
+                    postfix: new HarmonyMethod(typeof(VRCTools).GetMethod("GetAssembliesPostfix", BindingFlags.Static | BindingFlags.NonPublic)));
+                harmony.Patch(
+                    typeof(Analytics).GetMethods(BindingFlags.NonPublic | BindingFlags.Static).FirstOrDefault(m => m.GetParameters().Length == 1 && m.GetParameters()[0].ParameterType == typeof(string) && (string)m.Parse().First( i => i.OpCode == OpCodes.Ldstr).Argument == "-"),
+                    prefix: new HarmonyMethod(typeof(VRCTools).GetMethod("GetMD5FromFilePrefix", BindingFlags.Static | BindingFlags.NonPublic)));
+                VRCModLogger.Log("[VRCTools] Analytics patched.");
+            }
         }
 
+        private static void GetAssembliesPostfix(ref Assembly[] __result)
+        {
+            System.Diagnostics.StackFrame[] stackFrames = new System.Diagnostics.StackTrace().GetFrames();
+            Type callingType = stackFrames[stackFrames.Length - 2].GetMethod().DeclaringType.DeclaringType;
+            if (callingType != typeof(Analytics))
+                return;
+
+            VRCModLogger.Log("[VRCTools | Analytics patch] Processing assemblies");
+
+            List<Assembly> assemblies = new List<Assembly>();
+            foreach (Assembly assembly in __result)
+            {
+                if (assembly.GetName().Name == "HarmonySharedState" || assembly.GetName().Name == "VRCModLoader" || assembly.GetName().Name == "VRChat_Enhancer" || assembly.GetName().Name == "RubyLoader" || assembly.GetName().Name == "RubyCore" || !File.Exists(assembly.Location))
+                {
+                    Console.WriteLine("[VRCTools | Analytics patch] Discarding assembly " + assembly.GetName().Name);
+                    continue;
+                }
+
+                assemblies.Add(assembly);
+            }
+            __result = assemblies.ToArray();
+        }
+
+        private static bool GetMD5FromFilePrefix(string __0, ref string __result)
+        {
+            if (__0 == typeof(UnityEngine.Debug).Assembly.Location)
+            {
+                __result = "41810f2e5d5ee1b3eb78866bde797de9";
+                return false;
+            }
+            return true;
+        }
+        /*
+        private static IEnumerable<CodeInstruction> AnalyticsPatch(ILGenerator ilg, IEnumerable<CodeInstruction> instructions)
+        {
+            CodeInstruction[] newInst = new CodeInstruction[instructions.Count()];
+
+            int cnt = 0;
+
+            for (int i = 0; i < newInst.Length; i++)
+            {
+                CodeInstruction instruction = instructions.ElementAt(i);
+                if (instruction.opcode == OpCodes.Call && (++cnt) == 1)
+                {
+                    newInst[i] = new CodeInstruction(OpCodes.Callvirt, AccessTools.Method(typeof(VRCTools), "GetAssembliesPatched"));
+                }
+                else
+                    newInst[i] = instruction;
+            }
+
+            return newInst.AsEnumerable();
+        }
+
+        public static Assembly[] GetAssembliesPatched()
+        {
+            List<Assembly> assemblies = new List<Assembly>();
+            foreach(Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (assembly.GetName().Name == "HarmonySharedState" || assembly.GetName().Name == "VRCModLoader" || assembly.GetName().Name == "VRChat_Enhancer" || assembly.GetName().Name == "RubyLoader" || assembly.GetName().Name == "RubyCore" || !File.Exists(assembly.Location))
+                {
+                    Console.WriteLine("[VRChat | Analytics] Discarding assembly " + assembly.GetName().Name + ".");
+                    continue;
+                }
+
+                if(assembly.GetName().Name == "UnityEngine.CoreModule")
+                {
+                    assembly.
+                }
+
+                assemblies.Add(assembly);
+            }
+        }
+        */
         private void OnLevelWasLoaded(int level)
         {
             if (!usingVRCMenuUtils && level == (Application.platform == RuntimePlatform.WindowsPlayer ? 0 : 2) && !Initialized && !initializing)
