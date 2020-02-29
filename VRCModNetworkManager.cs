@@ -289,34 +289,32 @@ namespace VRCModNetwork
                             logoutCommand.LogOut();
                             VRCModLogger.Log("[VRCModNetwork] Done");
                         }
-                        /* OUTDATED. Now using VRCTools Accounts
                         else
                         {
-                            if (SecurePlayerPrefs.HasKey("vrcmnw_token_" + uuid))
+                            if(SecurePlayerPrefs.HasKey("vrcmnw_un_" + uuid) && SecurePlayerPrefs.HasKey("vrcmnw_pw_" + uuid))
                             {
-                                VRCModLogger.Log("[VRCModNetwork] Logging in using VRCModNetwork token");
-                                TryAuthenticate("vrcmnw " + uuid + " " + SecurePlayerPrefs.GetString("vrcmnw_token_" + uuid, "vl9u1grTnvXA"));
-                            }
-                            else if (ApiCredentials.GetAuthTokenProvider() == "steam")
-                            {
-                                VRCModLogger.Log("[VRCModNetwork] Logging in using Steam token");
-                                TryAuthenticate("st_" + SteamUtils.GetSteamTicket());
-                            }
-                            else if (!string.IsNullOrEmpty(credentials))
-                            {
-                                VRCModLogger.Log("[VRCModNetwork] Logging in using VRChat credentials");
-                                TryAuthenticate("login " + Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials)));
-                                credentials = "";
-                                VRCTools.ModPrefs.SetBool("vrctools", "hasvrcmnwtoken", true);
+                                string username = SecurePlayerPrefs.GetString("vrcmnw_un_" + uuid, "vl9u1grTnvXA");
+                                string password = SecurePlayerPrefs.GetString("vrcmnw_pw_" + uuid, "vl9u1grTnvXA");
+
+                                Auth(username, password, uuid, () =>
+                                {
+                                    SecurePlayerPrefs.SetString("vrcmnw_un_" + uuid, username, "vl9u1grTnvXA");
+                                    SecurePlayerPrefs.SetString("vrcmnw_pw_" + uuid, password, "vl9u1grTnvXA");
+                                }, (error) =>
+                                {
+                                    if (error.StartsWith("BANNED_ACCOUNT"))
+                                        authError = "Banned: " + error.Substring("BANNED_ACCOUNT ".Length);
+                                    else if (error == "INVALID_VRCID")
+                                        authError = "VRChat account not owned";
+
+                                    State = ConnectionState.NEED_REAUTH;
+                                });
                             }
                             else
                             {
-                                VRCModLogger.LogError("[VRCModNetwork] Unable to auth: Required auth datas are missing");
                                 State = ConnectionState.NEED_REAUTH;
-                                return;
                             }
                         }
-                        */
                     }
 
                     if (IsAuthenticated)

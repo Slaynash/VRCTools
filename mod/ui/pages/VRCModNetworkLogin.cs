@@ -221,7 +221,7 @@ namespace VRCTools
             }
         }
 
-        private static void TryLoginToVRCModNetwork(string username, string password, Action<string> onError)
+        internal static void TryLoginToVRCModNetwork(string username, string password, Action<string> onError)
         {
             APIUser user = vrcmnwLoginCallbackContainer.Model as APIUser;
             VRCModLogger.Log("Invoking auth (uuid: " + (VRCModNetworkManager.userUuid ?? "{null}") + ", vrcmnwuuid: " + VRCModNetworkManager.userUuid + ")");
