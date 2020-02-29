@@ -392,7 +392,9 @@ namespace VRCTools
                                         TryLoginToVRCModNetwork(username, password, (error) => ShowVRCMNWLoginMenu(true));
                                     }
                                     else
+                                    {
                                         ShowVRCMNWLoginMenu(true);
+                                    }
                                 }
                                 catch(Exception e)
                                 {
@@ -427,6 +429,7 @@ namespace VRCTools
 
         private static void ShowVRCMNWLoginMenu(bool pause)
         {
+            VRCUiPopupManagerUtils.GetVRCUiPopupManager().HideCurrentPopup();
             if (pause)
             {
                 VRCUiManagerUtils.GetVRCUiManager().ShowUi(false, true);

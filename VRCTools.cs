@@ -18,7 +18,7 @@ using VRCTools.IL;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.10.2", "Slaynash")]
+    [VRCModInfo("VRCTools", "0.10.3", "Slaynash")]
     public class VRCTools : VRCMod
     {
         private bool usingVRCMenuUtils = false;
@@ -98,6 +98,7 @@ namespace VRCTools
         {
             if (__0 == typeof(UnityEngine.Debug).Assembly.Location)
             {
+                VRCModLogger.Log("[VRCTools | Analytics patch] Faked UnityEngine.CoreModule hash");
                 __result = "41810f2e5d5ee1b3eb78866bde797de9";
                 return false;
             }
