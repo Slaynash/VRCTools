@@ -18,7 +18,7 @@ namespace VRCModNetwork.commands
         {
             this.onSuccess = onSuccess;
             this.onError = onError;
-            WriteLine(CreateLoginJson(username, password, uuid, instanceId, roomSecret, modlist));
+            WriteLineSecure(CreateLoginJson(username, password, uuid, instanceId, roomSecret, modlist));
         }
 
         public override void Handle(string parts)

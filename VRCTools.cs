@@ -18,7 +18,7 @@ using VRCTools.IL;
 
 namespace VRCTools
 {
-    [VRCModInfo("VRCTools", "0.10.3", "Slaynash")]
+    [VRCModInfo("VRCTools", "0.10.4", "Slaynash")]
     public class VRCTools : VRCMod
     {
         private bool usingVRCMenuUtils = false;
